@@ -1,6 +1,7 @@
 package ref
 
 import (
+	"fmt"
 	"math/rand"
 )
 
@@ -33,6 +34,78 @@ func RandomPassageFromExtract(b *BookExtract) []VerseRef {
 	}
 
 	return b.Verses()[x:y]
+}
+
+type randomOpts struct {
+	category string
+	book     string
+}
+
+type RandomReferenceOption func(*randomOpts)
+
+func FromBook(name string) RandomReferenceOption {
+	return func(o *randomOpts) {
+		o.book = name
+	}
+}
+
+func FromCategory(name string) RandomReferenceOption {
+	return func(o *randomOpts) {
+		o.category = name
+	}
+}
+
+// Random pulls a random reference from the Bible and returns it. You can use the
+// options to help narrow down where the passages are selected from.
+func Random(opt ...RandomReferenceOption) (string, error) {
+	o := &randomOpts{}
+	for _, f := range opt {
+		f(o)
+	}
+
+	var (
+		b  *Book
+		vs []VerseRef
+	)
+	if o.category != "" {
+		exs, err := LookupCategory(o.category)
+		if err != nil {
+			return "", err
+		}
+
+		// lazy way to weight the books by the number of verses they have
+		bag := make([]*BookExtract, 0, len(exs))
+		for i := range exs {
+			for range exs[i].Verses() {
+				bag = append(bag, &exs[i])
+			}
+		}
+
+		be := bag[rand.Int()%len(bag)] //nolint:gosec // weak random is fine here
+		b = be.Book
+		vs = RandomPassageFromExtract(be)
+	} else {
+		if o.book != "" {
+			ex, err := LookupBook(o.book)
+			if err != nil {
+				return "", err
+			}
+
+			b = ex.Book
+		} else {
+			b = RandomCanonical()
+		}
+
+		vs = RandomPassage(b)
+	}
+
+	v1, v2 := vs[0], vs[len(vs)-1]
+
+	if len(vs) > 1 {
+		return fmt.Sprintf("%s %s-%s", b.Name, v1.Ref(), v2.Ref()), nil
+	}
+
+	return fmt.Sprintf("%s %s", b.Name, v1.Ref()), nil
 }
 
 //// RandomReference returns a random reference to a passage in the Bible in a
