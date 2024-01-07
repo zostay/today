@@ -13,7 +13,7 @@ import (
 const (
 	DatabaseFile = "esv.json"
 	TemplateFile = "verses.go.tmpl"
-	OutputFile   = "../../../internal/esv/verses.go"
+	OutputFile   = "../../../pkg/ref/canonical.go"
 )
 
 type BooksConfig struct {

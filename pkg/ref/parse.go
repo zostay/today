@@ -39,7 +39,7 @@ func ExpectChapterAndVerse(opts *parseVerseOpts) {
 
 // AllowWildcard changes ParseVerseRef so that it allows a wildcard character
 // in the verse reference. The wildcard character is "*". If the wildcard
-// character is used, the returned VerseRef will have a Wildcard() value of
+// character is used, the returned Verse will have a Wildcard() value of
 // WildcardChapter if the chapter is a wildcard, WildcardVerse if the verse is
 // a wildcard, or WildcardNone if neither is a wildcard. If the wildcard
 // character is used in a chapter reference, the verse must also be wildcarded.
@@ -47,7 +47,7 @@ func AllowWildcard(opts *parseVerseOpts) {
 	opts.allowWildcard = true
 }
 
-// ParseVerseRef parses a verse reference into a VerseRef. The verse reference
+// ParseVerseRef parses a verse reference into a Verse. The verse reference
 // can be a verse number only (e.g. 16), or a chapter and verse number (e.g.
 // 3:16). If the verse reference is a chapter and verse number, it must be
 // separated by a colon. If the verse reference is a verse number only, it must
@@ -56,7 +56,7 @@ func AllowWildcard(opts *parseVerseOpts) {
 // must be valid integers. If the verse reference is a verse number only, the
 // verse must be a valid integer. If the verse reference is a wildcard, the
 // chapter and verse must be "*".
-func ParseVerseRef(ref string, opt ...ParseVerseOption) (VerseRef, error) {
+func ParseVerseRef(ref string, opt ...ParseVerseOption) (Verse, error) {
 	opts := &parseVerseOpts{
 		expectedRefType: expectEither,
 		allowWildcard:   false,
@@ -68,7 +68,7 @@ func ParseVerseRef(ref string, opt ...ParseVerseOption) (VerseRef, error) {
 	return parseVerseRef(ref, opts)
 }
 
-func parseVerseRef(ref string, opt *parseVerseOpts) (VerseRef, error) {
+func parseVerseRef(ref string, opt *parseVerseOpts) (Verse, error) {
 	parts := strings.Split(ref, ":")
 	if len(parts) == 1 {
 		if opt.expectedRefType == expectChapterAndVerse {

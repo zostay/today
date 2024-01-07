@@ -11,10 +11,10 @@ func RandomCanonical() *Book {
 }
 
 // RandomPassage returns a random passage from the given book of the Bible. It
-// returns a two element slice of VerseRef, the first being the start of the
+// returns a two element slice of Verse, the first being the start of the
 // passage and the second being the end of the passage. As of this writing, the
 // verse references may be up to 30 Verses apart.
-func RandomPassage(b *Book) []VerseRef {
+func RandomPassage(b *Book) []Verse {
 	x := rand.Int() % len(b.Verses) //nolint:gosec // weak random is fine here
 	o := rand.Int() % 30            //nolint:gosec // weak random is fine here
 	y := x + o
@@ -25,7 +25,7 @@ func RandomPassage(b *Book) []VerseRef {
 	return b.Verses[x:y]
 }
 
-func RandomPassageFromExtract(b *BookExtract) []VerseRef {
+func RandomPassageFromExtract(b *BookExtract) []Verse {
 	x := rand.Int() % len(b.Verses()) //nolint:gosec // weak random is fine here
 	o := rand.Int() % 30              //nolint:gosec // weak random is fine here
 	y := x + o
@@ -65,7 +65,7 @@ func Random(opt ...RandomReferenceOption) (string, error) {
 
 	var (
 		b  *Book
-		vs []VerseRef
+		vs []Verse
 	)
 	if o.category != "" {
 		exs, err := LookupCategory(o.category)

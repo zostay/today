@@ -7,23 +7,11 @@ import (
 	"github.com/zostay/go-std/slices"
 )
 
-type RangeRef struct {
-	First VerseRef
-	Last  VerseRef
-}
-
-func (r RangeRef) String() string {
-	if r.First == r.Last {
-		return r.First.Ref()
-	}
-	return fmt.Sprintf("%s-%s", r.First.Ref(), r.Last.Ref())
-}
-
-type FullRef []RangeRef
+type FullRef []Range
 
 func (f FullRef) String() string {
 	return strings.Join(
-		slices.Map(f, func(r RangeRef) string {
+		slices.Map(f, func(r Range) string {
 			return r.String()
 		}),
 		"; ")
@@ -57,6 +45,6 @@ func NewMasterRef() *MasterRef {
 	return m
 }
 
-func (m *MasterRef) Add(book string, rref RangeRef) {
+func (m *MasterRef) Add(book string, rref Range) {
 	m.refs[book].FullRef = append(m.refs[book].FullRef, rref)
 }

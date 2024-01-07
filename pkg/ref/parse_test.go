@@ -4,13 +4,15 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/zostay/today/pkg/ref"
 )
 
 var parseVerseRefInputs = []struct {
 	input        string
 	justVerse    bool
 	usesWildcard bool
-	expect       ref.VerseRef
+	expect       ref.Verse
 }{
 	{"", false, false, nil},
 	{"", true, false, nil},

@@ -4,7 +4,7 @@ var Canonical = []Book{
 	{
 		Name:      "Genesis",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -393,7 +393,7 @@ var Canonical = []Book{
 	{
 		Name:      "Exodus",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -702,7 +702,7 @@ var Canonical = []Book{
 	{
 		Name:      "Leviticus",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -923,7 +923,7 @@ var Canonical = []Book{
 	{
 		Name:      "Numbers",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -1251,7 +1251,7 @@ var Canonical = []Book{
 	{
 		Name:      "Deuteronomy",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -1497,7 +1497,7 @@ var Canonical = []Book{
 	{
 		Name:      "Joshua",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -1668,7 +1668,7 @@ var Canonical = []Book{
 	{
 		Name:      "Judges",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -1829,7 +1829,7 @@ var Canonical = []Book{
 	{
 		Name:      "Ruth",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -1856,7 +1856,7 @@ var Canonical = []Book{
 	{
 		Name:      "1 Samuel",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -2065,7 +2065,7 @@ var Canonical = []Book{
 	{
 		Name:      "2 Samuel",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -2245,7 +2245,7 @@ var Canonical = []Book{
 	{
 		Name:      "1 Kings",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -2455,7 +2455,7 @@ var Canonical = []Book{
 	{
 		Name:      "2 Kings",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -2641,7 +2641,7 @@ var Canonical = []Book{
 	{
 		Name:      "1 Chronicles",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -2883,7 +2883,7 @@ var Canonical = []Book{
 	{
 		Name:      "2 Chronicles",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -3095,7 +3095,7 @@ var Canonical = []Book{
 	{
 		Name:      "Ezra",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{2, 1}, &ChapterVerse{2, 2},
@@ -3171,7 +3171,7 @@ var Canonical = []Book{
 	{
 		Name:      "Nehemiah",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{2, 1}, &ChapterVerse{2, 2},
@@ -3279,7 +3279,7 @@ var Canonical = []Book{
 	{
 		Name:      "Esther",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -3327,7 +3327,7 @@ var Canonical = []Book{
 	{
 		Name:      "Job",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -3601,7 +3601,7 @@ var Canonical = []Book{
 	{
 		Name:      "Psalms",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{2, 1}, &ChapterVerse{2, 2}, &ChapterVerse{2, 3},
 			&ChapterVerse{2, 4}, &ChapterVerse{2, 5}, &ChapterVerse{2, 6}, &ChapterVerse{2, 7},
@@ -4222,7 +4222,7 @@ var Canonical = []Book{
 	{
 		Name:      "Proverbs",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -4457,7 +4457,7 @@ var Canonical = []Book{
 	{
 		Name:      "Ecclesiastes",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -4519,7 +4519,7 @@ var Canonical = []Book{
 	{
 		Name:      "Song of Solomon",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -4554,7 +4554,7 @@ var Canonical = []Book{
 	{
 		Name:      "Isaiah",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -4883,7 +4883,7 @@ var Canonical = []Book{
 	{
 		Name:      "Jeremiah",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -5230,7 +5230,7 @@ var Canonical = []Book{
 	{
 		Name:      "Lamentations",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -5275,7 +5275,7 @@ var Canonical = []Book{
 	{
 		Name:      "Ezekiel",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -5599,7 +5599,7 @@ var Canonical = []Book{
 	{
 		Name:      "Daniel",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -5694,7 +5694,7 @@ var Canonical = []Book{
 	{
 		Name:      "Hosea",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{2, 1}, &ChapterVerse{2, 2},
@@ -5749,7 +5749,7 @@ var Canonical = []Book{
 	{
 		Name:      "Joel",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -5773,7 +5773,7 @@ var Canonical = []Book{
 	{
 		Name:      "Amos",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -5816,7 +5816,7 @@ var Canonical = []Book{
 	{
 		Name:      "Obadiah",
 		JustVerse: true,
-		Verses: []VerseRef{&JustVerse{1},
+		Verses: []Verse{&JustVerse{1},
 			&JustVerse{2}, &JustVerse{3}, &JustVerse{4}, &JustVerse{5},
 			&JustVerse{6}, &JustVerse{7}, &JustVerse{8}, &JustVerse{9},
 			&JustVerse{10}, &JustVerse{11}, &JustVerse{12}, &JustVerse{13},
@@ -5827,7 +5827,7 @@ var Canonical = []Book{
 	{
 		Name:      "Jonah",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -5845,7 +5845,7 @@ var Canonical = []Book{
 	{
 		Name:      "Micah",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -5877,7 +5877,7 @@ var Canonical = []Book{
 	{
 		Name:      "Nahum",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -5895,7 +5895,7 @@ var Canonical = []Book{
 	{
 		Name:      "Habakkuk",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -5915,7 +5915,7 @@ var Canonical = []Book{
 	{
 		Name:      "Zephaniah",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -5934,7 +5934,7 @@ var Canonical = []Book{
 	{
 		Name:      "Haggai",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -5950,7 +5950,7 @@ var Canonical = []Book{
 	{
 		Name:      "Zechariah",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -6009,7 +6009,7 @@ var Canonical = []Book{
 	{
 		Name:      "Malachi",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -6029,7 +6029,7 @@ var Canonical = []Book{
 	{
 		Name:      "Matthew",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -6303,7 +6303,7 @@ var Canonical = []Book{
 	{
 		Name:      "Mark",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -6479,7 +6479,7 @@ var Canonical = []Book{
 	{
 		Name:      "Luke",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -6773,7 +6773,7 @@ var Canonical = []Book{
 	{
 		Name:      "John",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -6999,7 +6999,7 @@ var Canonical = []Book{
 	{
 		Name:      "Acts",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -7257,7 +7257,7 @@ var Canonical = []Book{
 	{
 		Name:      "Romans",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -7371,7 +7371,7 @@ var Canonical = []Book{
 	{
 		Name:      "1 Corinthians",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -7486,7 +7486,7 @@ var Canonical = []Book{
 	{
 		Name:      "2 Corinthians",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -7556,7 +7556,7 @@ var Canonical = []Book{
 	{
 		Name:      "Galatians",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -7599,7 +7599,7 @@ var Canonical = []Book{
 	{
 		Name:      "Ephesians",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -7644,7 +7644,7 @@ var Canonical = []Book{
 	{
 		Name:      "Philippians",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -7676,7 +7676,7 @@ var Canonical = []Book{
 	{
 		Name:      "Colossians",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -7706,7 +7706,7 @@ var Canonical = []Book{
 	{
 		Name:      "1 Thessalonians",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{2, 1}, &ChapterVerse{2, 2}, &ChapterVerse{2, 3},
@@ -7734,7 +7734,7 @@ var Canonical = []Book{
 	{
 		Name:      "2 Thessalonians",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{2, 1},
@@ -7752,7 +7752,7 @@ var Canonical = []Book{
 	{
 		Name:      "1 Timothy",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -7786,7 +7786,7 @@ var Canonical = []Book{
 	{
 		Name:      "2 Timothy",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -7813,7 +7813,7 @@ var Canonical = []Book{
 	{
 		Name:      "Titus",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -7831,7 +7831,7 @@ var Canonical = []Book{
 	{
 		Name:      "Philemon",
 		JustVerse: true,
-		Verses: []VerseRef{&JustVerse{1},
+		Verses: []Verse{&JustVerse{1},
 			&JustVerse{2}, &JustVerse{3}, &JustVerse{4}, &JustVerse{5},
 			&JustVerse{6}, &JustVerse{7}, &JustVerse{8}, &JustVerse{9},
 			&JustVerse{10}, &JustVerse{11}, &JustVerse{12}, &JustVerse{13},
@@ -7843,7 +7843,7 @@ var Canonical = []Book{
 	{
 		Name:      "Hebrews",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -7925,7 +7925,7 @@ var Canonical = []Book{
 	{
 		Name:      "James",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -7958,7 +7958,7 @@ var Canonical = []Book{
 	{
 		Name:      "1 Peter",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -7990,7 +7990,7 @@ var Canonical = []Book{
 	{
 		Name:      "2 Peter",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
@@ -8011,7 +8011,7 @@ var Canonical = []Book{
 	{
 		Name:      "1 John",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{2, 1}, &ChapterVerse{2, 2}, &ChapterVerse{2, 3},
@@ -8043,7 +8043,7 @@ var Canonical = []Book{
 	{
 		Name:      "2 John",
 		JustVerse: true,
-		Verses: []VerseRef{&JustVerse{1},
+		Verses: []Verse{&JustVerse{1},
 			&JustVerse{2}, &JustVerse{3}, &JustVerse{4}, &JustVerse{5},
 			&JustVerse{6}, &JustVerse{7}, &JustVerse{8}, &JustVerse{9},
 			&JustVerse{10}, &JustVerse{11}, &JustVerse{12}, &JustVerse{13},
@@ -8052,7 +8052,7 @@ var Canonical = []Book{
 	{
 		Name:      "3 John",
 		JustVerse: true,
-		Verses: []VerseRef{&JustVerse{1},
+		Verses: []Verse{&JustVerse{1},
 			&JustVerse{2}, &JustVerse{3}, &JustVerse{4}, &JustVerse{5},
 			&JustVerse{6}, &JustVerse{7}, &JustVerse{8}, &JustVerse{9},
 			&JustVerse{10}, &JustVerse{11}, &JustVerse{12}, &JustVerse{13},
@@ -8062,7 +8062,7 @@ var Canonical = []Book{
 	{
 		Name:      "Jude",
 		JustVerse: true,
-		Verses: []VerseRef{&JustVerse{1},
+		Verses: []Verse{&JustVerse{1},
 			&JustVerse{2}, &JustVerse{3}, &JustVerse{4}, &JustVerse{5},
 			&JustVerse{6}, &JustVerse{7}, &JustVerse{8}, &JustVerse{9},
 			&JustVerse{10}, &JustVerse{11}, &JustVerse{12}, &JustVerse{13},
@@ -8074,7 +8074,7 @@ var Canonical = []Book{
 	{
 		Name:      "Revelation",
 		JustVerse: false,
-		Verses: []VerseRef{&ChapterVerse{1, 1},
+		Verses: []Verse{&ChapterVerse{1, 1},
 			&ChapterVerse{1, 2}, &ChapterVerse{1, 3}, &ChapterVerse{1, 4}, &ChapterVerse{1, 5},
 			&ChapterVerse{1, 6}, &ChapterVerse{1, 7}, &ChapterVerse{1, 8}, &ChapterVerse{1, 9},
 			&ChapterVerse{1, 10}, &ChapterVerse{1, 11}, &ChapterVerse{1, 12}, &ChapterVerse{1, 13},
