@@ -10,10 +10,6 @@ import (
 )
 
 const (
-	FurtherFollowing = -1
-	ToEndOfChapter   = -2
-	ToEndOfBook      = -3
-
 	FollowingNotation        = "ff"
 	FollowingChapterNotation = "ffc"
 	FollowingBookNotation    = "ffb"
@@ -27,8 +23,10 @@ const (
 	FollowingRemainingBook
 )
 
-func ValidFollowing(n int) bool {
-	return n == FurtherFollowing || n == ToEndOfChapter || n == ToEndOfBook
+func ValidFollowing(n Following) bool {
+	return n == FollowingNone ||
+		n == FollowingRemainingChapter ||
+		n == FollowingRemainingBook
 }
 
 // Ref is any kind of Bible reference.
@@ -46,7 +44,7 @@ type Relative interface {
 
 	// InBook turns this relative reference into a proper reference for the
 	// given book.
-	InBook(*Book) *Proper
+	InBook(string) *Proper
 }
 
 // Verse is a reference to a verse of the Bible relative to a book.
@@ -54,6 +52,14 @@ type Verse interface {
 	Relative
 	Before(Verse) bool
 	Equal(Verse) bool
+}
+
+// Absolute is any kind of reference that specifies a Book.
+type Absolute interface {
+	Ref
+
+	// Names returns the names of the books referenced.
+	Names() []string
 }
 
 // ChapterVerse is a reference to a specific chapter and verse for books with
@@ -88,7 +94,7 @@ func (v *ChapterVerse) Validate() error {
 
 // InBook turns this relative reference into a proper reference for the given
 // book.
-func (v *ChapterVerse) InBook(b *Book) *Proper {
+func (v *ChapterVerse) InBook(b string) *Proper {
 	return NewProper(b, v)
 }
 
@@ -133,7 +139,7 @@ func (v *JustVerse) Validate() error {
 
 // InBook turns this relative reference into a proper reference for the given
 // book.
-func (v *JustVerse) InBook(b *Book) *Proper {
+func (v *JustVerse) InBook(b string) *Proper {
 	return NewProper(b, v)
 }
 
@@ -149,6 +155,29 @@ func (v *JustVerse) Before(ov Verse) bool {
 
 func (v *JustVerse) Equal(ov Verse) bool {
 	return v.verse == ov.(*JustVerse).verse
+}
+
+// Single is a relative reference to a single verse. It wraps a single verse.
+type Single struct {
+	Verse
+}
+
+func NewSingle(verse Verse) *Single {
+	return &Single{
+		Verse: verse,
+	}
+}
+
+func (v *Single) Ref() string {
+	return v.Verse.Ref()
+}
+
+func (v *Single) Validate() error {
+	return v.Verse.Validate()
+}
+
+func (v *Single) InBook(b string) *Proper {
+	return NewProper(b, v)
 }
 
 // AndFollowing takes a ref.Verse and attaches a notation indicating that the
@@ -187,7 +216,7 @@ func (v *AndFollowing) Ref() string {
 }
 
 func (v *AndFollowing) Validate() error {
-	if !ValidFollowing(int(v.Following)) {
+	if !ValidFollowing(v.Following) {
 		return fmt.Errorf("invalid following notation: %d", v.Following)
 	}
 	return v.Verse.Validate()
@@ -195,7 +224,7 @@ func (v *AndFollowing) Validate() error {
 
 // InBook turns this relative reference into a proper reference for the given
 // book.
-func (v *AndFollowing) InBook(b *Book) *Proper {
+func (v *AndFollowing) InBook(b string) *Proper {
 	return NewProper(b, v)
 }
 
@@ -249,7 +278,7 @@ func (r *Range) Validate() error {
 
 // InBook turns this relative reference into a proper reference for the given
 // book.
-func (r *Range) InBook(b *Book) *Proper {
+func (r *Range) InBook(b string) *Proper {
 	return NewProper(b, r)
 }
 
@@ -262,12 +291,12 @@ func (r *Range) InBook(b *Book) *Proper {
 // Any verse-only references in a ref.Related reference must be preceded by a
 // chapter and verse reference.
 type Related struct {
-	Refs []Ref
+	Refs []Relative
 }
 
 func (r *Related) Ref() string {
 	return strings.Join(
-		slices.Map(r.Refs, func(r Ref) string {
+		slices.Map(r.Refs, func(r Relative) string {
 			return r.Ref()
 		}), ", ")
 }
@@ -307,18 +336,18 @@ func (r *Related) Validate() error {
 
 // InBook turns this relative reference into a proper reference for the given
 // book.
-func (r *Related) InBook(b *Book) *Proper {
+func (r *Related) InBook(b string) *Proper {
 	return NewProper(b, r)
 }
 
 // Proper is some kind of reference that also includes the book that the verses
 // or chapters and verses are relative to.
 type Proper struct {
-	*Book
+	Book  string
 	Verse Relative
 }
 
-func NewProper(book *Book, verse Relative) *Proper {
+func NewProper(book string, verse Relative) *Proper {
 	return &Proper{
 		Book:  book,
 		Verse: verse,
@@ -326,11 +355,11 @@ func NewProper(book *Book, verse Relative) *Proper {
 }
 
 func (p *Proper) Ref() string {
-	return fmt.Sprintf("%s %s", p.Book.Name, p.Verse.Ref())
+	return fmt.Sprintf("%s %s", p.Book, p.Verse.Ref())
 }
 
 func (p *Proper) Validate() error {
-	if p.Book == nil {
+	if p.Book == "" {
 		return fmt.Errorf("book is required")
 	}
 	if p.Verse == nil {
@@ -338,6 +367,10 @@ func (p *Proper) Validate() error {
 	}
 
 	return p.Verse.Validate()
+}
+
+func (p *Proper) Names() []string {
+	return []string{p.Book}
 }
 
 // Multiple is a list of references to verses relative to a Book of the Bible. These
@@ -368,7 +401,76 @@ func (m *Multiple) Validate() error {
 		return fmt.Errorf("multiple list of references is incorrect: first reference must be a proper reference")
 	}
 
+	for i := range m.Refs {
+		switch m.Refs[i].(type) {
+		case Relative:
+		case *Proper:
+		default:
+			return fmt.Errorf("multiple list of references is incorrect: only relative or proper references are permitted in multiple reference lists")
+		}
+
+		if err := m.Refs[i].Validate(); err != nil {
+			return fmt.Errorf("multiple list of references is incorrect: %w", err)
+		}
+	}
+
 	return nil
+}
+
+func (m *Multiple) Names() []string {
+	var names []string
+	for i := range m.Refs {
+		if p, isProper := m.Refs[i].(*Proper); isProper {
+			names = append(names, p.Book)
+		}
+	}
+	return names
+}
+
+// Resolved is a normalized reference to a single range of verses in a single
+// book, which may have a length of one. Both Verse references are inclusive and
+// must match the verse type of the book. (I.e., if the book has chapters, then
+// both First and Last must be ref.ChapterVerse references.)
+type Resolved struct {
+	Book  *Book
+	First Verse
+	Last  Verse
+}
+
+func (r *Resolved) Ref() string {
+	if r.First.Equal(r.Last) {
+		return fmt.Sprintf("%s %s", r.Book.Name, r.First.Ref())
+	}
+	return fmt.Sprintf("%s %s-%s", r.Book.Name, r.First.Ref(), r.Last.Ref())
+}
+
+func (r *Resolved) Validate() error {
+	if r.Book == nil {
+		return fmt.Errorf("book is required")
+	}
+	if r.First == nil {
+		return fmt.Errorf("first reference is required")
+	}
+	if r.Last == nil {
+		return fmt.Errorf("last reference is required")
+	}
+
+	if err := r.First.Validate(); err != nil {
+		return fmt.Errorf("first reference is invalid: %w", err)
+	}
+	if err := r.Last.Validate(); err != nil {
+		return fmt.Errorf("last reference is invalid: %w", err)
+	}
+
+	if r.Last.Before(r.First) {
+		return fmt.Errorf("first reference must be before or equal to last reference")
+	}
+
+	return nil
+}
+
+func (r *Resolved) Names() []string {
+	return []string{r.Book.Name}
 }
 
 var _ Verse = (*ChapterVerse)(nil)
@@ -376,5 +478,6 @@ var _ Verse = (*JustVerse)(nil)
 var _ Relative = (*AndFollowing)(nil)
 var _ Relative = (*Range)(nil)
 var _ Relative = (*Related)(nil)
-var _ Ref = (*Proper)(nil)
-var _ Ref = (*Multiple)(nil)
+var _ Absolute = (*Proper)(nil)
+var _ Absolute = (*Multiple)(nil)
+var _ Absolute = (*Resolved)(nil)
