@@ -9,8 +9,8 @@ import (
 )
 
 // Verse returns the text of the given verse reference using the ESV API.
-func (r *Resolver) Verse(ref ref.ProperRef) (string, error) {
-	tr, err := r.Client.PassageText(ref.String(),
+func (r *Resolver) Verse(ref ref.Resolved) (string, error) {
+	tr, err := r.Client.PassageText(ref.Ref(),
 		esv.WithIncludeVerseNumbers(false),
 		esv.WithIncludeHeadings(false),
 		esv.WithIncludeFootnotes(false),
@@ -23,8 +23,8 @@ func (r *Resolver) Verse(ref ref.ProperRef) (string, error) {
 }
 
 // VerseHTML returns the HTML of the given verse reference using the ESV API.
-func (r *Resolver) VerseHTML(ref ref.ProperRef) (template.HTML, error) {
-	tr, err := r.Client.PassageHtml(ref.String(),
+func (r *Resolver) VerseHTML(ref ref.Resolved) (template.HTML, error) {
+	tr, err := r.Client.PassageHtml(ref.Ref(),
 		esv.WithIncludeVerseNumbers(false),
 		esv.WithIncludeHeadings(false),
 		esv.WithIncludeFootnotes(false),

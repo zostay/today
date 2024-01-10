@@ -68,6 +68,9 @@ func ParseVerseRef(ref string, opt ...ParseVerseOption) (Verse, error) {
 	return parseVerseRef(ref, opts)
 }
 
+// Deprecated: Use AndFollowing instead.
+const Final = -1
+
 func parseVerseRef(ref string, opt *parseVerseOpts) (Verse, error) {
 	parts := strings.Split(ref, ":")
 	if len(parts) == 1 {
@@ -76,7 +79,7 @@ func parseVerseRef(ref string, opt *parseVerseOpts) (Verse, error) {
 		}
 
 		if opt.allowWildcard && parts[0] == "*" {
-			return &JustVerse{verse: Final}, nil
+			return &V{Verse: Final}, nil
 		}
 
 		verse, err := strconv.Atoi(parts[0])
@@ -84,7 +87,7 @@ func parseVerseRef(ref string, opt *parseVerseOpts) (Verse, error) {
 			return nil, fmt.Errorf("invalid verse reference: expected a verse number: %w", err)
 		}
 
-		return &JustVerse{verse: verse}, nil
+		return &V{Verse: verse}, nil
 	} else if len(parts) == 2 {
 		if opt.expectedRefType == expectJustVerse {
 			return nil, errors.New("invalid verse reference: expected verse number only")
@@ -94,7 +97,7 @@ func parseVerseRef(ref string, opt *parseVerseOpts) (Verse, error) {
 			if parts[1] != "*" {
 				return nil, errors.New("invalid verse reference: chapter is wildcard, but verse is not")
 			}
-			return &ChapterVerse{chapter: Final, verse: Final}, nil
+			return &CV{Chapter: Final, Verse: Final}, nil
 		}
 
 		chapter, err := strconv.Atoi(parts[0])
@@ -103,7 +106,7 @@ func parseVerseRef(ref string, opt *parseVerseOpts) (Verse, error) {
 		}
 
 		if opt.allowWildcard && parts[1] == "*" {
-			return &ChapterVerse{chapter: chapter, verse: Final}, nil
+			return &CV{Chapter: chapter, Verse: Final}, nil
 		}
 
 		verse, err := strconv.Atoi(parts[1])
@@ -111,7 +114,7 @@ func parseVerseRef(ref string, opt *parseVerseOpts) (Verse, error) {
 			return nil, fmt.Errorf("invalid verse reference: expected a verse number: %w", err)
 		}
 
-		return &ChapterVerse{chapter: chapter, verse: verse}, nil
+		return &CV{Chapter: chapter, Verse: verse}, nil
 	} else {
 		return nil, errors.New("invalid verse reference: too many colons")
 	}

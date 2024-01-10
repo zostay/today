@@ -16,12 +16,12 @@ var parseVerseRefInputs = []struct {
 }{
 	{"", false, false, nil},
 	{"", true, false, nil},
-	{"1:2", false, false, ref.NewChapterVerse(1, 2)},
-	{"3:16", false, false, ref.NewChapterVerse(3, 16)},
-	{"102:*", false, true, ref.NewChapterVerse(102, ref.Final)},
+	{"1:2", false, false, &ref.CV{Chapter: 1, Verse: 2}},
+	{"3:16", false, false, &ref.CV{Chapter: 3, Verse: 16}},
+	{"102:*", false, true, &ref.CV{Chapter: 102, Verse: ref.Final}},
 	{"*:1", false, true, nil},
-	{"*:*", false, true, ref.NewChapterVerse(ref.Final, ref.Final)},
-	{"*", true, true, ref.NewJustVerse(ref.Final)},
+	{"*:*", false, true, &ref.CV{Chapter: ref.Final, Verse: ref.Final}},
+	{"*", true, true, &ref.V{Verse: ref.Final}},
 	{"*:1", false, true, nil},
 }
 

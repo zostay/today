@@ -2,9 +2,11 @@ package text
 
 import (
 	"html/template"
+
+	"github.com/zostay/today/pkg/ref"
 )
 
 type Resolver interface {
-	Verse(ref ref.ProperRef) (string, error)
-	VerseHTML(ref ref.ProperRef) (template.HTML, error)
+	Verse(ref ref.Resolved) (string, error)
+	VerseHTML(ref ref.Resolved) (template.HTML, error)
 }

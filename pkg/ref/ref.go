@@ -62,31 +62,24 @@ type Absolute interface {
 	Names() []string
 }
 
-// ChapterVerse is a reference to a specific chapter and verse for books with
+// CV is a reference to a specific chapter and verse for books with
 // both chapters and Verses.
-type ChapterVerse struct {
-	chapter int
-	verse   int
-}
-
-func NewChapterVerse(chapter, verse int) *ChapterVerse {
-	return &ChapterVerse{
-		chapter: chapter,
-		verse:   verse,
-	}
+type CV struct {
+	Chapter int
+	Verse   int
 }
 
 // Ref returns the Chapter:Verse reference string.
-func (v *ChapterVerse) Ref() string {
-	return strconv.Itoa(v.chapter) + ":" + strconv.Itoa(v.verse)
+func (v *CV) Ref() string {
+	return strconv.Itoa(v.Chapter) + ":" + strconv.Itoa(v.Verse)
 }
 
 // Validate returns true iff the chapter and verse are both positive.
-func (v *ChapterVerse) Validate() error {
-	if v.chapter <= 0 {
+func (v *CV) Validate() error {
+	if v.Chapter <= 0 {
 		return fmt.Errorf("chapter must be positive")
 	}
-	if v.verse <= 0 {
+	if v.Verse <= 0 {
 		return fmt.Errorf("verse must be positive")
 	}
 	return nil
@@ -94,44 +87,38 @@ func (v *ChapterVerse) Validate() error {
 
 // InBook turns this relative reference into a proper reference for the given
 // book.
-func (v *ChapterVerse) InBook(b string) *Proper {
+func (v *CV) InBook(b string) *Proper {
 	return NewProper(b, v)
 }
 
-func (v *ChapterVerse) Before(ov Verse) bool {
+func (v *CV) Before(ov Verse) bool {
 	switch sv := ov.(type) {
-	case *ChapterVerse:
-		return v.chapter < sv.chapter ||
-			(v.chapter == sv.chapter && v.verse < sv.verse)
-	case *JustVerse:
-		return v.verse < sv.verse
+	case *CV:
+		return v.Chapter < sv.Chapter ||
+			(v.Chapter == sv.Chapter && v.Verse < sv.Verse)
+	case *V:
+		return v.Verse < sv.Verse
 	}
 	panic("unable to validate unknown verse type")
 }
 
-func (v *ChapterVerse) Equal(ov Verse) bool {
-	return v.chapter == ov.(*ChapterVerse).chapter && v.verse == ov.(*ChapterVerse).verse
+func (v *CV) Equal(ov Verse) bool {
+	return v.Chapter == ov.(*CV).Chapter && v.Verse == ov.(*CV).Verse
 }
 
-// JustVerse is a reference to a specific verse for books without chapters.
-type JustVerse struct {
-	verse int
-}
-
-func NewJustVerse(verse int) *JustVerse {
-	return &JustVerse{
-		verse: verse,
-	}
+// V is a reference to a specific verse for books without chapters.
+type V struct {
+	Verse int
 }
 
 // Ref returns the Verse reference string (no Chapter:).
-func (v *JustVerse) Ref() string {
-	return strconv.Itoa(v.verse)
+func (v *V) Ref() string {
+	return strconv.Itoa(v.Verse)
 }
 
 // Validate returns true iff the verse is positive.
-func (v *JustVerse) Validate() error {
-	if v.verse <= 0 {
+func (v *V) Validate() error {
+	if v.Verse <= 0 {
 		return fmt.Errorf("verse must be positive")
 	}
 	return nil
@@ -139,27 +126,27 @@ func (v *JustVerse) Validate() error {
 
 // InBook turns this relative reference into a proper reference for the given
 // book.
-func (v *JustVerse) InBook(b string) *Proper {
+func (v *V) InBook(b string) *Proper {
 	return NewProper(b, v)
 }
 
-func (v *JustVerse) Before(ov Verse) bool {
+func (v *V) Before(ov Verse) bool {
 	switch sv := ov.(type) {
-	case *ChapterVerse:
+	case *CV:
 		return false
-	case *JustVerse:
-		return v.verse < sv.verse
+	case *V:
+		return v.Verse < sv.Verse
 	}
 	panic("unable to validate unknown verse type")
 }
 
-func (v *JustVerse) Equal(ov Verse) bool {
-	return v.verse == ov.(*JustVerse).verse
+func (v *V) Equal(ov Verse) bool {
+	return v.Verse == ov.(*V).Verse
 }
 
 // Single is a relative reference to a single verse. It wraps a single verse.
 type Single struct {
-	Verse
+	Verse Verse
 }
 
 func NewSingle(verse Verse) *Single {
@@ -191,8 +178,8 @@ func (v *Single) InBook(b string) *Proper {
 // "ffb". The first means "on to the end of the chapter" and the second means "on
 // to the end of the book".
 type AndFollowing struct {
-	Verse
-	Following
+	Verse     Verse
+	Following Following
 }
 
 func NewAndFollowing(verse Verse, following Following) *AndFollowing {
@@ -230,9 +217,9 @@ func (v *AndFollowing) InBook(b string) *Proper {
 
 // Range is a reference to a range of verses relative to a Book. It is formed of
 // two ref.Verse references, which are the inclusive bounds of a relative Bible
-// reference. The First ref.Verse may either be a ref.ChapterVerse or
-// ref.JustVerse. The Last ref.Verse must be a ref.JustVerse if the first is
-// ref.JustVerse. It may be a ref.JustVerse if the First is a ref.ChapterVerse.
+// reference. The First ref.Verse may either be a ref.CV or
+// ref.V. The Last ref.Verse must be a ref.V if the first is
+// ref.V. It may be a ref.V if the First is a ref.CV.
 // In either case, the given ref.Verse in Last must be greater than First.
 type Range struct {
 	First Verse
@@ -263,8 +250,8 @@ func (r *Range) Validate() error {
 		return fmt.Errorf("range is incorrect: %w", errors.Join(errs...))
 	}
 
-	_, isJvFirst := r.First.(*JustVerse)
-	_, isJvLast := r.Last.(*JustVerse)
+	_, isJvFirst := r.First.(*V)
+	_, isJvLast := r.Last.(*V)
 	if isJvFirst && !isJvLast {
 		return fmt.Errorf("range is incorrect: first is verse-only but last is not")
 	}
@@ -306,7 +293,6 @@ func (r *Related) Validate() error {
 		return fmt.Errorf("related list of references is incorrect: no references")
 	}
 
-	var cv *ChapterVerse
 	for _, ref := range r.Refs {
 		if ref == nil {
 			return fmt.Errorf("related list of references is incorrect: nil reference")
@@ -316,21 +302,11 @@ func (r *Related) Validate() error {
 			return fmt.Errorf("related list of references is incorrect: %w", err)
 		}
 
-		switch r := ref.(type) {
-		case *ChapterVerse:
-			cv = r
-		case *JustVerse:
-			if cv == nil {
-				return fmt.Errorf("related list of references is incorrect: verse-only reference must be preceded by a chapter and verse reference")
-			}
-		case *Range:
-			if _, isJv := r.First.(*JustVerse); isJv && cv == nil {
-				return fmt.Errorf("related list of references is incorrect: verse-only range reference must be preceded by a chapter and verse reference")
-			}
-		default:
-			return fmt.Errorf("related list of references is incorrect: only chapter and verse, verse-only, or ranges are permitted in related reference lists")
+		if _, isRelative := ref.(Relative); !isRelative {
+			return fmt.Errorf("related list of references is incorrect: only relative references are permitted in related reference lists")
 		}
 	}
+
 	return nil
 }
 
@@ -430,7 +406,7 @@ func (m *Multiple) Names() []string {
 // Resolved is a normalized reference to a single range of verses in a single
 // book, which may have a length of one. Both Verse references are inclusive and
 // must match the verse type of the book. (I.e., if the book has chapters, then
-// both First and Last must be ref.ChapterVerse references.)
+// both First and Last must be ref.CV references.)
 type Resolved struct {
 	Book  *Book
 	First Verse
@@ -473,8 +449,26 @@ func (r *Resolved) Names() []string {
 	return []string{r.Book.Name}
 }
 
-var _ Verse = (*ChapterVerse)(nil)
-var _ Verse = (*JustVerse)(nil)
+func (r *Resolved) Verses() []Verse {
+	verses := make([]Verse, 0, len(r.Book.Verses))
+	started := false
+	for _, verse := range r.Book.Verses {
+		if verse.Equal(r.First) {
+			started = true
+		}
+		if started {
+			verses = append(verses, verse)
+		}
+		if verse.Equal(r.Last) {
+			break
+		}
+	}
+	return verses
+}
+
+var _ Verse = (*CV)(nil)
+var _ Verse = (*V)(nil)
+var _ Relative = (*Single)(nil)
 var _ Relative = (*AndFollowing)(nil)
 var _ Relative = (*Range)(nil)
 var _ Relative = (*Related)(nil)

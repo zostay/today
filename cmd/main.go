@@ -4,15 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
-	"strings"
 	"time"
 
 	"github.com/bbrks/wrap"
 	"github.com/spf13/cobra"
 
 	"github.com/zostay/today/pkg/ref"
-	"github.com/zostay/today/pkg/text"
-	"github.com/zostay/today/pkg/text/esv"
 )
 
 var (
@@ -48,7 +45,7 @@ func init() {
 		Use:   "categories",
 		Short: "List the available categories",
 		Args:  cobra.NoArgs,
-		Run:   RunListCategories,
+		//Run:   RunListCategories,
 	}
 
 	randomCmd := &cobra.Command{
@@ -69,15 +66,15 @@ func init() {
 	randomCmd.Flags().StringVarP(&fromBook, "book", "b", "", "Pick a random verse from a book")
 }
 
-func RunListCategories(cmd *cobra.Command, args []string) {
-	for c := range ref.Categories {
-		fmt.Println(c)
-	}
-}
+//func RunListCategories(cmd *cobra.Command, args []string) {
+//	for c := range ref.Categories {
+//		fmt.Println(c)
+//	}
+//}
 
 func RunListBooks(cmd *cobra.Command, args []string) {
 	for _, b := range ref.Canonical {
-		fmt.Println(b.Name())
+		fmt.Println(b.Name)
 	}
 }
 
@@ -88,47 +85,47 @@ func RunTodayRandom(cmd *cobra.Command, args []string) error {
 		return errors.New("cannot specify both --category and --book")
 	}
 
-	opts := []text.RandomReferenceOption{}
+	var opts []ref.RandomReferenceOption
 	if fromCategory != "" {
-		opts = append(opts, text.FromCategory(fromCategory))
+		opts = append(opts, ref.FromCategory(fromCategory))
 	}
 	if fromBook != "" {
-		opts = append(opts, text.FromBook(fromBook))
+		opts = append(opts, ref.FromBook(fromBook))
 	}
 
-	r, err := esv.NewFromAuthFile(esv.AuthFile)
-	if err != nil {
-		panic(err)
-	}
-	esvClient := text.NewService(r)
+	//r, err := esv.NewFromAuthFile(esv.AuthFile)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//esvClient := text.NewService(r)
 
 	rand.Seed(time.Now().UTC().UnixNano())
 	var v string
 	if asHtml {
-		v, err = esvClient.RandomVerseHTML(opts...)
+		//v, err = esvClient.RandomVerseHTML(opts...)
 	} else {
-		v, err = esvClient.RandomVerse(opts...)
+		//v, err = esvClient.RandomVerse(opts...)
 	}
-	if err != nil {
-		panic(err)
-	}
+	//if err != nil {
+	//	panic(err)
+	//}
 	fmt.Println(wrap.Wrap(v, 70))
 
 	return nil
 }
 
 func RunTodayShow(cmd *cobra.Command, args []string) {
-	keeper.RequiresSecretKeeper()
+	//keeper.RequiresSecretKeeper()
 
-	ref := strings.Join(args, " ")
+	//ref := strings.Join(args, " ")
 	var (
 		err error
 		v   string
 	)
 	if asHtml {
-		v, err = esv.GetVerseHTML(ref)
+		//v, err = esv.GetVerseHTML(ref)
 	} else {
-		v, err = esv.GetVerse(ref)
+		//v, err = esv.GetVerse(ref)
 	}
 	if err != nil {
 		panic(err)

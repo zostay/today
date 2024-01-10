@@ -146,8 +146,8 @@ func (c Canon) resolveAndFollowingChapter(
 		return nil, err
 	}
 
-	_, hasCv := b.Verses[0].(*ChapterVerse)
-	_, expectCv := ss[0].Last.(*ChapterVerse)
+	_, hasCv := b.Verses[0].(*CV)
+	_, expectCv := ss[0].Last.(*CV)
 	if hasCv && !expectCv {
 		return nil, errors.New("expected a chapter-and-verse reference, but got verse-only")
 	} else if !hasCv && expectCv {
@@ -155,17 +155,28 @@ func (c Canon) resolveAndFollowingChapter(
 	}
 
 	lastVerse := ss[0].Last
+	started := false
 	for i := range b.Verses {
-		if cv, isCv := b.Verses[i].(*ChapterVerse); isCv {
-			if cv.chapter == lastVerse.(*ChapterVerse).chapter {
+		if b.Verses[i].Equal(lastVerse) {
+			started = true
+		} else if !started {
+			continue
+		}
+
+		if cv, isCv := b.Verses[i].(*CV); started && isCv {
+			if cv.Chapter == lastVerse.(*CV).Chapter {
 				lastVerse = b.Verses[i]
 				continue
 			}
 			break
 		} else {
-			lastVerse = b.Verses[i]
-			continue
+			lastVerse = b.Verses[len(b.Verses)-1]
+			break
 		}
+	}
+
+	if !started {
+		return nil, ErrNotFound
 	}
 
 	return []Resolved{

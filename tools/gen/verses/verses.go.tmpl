@@ -1,16 +1,16 @@
 package ref
 
-var Canonical = []Book{
+var Canonical = Canon{
 {{- range .Books}}
     {
         Name: "{{.Name}}",
         JustVerse: {{if eq 0 (index .Verses 0 0)}}true{{else}}false{{end}},
-        Verses: []VerseRef{
+        Verses: []Verse{
 {{- range $i, $v := .Verses}}
 {{- if eq 0 (index $v 0) -}}
-            &JustVerse{ {{index $v 1}} },
+            &V{ {{index $v 1}} },
 {{- else -}}
-            &ChapterVerse{ {{index $v 0}},{{index $v 1}} },
+            &CV{ {{index $v 0}},{{index $v 1}} },
 {{- end -}}
 {{- if Mod $i 4}}
 {{end}}
