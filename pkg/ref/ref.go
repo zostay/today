@@ -23,6 +23,33 @@ const (
 	FollowingRemainingBook
 )
 
+type ValidationError struct {
+	Cause error
+}
+
+func (e *ValidationError) Error() string {
+	return fmt.Sprintf("validation error: %v", e.Cause)
+}
+
+func (e *ValidationError) Unwrap() error {
+	return e.Cause
+}
+
+func invalid(msg string, args ...any) error {
+	err := fmt.Errorf(msg, args...)
+	return &ValidationError{Cause: err}
+}
+
+func unravelInvalid(err error) error {
+	if err == nil {
+		return nil
+	}
+	if verr, isInvalid := err.(*ValidationError); isInvalid {
+		return verr.Cause
+	}
+	return err
+}
+
 func ValidFollowing(n Following) bool {
 	return n == FollowingNone ||
 		n == FollowingRemainingChapter ||
@@ -77,10 +104,10 @@ func (v *CV) Ref() string {
 // Validate returns true iff the chapter and verse are both positive.
 func (v *CV) Validate() error {
 	if v.Chapter <= 0 {
-		return fmt.Errorf("chapter must be positive")
+		return invalid("chapter must be positive")
 	}
 	if v.Verse <= 0 {
-		return fmt.Errorf("verse must be positive")
+		return invalid("verse must be positive")
 	}
 	return nil
 }
@@ -119,7 +146,7 @@ func (v *V) Ref() string {
 // Validate returns true iff the verse is positive.
 func (v *V) Validate() error {
 	if v.Verse <= 0 {
-		return fmt.Errorf("verse must be positive")
+		return invalid("verse must be positive")
 	}
 	return nil
 }
@@ -204,7 +231,7 @@ func (v *AndFollowing) Ref() string {
 
 func (v *AndFollowing) Validate() error {
 	if !ValidFollowing(v.Following) {
-		return fmt.Errorf("invalid following notation: %d", v.Following)
+		return invalid("invalid following notation")
 	}
 	return v.Verse.Validate()
 }
@@ -235,29 +262,29 @@ func (r *Range) Ref() string {
 
 func (r *Range) Validate() error {
 	if r.First == nil || r.Last == nil {
-		return fmt.Errorf("range is incorrect: both first and last are required")
+		return invalid("range is incorrect: both first and last are required")
 	}
 
 	var errs []error
 	if err := r.First.Validate(); err != nil {
-		errs = append(errs, err)
+		errs = append(errs, unravelInvalid(err))
 	}
 	if err := r.Last.Validate(); err != nil {
-		errs = append(errs, err)
+		errs = append(errs, unravelInvalid(err))
 	}
 
 	if len(errs) > 0 {
-		return fmt.Errorf("range is incorrect: %w", errors.Join(errs...))
+		return invalid("range is incorrect: %w", errors.Join(errs...))
 	}
 
 	_, isJvFirst := r.First.(*V)
 	_, isJvLast := r.Last.(*V)
 	if isJvFirst && !isJvLast {
-		return fmt.Errorf("range is incorrect: first is verse-only but last is not")
+		return invalid("range is incorrect: first is verse-only but last is not")
 	}
 
 	if !r.First.Before(r.Last) {
-		return fmt.Errorf("range is incorrect: first must be before last")
+		return invalid("range is incorrect: first must be before last")
 	}
 
 	return nil
@@ -290,20 +317,21 @@ func (r *Related) Ref() string {
 
 func (r *Related) Validate() error {
 	if len(r.Refs) == 0 {
-		return fmt.Errorf("related list of references is incorrect: no references")
+		return invalid("related list of references is incorrect: no references")
 	}
 
+	isJV := !strings.Contains(r.Refs[0].Ref(), ":")
 	for _, ref := range r.Refs {
 		if ref == nil {
-			return fmt.Errorf("related list of references is incorrect: nil reference")
+			return invalid("related list of references is incorrect: nil reference")
 		}
 
 		if err := ref.Validate(); err != nil {
-			return fmt.Errorf("related list of references is incorrect: %w", err)
+			return invalid("related list of references is incorrect: %w", unravelInvalid(err))
 		}
 
-		if _, isRelative := ref.(Relative); !isRelative {
-			return fmt.Errorf("related list of references is incorrect: only relative references are permitted in related reference lists")
+		if isJV && strings.Contains(ref.Ref(), ":") {
+			return invalid("related list of references is incorrect: related reference list starts with verse-only reference, but contains a chapter-verse reference")
 		}
 	}
 
@@ -370,11 +398,11 @@ func (m *Multiple) Ref() string {
 
 func (m *Multiple) Validate() error {
 	if len(m.Refs) == 0 {
-		return fmt.Errorf("multiple list of references is incorrect: no references")
+		return invalid("multiple list of references is incorrect: no references")
 	}
 
 	if _, isProper := m.Refs[0].(*Proper); !isProper {
-		return fmt.Errorf("multiple list of references is incorrect: first reference must be a proper reference")
+		return invalid("multiple list of references is incorrect: first reference must be a proper reference")
 	}
 
 	for i := range m.Refs {
@@ -386,7 +414,7 @@ func (m *Multiple) Validate() error {
 		}
 
 		if err := m.Refs[i].Validate(); err != nil {
-			return fmt.Errorf("multiple list of references is incorrect: %w", err)
+			return fmt.Errorf("multiple list of references is incorrect: %w", unravelInvalid(err))
 		}
 	}
 
@@ -432,10 +460,10 @@ func (r *Resolved) Validate() error {
 	}
 
 	if err := r.First.Validate(); err != nil {
-		return fmt.Errorf("first reference is invalid: %w", err)
+		return invalid("first reference is invalid: %w", unravelInvalid(err))
 	}
 	if err := r.Last.Validate(); err != nil {
-		return fmt.Errorf("last reference is invalid: %w", err)
+		return invalid("last reference is invalid: %w", unravelInvalid(err))
 	}
 
 	if r.Last.Before(r.First) {
