@@ -87,6 +87,9 @@ type Absolute interface {
 
 	// Names returns the names of the books referenced.
 	Names() []string
+
+	// IsSingleRange returns true if the reference is a single range of verses.
+	IsSingleRange() bool
 }
 
 // CV is a reference to a specific chapter and verse for books with
@@ -377,6 +380,13 @@ func (p *Proper) Names() []string {
 	return []string{p.Book}
 }
 
+func (p *Proper) IsSingleRange() bool {
+	_, isSingle := p.Verse.(*Single)
+	_, isRange := p.Verse.(*Range)
+	_, isAndFollowing := p.Verse.(*AndFollowing)
+	return isSingle || isRange || isAndFollowing
+}
+
 // Multiple is a list of references to verses relative to a Book of the Bible. These
 // rendered as a set of references separated by semi-colon. A List may not be the
 // child of another List. All references in a list must be of the same type.
@@ -431,6 +441,21 @@ func (m *Multiple) Names() []string {
 	return names
 }
 
+func (m *Multiple) IsSingleRange() bool {
+	if len(m.Refs) != 1 {
+		return false
+	}
+
+	if p, isProper := m.Refs[0].(*Proper); isProper {
+		_, isSingle := p.Verse.(*Single)
+		_, isRange := p.Verse.(*Range)
+		_, isAndFollowing := p.Verse.(*AndFollowing)
+		return isSingle || isRange || isAndFollowing
+	}
+
+	return false
+}
+
 // Resolved is a normalized reference to a single range of verses in a single
 // book, which may have a length of one. Both Verse references are inclusive and
 // must match the verse type of the book. (I.e., if the book has chapters, then
@@ -475,6 +500,10 @@ func (r *Resolved) Validate() error {
 
 func (r *Resolved) Names() []string {
 	return []string{r.Book.Name}
+}
+
+func (r *Resolved) IsSingleRange() bool {
+	return true
 }
 
 func (r *Resolved) Verses() []Verse {

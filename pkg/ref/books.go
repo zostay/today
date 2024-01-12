@@ -5,7 +5,10 @@ import (
 	"fmt"
 )
 
-var ErrWideRange = errors.New("last verse is after the end of the book")
+var (
+	ErrNotFound  = errors.New("scripture reference not found")
+	ErrWideRange = errors.New("last verse is after the end of the book")
+)
 
 // Book is a book of the Bible. We use this with a global map to do client-side
 // verification of book names, chapter, and verse references.

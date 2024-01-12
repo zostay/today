@@ -86,12 +86,12 @@ func Random(opt ...RandomReferenceOption) (string, error) {
 	//	vs = RandomPassageFromExtract(&be)
 	//} else {
 	if o.book != "" {
-		ex, err := LookupBook(o.book)
+		ex, err := Lookup(Canonical, o.book+" 1:1ffb", "")
 		if err != nil {
 			return "", err
 		}
 
-		b = ex.Book
+		b = ex.Ref.Book
 	} else {
 		b = RandomCanonical()
 	}
