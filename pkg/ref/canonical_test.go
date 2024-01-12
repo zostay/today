@@ -23,8 +23,8 @@ func TestCanonicalBook(t *testing.T) {
 	assert.False(t, g.JustVerse)
 
 	first := g.Verses[0]
-	assert.Equal(t, (&ref.CV{Chapter: 1, Verse: 1}).Ref(), first.Ref())
+	assert.Equal(t, (ref.CV{Chapter: 1, Verse: 1}).Ref(), first.Ref())
 
 	last := g.Verses[len(g.Verses)-1]
-	assert.Equal(t, (&ref.CV{Chapter: 50, Verse: 26}).Ref(), last.Ref())
+	assert.Equal(t, (ref.CV{Chapter: 50, Verse: 26}).Ref(), last.Ref())
 }

@@ -8,9 +8,9 @@ var Canonical = Canon{
         Verses: []Verse{
 {{- range $i, $v := .Verses}}
 {{- if eq 0 (index $v 0) -}}
-            &V{ {{index $v 1}} },
+            N{ {{index $v 1}} },
 {{- else -}}
-            &CV{ {{index $v 0}},{{index $v 1}} },
+            CV{ {{index $v 0}},{{index $v 1}} },
 {{- end -}}
 {{- if Mod $i 4}}
 {{end}}

@@ -93,28 +93,28 @@ func (p *parseState) remainderError() error {
 	return &MoreInputError{Remaining: string(p.input[p.pos:])}
 }
 
-// ParseV will parse a single verse number. If there's trailing input after the
+// ParseN will parse a single verse number. If there's trailing input after the
 // verse number, the ref.V will be returned along with a MoreInputError.
-func ParseV(ref string) (*V, error) {
-	v, ps, err := expectV(*makeParseState(ref))
+func ParseN(ref string) (N, error) {
+	n, ps, err := expectN(*makeParseState(ref))
 	if err != nil {
-		return nil, err
+		return N{}, err
 	}
 
 	if !ps.endOfInput() {
-		return v, ps.remainderError()
+		return n, ps.remainderError()
 	}
 
-	return v, nil
+	return n, nil
 }
 
 // ParseCV will parse a chapter and verse number. If there's trailing input
 // after the verse number, the ref.CV will be returned along with a
 // MoreInputError.
-func ParseCV(ref string) (*CV, error) {
+func ParseCV(ref string) (CV, error) {
 	cv, ps, err := expectCV(*makeParseState(ref))
 	if err != nil {
-		return nil, err
+		return CV{}, err
 	}
 
 	if !ps.endOfInput() {
@@ -263,24 +263,24 @@ func (e *MoreInputError) Error() string {
 
 var _ error = (*MoreInputError)(nil)
 
-func expectV(ref parseState) (*V, parseState, error) {
+func expectN(ref parseState) (N, parseState, error) {
 	num, ps, err := expectNumber(ref)
 	if err != nil {
-		return nil, ref, err
+		return N{}, ref, err
 	}
 
-	v := &V{Verse: num}
-	if err := v.Validate(); err != nil {
-		return v, ps, err
+	n := N{Number: num}
+	if err := n.Validate(); err != nil {
+		return n, ps, err
 	}
 
-	return v, ps, nil
+	return n, ps, nil
 }
 
-func expectCV(ref parseState) (*CV, parseState, error) {
+func expectCV(ref parseState) (CV, parseState, error) {
 	cnum, ps, err := expectNumber(ref)
 	if err != nil {
-		return nil, ref, err
+		return CV{}, ref, err
 	}
 
 	cvBreak := func(r rune) bool {
@@ -288,15 +288,15 @@ func expectCV(ref parseState) (*CV, parseState, error) {
 	}
 
 	if _, ok := ps.expect(cvBreak); !ok {
-		return nil, ref, fmt.Errorf("%w: expected a colon", ErrParseFail)
+		return CV{}, ref, fmt.Errorf("%w: expected a colon", ErrParseFail)
 	}
 
 	vnum, ps, err := expectNumber(ps)
 	if err != nil {
-		return nil, ref, err
+		return CV{}, ref, err
 	}
 
-	cv := &CV{Chapter: cnum, Verse: vnum}
+	cv := CV{Chapter: cnum, Verse: vnum}
 	if err := cv.Validate(); err != nil {
 		return cv, ps, err
 	}
@@ -308,7 +308,7 @@ func expectSingle(ref parseState) (s *Single, ps parseState, err error) {
 	var v Verse
 	v, ps, err = expectCV(ref)
 	if errors.Is(err, ErrParseFail) {
-		v, ps, err = expectV(ref)
+		v, ps, err = expectN(ref)
 		if err != nil {
 			return nil, ref, err
 		}

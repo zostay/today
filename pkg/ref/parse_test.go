@@ -8,26 +8,26 @@ import (
 	"github.com/zostay/today/pkg/ref"
 )
 
-func TestParseV(t *testing.T) {
+func TestParseN(t *testing.T) {
 	t.Parallel()
 
-	v, err := ref.ParseV("1")
+	v, err := ref.ParseN("1")
 	assert.NoError(t, err)
-	assert.Equal(t, &ref.V{Verse: 1}, v)
+	assert.Equal(t, ref.N{Number: 1}, v)
 
-	v, err = ref.ParseV("23")
+	v, err = ref.ParseN("23")
 	assert.NoError(t, err)
-	assert.Equal(t, &ref.V{Verse: 23}, v)
+	assert.Equal(t, ref.N{Number: 23}, v)
 
-	v, err = ref.ParseV("*")
+	v, err = ref.ParseN("*")
 	assert.ErrorIs(t, err, ref.ErrParseFail)
-	assert.Nil(t, v)
+	assert.Zero(t, v)
 
-	v, err = ref.ParseV("1:2")
+	v, err = ref.ParseN("1:2")
 	var moreInputErr *ref.MoreInputError
 	assert.ErrorAs(t, err, &moreInputErr)
 	assert.Equal(t, ":2", moreInputErr.Remaining)
-	assert.Equal(t, &ref.V{Verse: 1}, v)
+	assert.Equal(t, ref.N{Number: 1}, v)
 }
 
 func TestParseCV(t *testing.T) {
@@ -35,38 +35,38 @@ func TestParseCV(t *testing.T) {
 
 	cv, err := ref.ParseCV("1:2")
 	assert.NoError(t, err)
-	assert.Equal(t, &ref.CV{Chapter: 1, Verse: 2}, cv)
+	assert.Equal(t, ref.CV{Chapter: 1, Verse: 2}, cv)
 
 	cv, err = ref.ParseCV("23:45")
 	assert.NoError(t, err)
-	assert.Equal(t, &ref.CV{Chapter: 23, Verse: 45}, cv)
+	assert.Equal(t, ref.CV{Chapter: 23, Verse: 45}, cv)
 
 	cv, err = ref.ParseCV("1:*")
 	assert.ErrorIs(t, err, ref.ErrParseFail)
-	assert.Nil(t, cv)
+	assert.Zero(t, cv)
 
 	cv, err = ref.ParseCV("23:45ff")
 	var moreInputErr *ref.MoreInputError
 	assert.ErrorAs(t, err, &moreInputErr)
 	assert.Equal(t, "ff", moreInputErr.Remaining)
-	assert.Equal(t, &ref.CV{Chapter: 23, Verse: 45}, cv)
+	assert.Equal(t, ref.CV{Chapter: 23, Verse: 45}, cv)
 
 	cv, err = ref.ParseCV("1.2")
 	assert.NoError(t, err)
-	assert.Equal(t, &ref.CV{Chapter: 1, Verse: 2}, cv)
+	assert.Equal(t, ref.CV{Chapter: 1, Verse: 2}, cv)
 
 	cv, err = ref.ParseCV("23.45")
 	assert.NoError(t, err)
-	assert.Equal(t, &ref.CV{Chapter: 23, Verse: 45}, cv)
+	assert.Equal(t, ref.CV{Chapter: 23, Verse: 45}, cv)
 
 	cv, err = ref.ParseCV("1.*")
 	assert.ErrorIs(t, err, ref.ErrParseFail)
-	assert.Nil(t, cv)
+	assert.Zero(t, cv)
 
 	cv, err = ref.ParseCV("23.45ff")
 	assert.ErrorAs(t, err, &moreInputErr)
 	assert.Equal(t, "ff", moreInputErr.Remaining)
-	assert.Equal(t, &ref.CV{Chapter: 23, Verse: 45}, cv)
+	assert.Equal(t, ref.CV{Chapter: 23, Verse: 45}, cv)
 }
 
 func TestParseSingle(t *testing.T) {
@@ -74,11 +74,11 @@ func TestParseSingle(t *testing.T) {
 
 	s, err := ref.ParseSingle("1")
 	assert.NoError(t, err)
-	assert.Equal(t, &ref.Single{Verse: &ref.V{Verse: 1}}, s)
+	assert.Equal(t, &ref.Single{Verse: ref.N{Number: 1}}, s)
 
 	s, err = ref.ParseSingle("23")
 	assert.NoError(t, err)
-	assert.Equal(t, &ref.Single{Verse: &ref.V{Verse: 23}}, s)
+	assert.Equal(t, &ref.Single{Verse: ref.N{Number: 23}}, s)
 
 	s, err = ref.ParseSingle("*")
 	assert.ErrorIs(t, err, ref.ErrParseFail)
@@ -86,22 +86,22 @@ func TestParseSingle(t *testing.T) {
 
 	s, err = ref.ParseSingle("1:2")
 	assert.NoError(t, err)
-	assert.Equal(t, &ref.Single{Verse: &ref.CV{Chapter: 1, Verse: 2}}, s)
+	assert.Equal(t, &ref.Single{Verse: ref.CV{Chapter: 1, Verse: 2}}, s)
 
 	s, err = ref.ParseSingle("23:45")
 	assert.NoError(t, err)
-	assert.Equal(t, &ref.Single{Verse: &ref.CV{Chapter: 23, Verse: 45}}, s)
+	assert.Equal(t, &ref.Single{Verse: ref.CV{Chapter: 23, Verse: 45}}, s)
 
 	s, err = ref.ParseSingle("1:*")
 	var moreInputErr *ref.MoreInputError
 	assert.ErrorAs(t, err, &moreInputErr)
 	assert.Equal(t, ":*", moreInputErr.Remaining)
-	assert.Equal(t, &ref.Single{Verse: &ref.V{Verse: 1}}, s)
+	assert.Equal(t, &ref.Single{Verse: ref.N{Number: 1}}, s)
 
 	s, err = ref.ParseSingle("23:45ff")
 	assert.ErrorAs(t, err, &moreInputErr)
 	assert.Equal(t, "ff", moreInputErr.Remaining)
-	assert.Equal(t, &ref.Single{Verse: &ref.CV{Chapter: 23, Verse: 45}}, s)
+	assert.Equal(t, &ref.Single{Verse: ref.CV{Chapter: 23, Verse: 45}}, s)
 }
 
 func TestParseAndFollowing(t *testing.T) {
@@ -109,11 +109,11 @@ func TestParseAndFollowing(t *testing.T) {
 
 	af, err := ref.ParseAndFollowing("1ff")
 	assert.NoError(t, err)
-	assert.Equal(t, &ref.AndFollowing{Verse: &ref.V{Verse: 1}, Following: ref.FollowingRemainingChapter}, af)
+	assert.Equal(t, &ref.AndFollowing{Verse: ref.N{Number: 1}, Following: ref.FollowingRemainingChapter}, af)
 
 	af, err = ref.ParseAndFollowing("23ff")
 	assert.NoError(t, err)
-	assert.Equal(t, &ref.AndFollowing{Verse: &ref.V{Verse: 23}, Following: ref.FollowingRemainingChapter}, af)
+	assert.Equal(t, &ref.AndFollowing{Verse: ref.N{Number: 23}, Following: ref.FollowingRemainingChapter}, af)
 
 	af, err = ref.ParseAndFollowing("11")
 	assert.ErrorIs(t, err, ref.ErrParseFail)
@@ -121,11 +121,11 @@ func TestParseAndFollowing(t *testing.T) {
 
 	af, err = ref.ParseAndFollowing("1:2ff")
 	assert.NoError(t, err)
-	assert.Equal(t, &ref.AndFollowing{Verse: &ref.CV{Chapter: 1, Verse: 2}, Following: ref.FollowingRemainingChapter}, af)
+	assert.Equal(t, &ref.AndFollowing{Verse: ref.CV{Chapter: 1, Verse: 2}, Following: ref.FollowingRemainingChapter}, af)
 
 	af, err = ref.ParseAndFollowing("23:45ff")
 	assert.NoError(t, err)
-	assert.Equal(t, &ref.AndFollowing{Verse: &ref.CV{Chapter: 23, Verse: 45}, Following: ref.FollowingRemainingChapter}, af)
+	assert.Equal(t, &ref.AndFollowing{Verse: ref.CV{Chapter: 23, Verse: 45}, Following: ref.FollowingRemainingChapter}, af)
 
 	af, err = ref.ParseAndFollowing("1:*ff")
 	assert.ErrorIs(t, err, ref.ErrParseFail)
@@ -135,12 +135,12 @@ func TestParseAndFollowing(t *testing.T) {
 	var moreInputErr *ref.MoreInputError
 	assert.ErrorAs(t, err, &moreInputErr)
 	assert.Equal(t, ". ", moreInputErr.Remaining)
-	assert.Equal(t, &ref.AndFollowing{Verse: &ref.CV{Chapter: 23, Verse: 45}, Following: ref.FollowingRemainingChapter}, af)
+	assert.Equal(t, &ref.AndFollowing{Verse: ref.CV{Chapter: 23, Verse: 45}, Following: ref.FollowingRemainingChapter}, af)
 
 	af, err = ref.ParseAndFollowing("23ff:45ff. ")
 	assert.ErrorAs(t, err, &moreInputErr)
 	assert.Equal(t, ":45ff. ", moreInputErr.Remaining)
-	assert.Equal(t, &ref.AndFollowing{Verse: &ref.V{Verse: 23}, Following: ref.FollowingRemainingChapter}, af)
+	assert.Equal(t, &ref.AndFollowing{Verse: ref.N{Number: 23}, Following: ref.FollowingRemainingChapter}, af)
 }
 
 func TestParseRange(t *testing.T) {
@@ -148,19 +148,19 @@ func TestParseRange(t *testing.T) {
 
 	r, err := ref.ParseRange("1:2-3:4")
 	assert.NoError(t, err)
-	assert.Equal(t, &ref.Range{First: &ref.CV{Chapter: 1, Verse: 2}, Last: &ref.CV{Chapter: 3, Verse: 4}}, r)
+	assert.Equal(t, &ref.Range{First: ref.CV{Chapter: 1, Verse: 2}, Last: ref.CV{Chapter: 3, Verse: 4}}, r)
 
 	r, err = ref.ParseRange("1:2-3")
 	assert.NoError(t, err)
-	assert.Equal(t, &ref.Range{First: &ref.CV{Chapter: 1, Verse: 2}, Last: &ref.V{Verse: 3}}, r)
+	assert.Equal(t, &ref.Range{First: ref.CV{Chapter: 1, Verse: 2}, Last: ref.N{Number: 3}}, r)
 
 	r, err = ref.ParseRange("12:34-56:78")
 	assert.NoError(t, err)
-	assert.Equal(t, &ref.Range{First: &ref.CV{Chapter: 12, Verse: 34}, Last: &ref.CV{Chapter: 56, Verse: 78}}, r)
+	assert.Equal(t, &ref.Range{First: ref.CV{Chapter: 12, Verse: 34}, Last: ref.CV{Chapter: 56, Verse: 78}}, r)
 
 	r, err = ref.ParseRange("12:34-56")
 	assert.NoError(t, err)
-	assert.Equal(t, &ref.Range{First: &ref.CV{Chapter: 12, Verse: 34}, Last: &ref.V{Verse: 56}}, r)
+	assert.Equal(t, &ref.Range{First: ref.CV{Chapter: 12, Verse: 34}, Last: ref.N{Number: 56}}, r)
 
 	r, err = ref.ParseRange("1-3:4")
 	var validationErr *ref.ValidationError
@@ -171,7 +171,7 @@ func TestParseRange(t *testing.T) {
 	var moreInputErr *ref.MoreInputError
 	assert.ErrorAs(t, err, &moreInputErr)
 	assert.Equal(t, "ff", moreInputErr.Remaining)
-	assert.Equal(t, &ref.Range{First: &ref.CV{Chapter: 1, Verse: 2}, Last: &ref.CV{Chapter: 3, Verse: 4}}, r)
+	assert.Equal(t, &ref.Range{First: ref.CV{Chapter: 1, Verse: 2}, Last: ref.CV{Chapter: 3, Verse: 4}}, r)
 }
 
 func TestParseRelated(t *testing.T) {
@@ -181,11 +181,11 @@ func TestParseRelated(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, &ref.Related{
 		Refs: []ref.Relative{
-			&ref.Single{Verse: &ref.CV{Chapter: 1, Verse: 2}},
-			&ref.Single{Verse: &ref.V{Verse: 4}},
-			&ref.Range{First: &ref.V{Verse: 6}, Last: &ref.V{Verse: 8}},
-			&ref.AndFollowing{Verse: &ref.CV{Chapter: 5, Verse: 12}, Following: ref.FollowingRemainingChapter},
-			&ref.Range{First: &ref.CV{Chapter: 12, Verse: 34}, Last: &ref.CV{Chapter: 13, Verse: 56}},
+			&ref.Single{Verse: ref.CV{Chapter: 1, Verse: 2}},
+			&ref.Single{Verse: ref.N{Number: 4}},
+			&ref.Range{First: ref.N{Number: 6}, Last: ref.N{Number: 8}},
+			&ref.AndFollowing{Verse: ref.CV{Chapter: 5, Verse: 12}, Following: ref.FollowingRemainingChapter},
+			&ref.Range{First: ref.CV{Chapter: 12, Verse: 34}, Last: ref.CV{Chapter: 13, Verse: 56}},
 		},
 	}, r)
 
@@ -201,11 +201,11 @@ func TestParseRelated(t *testing.T) {
 	assert.Equal(t, "; ", moreInputErr.Remaining)
 	assert.Equal(t, &ref.Related{
 		Refs: []ref.Relative{
-			&ref.Single{Verse: &ref.CV{Chapter: 1, Verse: 2}},
-			&ref.Single{Verse: &ref.V{Verse: 4}},
-			&ref.Range{First: &ref.V{Verse: 6}, Last: &ref.V{Verse: 8}},
-			&ref.AndFollowing{Verse: &ref.CV{Chapter: 5, Verse: 12}, Following: ref.FollowingRemainingChapter},
-			&ref.Range{First: &ref.CV{Chapter: 12, Verse: 34}, Last: &ref.CV{Chapter: 13, Verse: 56}},
+			&ref.Single{Verse: ref.CV{Chapter: 1, Verse: 2}},
+			&ref.Single{Verse: ref.N{Number: 4}},
+			&ref.Range{First: ref.N{Number: 6}, Last: ref.N{Number: 8}},
+			&ref.AndFollowing{Verse: ref.CV{Chapter: 5, Verse: 12}, Following: ref.FollowingRemainingChapter},
+			&ref.Range{First: ref.CV{Chapter: 12, Verse: 34}, Last: ref.CV{Chapter: 13, Verse: 56}},
 		},
 	}, r)
 }
@@ -218,8 +218,8 @@ func TestParseProper(t *testing.T) {
 	assert.Equal(t, &ref.Proper{
 		Book: "Genesis",
 		Verse: &ref.Range{
-			First: &ref.CV{Chapter: 1, Verse: 2},
-			Last:  &ref.CV{Chapter: 3, Verse: 4},
+			First: ref.CV{Chapter: 1, Verse: 2},
+			Last:  ref.CV{Chapter: 3, Verse: 4},
 		},
 	}, p)
 
@@ -228,8 +228,8 @@ func TestParseProper(t *testing.T) {
 	assert.Equal(t, &ref.Proper{
 		Book: "Genesis",
 		Verse: &ref.Range{
-			First: &ref.CV{Chapter: 1, Verse: 2},
-			Last:  &ref.V{Verse: 3},
+			First: ref.CV{Chapter: 1, Verse: 2},
+			Last:  ref.N{Number: 3},
 		},
 	}, p)
 
@@ -238,14 +238,14 @@ func TestParseProper(t *testing.T) {
 	assert.Equal(t, &ref.Proper{
 		Book: "Genesis",
 		Verse: &ref.Range{
-			First: &ref.CV{Chapter: 12, Verse: 34},
-			Last:  &ref.CV{Chapter: 56, Verse: 78},
+			First: ref.CV{Chapter: 12, Verse: 34},
+			Last:  ref.CV{Chapter: 56, Verse: 78},
 		},
 	}, p)
 
 	p, err = ref.ParseProper("Genesis 12:34-56")
 	assert.NoError(t, err)
-	assert.Equal(t, &ref.Proper{Book: "Genesis", Verse: &ref.Range{First: &ref.CV{Chapter: 12, Verse: 34}, Last: &ref.V{Verse: 56}}}, p)
+	assert.Equal(t, &ref.Proper{Book: "Genesis", Verse: &ref.Range{First: ref.CV{Chapter: 12, Verse: 34}, Last: ref.N{Number: 56}}}, p)
 
 	p, err = ref.ParseProper("Genesis 1-3:4")
 	var validationErr *ref.ValidationError
@@ -258,8 +258,8 @@ func TestParseProper(t *testing.T) {
 		Book: "Genesis",
 		Verse: &ref.Related{
 			Refs: []ref.Relative{
-				&ref.Single{Verse: &ref.CV{Chapter: 1, Verse: 2}},
-				&ref.AndFollowing{Verse: &ref.CV{Chapter: 3, Verse: 4}, Following: ref.FollowingRemainingChapter},
+				&ref.Single{Verse: ref.CV{Chapter: 1, Verse: 2}},
+				&ref.AndFollowing{Verse: ref.CV{Chapter: 3, Verse: 4}, Following: ref.FollowingRemainingChapter},
 			},
 		},
 	}, p)
@@ -272,8 +272,8 @@ func TestParseProper(t *testing.T) {
 		Book: "Genesis",
 		Verse: &ref.Related{
 			Refs: []ref.Relative{
-				&ref.Single{Verse: &ref.CV{Chapter: 1, Verse: 2}},
-				&ref.AndFollowing{Verse: &ref.CV{Chapter: 3, Verse: 4}, Following: ref.FollowingRemainingChapter},
+				&ref.Single{Verse: ref.CV{Chapter: 1, Verse: 2}},
+				&ref.AndFollowing{Verse: ref.CV{Chapter: 3, Verse: 4}, Following: ref.FollowingRemainingChapter},
 			},
 		},
 	}, p)
@@ -290,42 +290,49 @@ func TestParseProper(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, &ref.Proper{
 		Book:  "Ge",
-		Verse: &ref.Single{Verse: &ref.CV{Chapter: 1, Verse: 2}},
+		Verse: &ref.Single{Verse: ref.CV{Chapter: 1, Verse: 2}},
 	}, p)
 
 	p, err = ref.ParseProper("4c 1:2")
 	assert.NoError(t, err)
 	assert.Equal(t, &ref.Proper{
 		Book:  "4c",
-		Verse: &ref.Single{Verse: &ref.CV{Chapter: 1, Verse: 2}},
+		Verse: &ref.Single{Verse: ref.CV{Chapter: 1, Verse: 2}},
 	}, p)
 
 	p, err = ref.ParseProper("Ge1:2")
 	assert.NoError(t, err)
 	assert.Equal(t, &ref.Proper{
 		Book:  "Ge",
-		Verse: &ref.Single{Verse: &ref.CV{Chapter: 1, Verse: 2}},
+		Verse: &ref.Single{Verse: ref.CV{Chapter: 1, Verse: 2}},
 	}, p)
 
 	p, err = ref.ParseProper("Ge.1:2")
 	assert.NoError(t, err)
 	assert.Equal(t, &ref.Proper{
 		Book:  "Ge.",
-		Verse: &ref.Single{Verse: &ref.CV{Chapter: 1, Verse: 2}},
+		Verse: &ref.Single{Verse: ref.CV{Chapter: 1, Verse: 2}},
 	}, p)
 
 	p, err = ref.ParseProper("Ge. 1:2")
 	assert.NoError(t, err)
 	assert.Equal(t, &ref.Proper{
 		Book:  "Ge.",
-		Verse: &ref.Single{Verse: &ref.CV{Chapter: 1, Verse: 2}},
+		Verse: &ref.Single{Verse: ref.CV{Chapter: 1, Verse: 2}},
 	}, p)
 
 	p, err = ref.ParseProper("1 Samuel 1:2")
 	assert.NoError(t, err)
 	assert.Equal(t, &ref.Proper{
 		Book:  "1 Samuel",
-		Verse: &ref.Single{Verse: &ref.CV{Chapter: 1, Verse: 2}},
+		Verse: &ref.Single{Verse: ref.CV{Chapter: 1, Verse: 2}},
+	}, p)
+
+	p, err = ref.ParseProper("Isaiah 33")
+	assert.NoError(t, err)
+	assert.Equal(t, &ref.Proper{
+		Book:  "Isaiah",
+		Verse: &ref.Single{Verse: ref.N{Number: 33}},
 	}, p)
 }
 
@@ -340,8 +347,8 @@ func TestParseMultiple(t *testing.T) {
 				Book: "Genesis",
 				Verse: &ref.Related{
 					Refs: []ref.Relative{
-						&ref.Range{First: &ref.CV{Chapter: 1, Verse: 2}, Last: &ref.CV{Chapter: 3, Verse: 4}},
-						&ref.Range{First: &ref.CV{Chapter: 5, Verse: 6}, Last: &ref.CV{Chapter: 7, Verse: 8}},
+						&ref.Range{First: ref.CV{Chapter: 1, Verse: 2}, Last: ref.CV{Chapter: 3, Verse: 4}},
+						&ref.Range{First: ref.CV{Chapter: 5, Verse: 6}, Last: ref.CV{Chapter: 7, Verse: 8}},
 					},
 				},
 			},
@@ -354,9 +361,9 @@ func TestParseMultiple(t *testing.T) {
 		Refs: []ref.Ref{
 			&ref.Proper{
 				Book:  "Genesis",
-				Verse: &ref.Range{First: &ref.CV{Chapter: 1, Verse: 2}, Last: &ref.CV{Chapter: 3, Verse: 4}},
+				Verse: &ref.Range{First: ref.CV{Chapter: 1, Verse: 2}, Last: ref.CV{Chapter: 3, Verse: 4}},
 			},
-			&ref.Range{First: &ref.CV{Chapter: 5, Verse: 6}, Last: &ref.CV{Chapter: 7, Verse: 8}},
+			&ref.Range{First: ref.CV{Chapter: 5, Verse: 6}, Last: ref.CV{Chapter: 7, Verse: 8}},
 		},
 	}, m)
 
@@ -366,11 +373,11 @@ func TestParseMultiple(t *testing.T) {
 		Refs: []ref.Ref{
 			&ref.Proper{
 				Book:  "Genesis",
-				Verse: &ref.Range{First: &ref.CV{Chapter: 1, Verse: 2}, Last: &ref.CV{Chapter: 3, Verse: 4}},
+				Verse: &ref.Range{First: ref.CV{Chapter: 1, Verse: 2}, Last: ref.CV{Chapter: 3, Verse: 4}},
 			},
 			&ref.Proper{
 				Book:  "Ex.",
-				Verse: &ref.Range{First: &ref.CV{Chapter: 5, Verse: 6}, Last: &ref.CV{Chapter: 7, Verse: 8}},
+				Verse: &ref.Range{First: ref.CV{Chapter: 5, Verse: 6}, Last: ref.CV{Chapter: 7, Verse: 8}},
 			},
 		},
 	}, m)
@@ -383,7 +390,7 @@ func TestParseMultiple(t *testing.T) {
 		Refs: []ref.Ref{
 			&ref.Proper{
 				Book:  "Genesis",
-				Verse: &ref.Range{First: &ref.CV{Chapter: 1, Verse: 2}, Last: &ref.CV{Chapter: 3, Verse: 4}},
+				Verse: &ref.Range{First: ref.CV{Chapter: 1, Verse: 2}, Last: ref.CV{Chapter: 3, Verse: 4}},
 			},
 		},
 	}, m)
@@ -395,11 +402,11 @@ func TestParseMultiple(t *testing.T) {
 		Refs: []ref.Ref{
 			&ref.Proper{
 				Book:  "Genesis",
-				Verse: &ref.Range{First: &ref.CV{Chapter: 1, Verse: 2}, Last: &ref.CV{Chapter: 3, Verse: 4}},
+				Verse: &ref.Range{First: ref.CV{Chapter: 1, Verse: 2}, Last: ref.CV{Chapter: 3, Verse: 4}},
 			},
 			&ref.Proper{
 				Book:  "Ex.",
-				Verse: &ref.Range{First: &ref.CV{Chapter: 5, Verse: 6}, Last: &ref.CV{Chapter: 7, Verse: 8}},
+				Verse: &ref.Range{First: ref.CV{Chapter: 5, Verse: 6}, Last: ref.CV{Chapter: 7, Verse: 8}},
 			},
 		},
 	}, m)

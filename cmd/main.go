@@ -69,7 +69,7 @@ func init() {
 }
 
 func RunListCategories(cmd *cobra.Command, args []string) {
-	for c := range ref.Categories {
+	for c := range ref.Categories() {
 		fmt.Println(c)
 	}
 }

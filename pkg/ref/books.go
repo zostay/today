@@ -109,12 +109,42 @@ func (c Canon) resolveProper(p *Proper) ([]Resolved, error) {
 	return nil, fmt.Errorf("unknown reference type: %T", p.Verse)
 }
 
+func ensureVerseMatchesBook(b *Book, v Verse) (Verse, bool, error) {
+	wholeChapter := false
+
+	// enforce N to CV
+	if !b.JustVerse {
+		if nv, isN := v.(N); isN {
+			wholeChapter = true
+			v = CV{Chapter: nv.Number, Verse: 1}
+		}
+	}
+
+	if _, isCV := v.(CV); b.JustVerse && isCV {
+		return nil, false, errors.New("expected a verse-only reference, but got chapter-and-verse")
+	}
+
+	return v, wholeChapter, nil
+}
+
 func (c Canon) resolveSingle(b *Book, s *Single) ([]Resolved, error) {
+	v, wholeChapter, err := ensureVerseMatchesBook(b, s.Verse)
+	if err != nil {
+		return nil, err
+	}
+
+	if wholeChapter {
+		return c.resolveAndFollowing(b, &AndFollowing{
+			Verse:     v,
+			Following: FollowingRemainingChapter,
+		})
+	}
+
 	return []Resolved{
 		{
 			Book:  b,
-			First: s.Verse,
-			Last:  s.Verse,
+			First: v,
+			Last:  v,
 		},
 	}, nil
 }
@@ -123,16 +153,32 @@ func (c Canon) resolveAndFollowing(
 	b *Book,
 	a *AndFollowing,
 ) ([]Resolved, error) {
+	v, _, err := ensureVerseMatchesBook(b, a.Verse)
+	if err != nil {
+		return nil, err
+	}
+
 	switch a.Following {
 	case FollowingNone:
-		return c.resolveSingle(b, &Single{Verse: a.Verse})
+		return c.resolveSingle(b, &Single{Verse: v})
 	case FollowingRemainingChapter:
-		return c.resolveAndFollowingChapter(b, a.Verse)
+		lv, err := c.lastVerseInChapter(b, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return []Resolved{
+			{
+				Book:  b,
+				First: v,
+				Last:  lv,
+			},
+		}, nil
 	case FollowingRemainingBook:
 		return []Resolved{
 			{
 				Book:  b,
-				First: a.Verse,
+				First: v,
 				Last:  b.Verses[len(b.Verses)-1],
 			},
 		}, nil
@@ -140,67 +186,63 @@ func (c Canon) resolveAndFollowing(
 
 	return nil, fmt.Errorf("unknown following type: %d", a.Following)
 }
-func (c Canon) resolveAndFollowingChapter(
+
+func (c Canon) lastVerseInChapter(
 	b *Book,
 	v Verse,
-) ([]Resolved, error) {
-	ss, err := c.resolveSingle(b, &Single{Verse: v})
-	if err != nil {
-		return nil, err
+) (Verse, error) {
+	if b.JustVerse {
+		return b.Verses[len(b.Verses)-1], nil
 	}
 
-	_, hasCv := b.Verses[0].(*CV)
-	_, expectCv := ss[0].Last.(*CV)
-	if hasCv && !expectCv {
-		return nil, errors.New("expected a chapter-and-verse reference, but got verse-only")
-	} else if !hasCv && expectCv {
-		return nil, errors.New("expected a just-verse reference, but got chapter-and-verse")
-	}
-
-	lastVerse := ss[0].Last
+	lv := v
 	started := false
 	for i := range b.Verses {
-		if b.Verses[i].Equal(lastVerse) {
-			started = true
-		} else if !started {
+		if !started {
+			if b.Verses[i].Equal(lv) {
+				started = true
+			}
 			continue
 		}
 
-		if cv, isCv := b.Verses[i].(*CV); started && isCv {
-			if cv.Chapter == lastVerse.(*CV).Chapter {
-				lastVerse = b.Verses[i]
-				continue
-			}
-			break
-		} else {
-			lastVerse = b.Verses[len(b.Verses)-1]
+		cv := b.Verses[i].(CV)
+		if !(N{Number: cv.Chapter}).Equal(v) {
 			break
 		}
+
+		lv = b.Verses[i]
 	}
 
 	if !started {
 		return nil, ErrNotFound
 	}
 
-	return []Resolved{
-		{
-			Book:  b,
-			First: v,
-			Last:  lastVerse,
-		},
-	}, nil
+	return lv, nil
 }
 
 func (c Canon) resolveRange(
 	b *Book,
 	r *Range,
 ) ([]Resolved, error) {
-	hasFirst := b.Contains(r.First)
+	first, wholeChapter, err := ensureVerseMatchesBook(b, r.First)
+	if first == nil {
+		return nil, err
+	}
+
+	hasFirst := b.Contains(first)
 	if !hasFirst {
 		return nil, ErrNotFound
 	}
 
-	hasLast := b.Contains(r.Last.RelativeTo(r.First))
+	last := r.Last.RelativeTo(first)
+	if wholeChapter {
+		last, err = c.lastVerseInChapter(b, last)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	hasLast := b.Contains(last)
 	if !hasLast {
 		return nil, ErrNotFound
 	}
@@ -208,8 +250,8 @@ func (c Canon) resolveRange(
 	return []Resolved{
 		{
 			Book:  b,
-			First: r.First,
-			Last:  r.Last,
+			First: first,
+			Last:  last,
 		},
 	}, nil
 }

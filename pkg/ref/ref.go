@@ -77,8 +77,19 @@ type Relative interface {
 // Verse is a reference to a verse of the Bible relative to a book.
 type Verse interface {
 	Relative
+
+	// Before returns true if this verse is before the given verse. If the given
+	// verse is not the same type as this verse, it must be converted to this
+	// type using RelativeTo first.
 	Before(Verse) bool
+
+	// Equal returns true if this verse is equal to the given verse. If the given
+	// verse is not the same type as this verse, it must be converted to this
+	// type using RelativeTo first.
 	Equal(Verse) bool
+
+	// RelativeTo returns the given verse converted to this type of verse using
+	// this verse as context.
 	RelativeTo(Verse) Verse
 }
 
@@ -101,12 +112,12 @@ type CV struct {
 }
 
 // Ref returns the Chapter:Verse reference string.
-func (v *CV) Ref() string {
+func (v CV) Ref() string {
 	return strconv.Itoa(v.Chapter) + ":" + strconv.Itoa(v.Verse)
 }
 
 // Validate returns true iff the chapter and verse are both positive.
-func (v *CV) Validate() error {
+func (v CV) Validate() error {
 	if v.Chapter <= 0 {
 		return invalid("chapter must be positive")
 	}
@@ -118,78 +129,99 @@ func (v *CV) Validate() error {
 
 // InBook turns this relative reference into a proper reference for the given
 // book.
-func (v *CV) InBook(b string) *Proper {
-	return NewProper(b, v)
+func (v CV) InBook(b string) *Proper {
+	return NewProper(b, &Single{Verse: v})
 }
 
-func (v *CV) Before(ov Verse) bool {
+func (v CV) Before(ov Verse) bool {
 	switch sv := ov.(type) {
-	case *CV:
+	case CV:
 		return v.Chapter < sv.Chapter ||
 			(v.Chapter == sv.Chapter && v.Verse < sv.Verse)
-	case *V:
-		return v.Verse < sv.Verse
+	default:
+		return v.Before(sv.RelativeTo(v))
 	}
-	panic("unable to validate unknown verse type")
 }
 
-func (v *CV) Equal(ov Verse) bool {
-	if cv, isCV := ov.(*CV); isCV {
-		return v.Chapter == cv.Chapter && v.Verse == cv.Verse
+func (v CV) Equal(ov Verse) bool {
+	switch sv := ov.(type) {
+	case CV:
+		return v.Chapter == sv.Chapter && v.Verse == sv.Verse
+	default:
+		return v.Equal(sv.RelativeTo(v))
 	}
-	return false
 }
 
-func (v *CV) RelativeTo(Verse) Verse {
-	return v
+func (v CV) RelativeTo(ov Verse) Verse {
+	switch ov.(type) {
+	case CV:
+		return v
+	case N:
+		return N{Number: v.Chapter}
+	}
+	panic("unable to convert CV to unknown verse type")
 }
 
-// V is a reference to a specific verse for books without chapters.
-type V struct {
-	Verse int
+// N is a reference to either a specific verse or to a chapter. It represents
+// any case where a single number is used in a reference. Whether this number
+// represents a verse or chapter is determined by the context.
+//
+// For example:
+//
+//	Philemon 12 - this is a verse because Philemon has no chapters
+//	Isaiah 24 - this is a chapter because Isaiah has chapters
+//	John 3:16-17 - the 17 is a verse, the chapter is implied by the previous chapter/verse reference in the range
+//
+// N represents all the of the above cases.
+type N struct {
+	Number int
 }
 
 // Ref returns the Verse reference string (no Chapter:).
-func (v *V) Ref() string {
-	return strconv.Itoa(v.Verse)
+func (n N) Ref() string {
+	return strconv.Itoa(n.Number)
 }
 
 // Validate returns true iff the verse is positive.
-func (v *V) Validate() error {
-	if v.Verse <= 0 {
-		return invalid("verse must be positive")
+func (n N) Validate() error {
+	if n.Number <= 0 {
+		return invalid("chapter or verse must be positive")
 	}
 	return nil
 }
 
 // InBook turns this relative reference into a proper reference for the given
 // book.
-func (v *V) InBook(b string) *Proper {
-	return NewProper(b, v)
+func (n N) InBook(b string) *Proper {
+	return NewProper(b, &Single{Verse: n})
 }
 
-func (v *V) Before(ov Verse) bool {
+func (n N) Before(ov Verse) bool {
 	switch sv := ov.(type) {
-	case *CV:
-		return false
-	case *V:
-		return v.Verse < sv.Verse
+	case N:
+		return n.Number < sv.Number
+	default:
+		return n.Before(sv.RelativeTo(n))
 	}
-	panic("unable to validate unknown verse type")
 }
 
-func (v *V) Equal(ov Verse) bool {
-	if jv, isJV := ov.(*V); isJV {
-		return v.Verse == jv.Verse
+func (n N) Equal(ov Verse) bool {
+	switch sv := ov.(type) {
+	case N:
+		return n.Number == sv.Number
+	default:
+		return n.Equal(sv.RelativeTo(n))
 	}
-	return false
 }
 
-func (v *V) RelativeTo(ov Verse) Verse {
-	if cv, isCV := ov.(*CV); isCV {
-		return &CV{Chapter: cv.Chapter, Verse: v.Verse}
+func (n N) RelativeTo(ov Verse) Verse {
+	switch sv := ov.(type) {
+	case N:
+		return n
+	case CV:
+		return CV{Chapter: sv.Chapter, Verse: n.Number}
 	}
-	return v
+	panic("unable to convert N to unknown verse type")
 }
 
 // Single is a relative reference to a single verse. It wraps a single verse.
@@ -266,8 +298,8 @@ func (v *AndFollowing) InBook(b string) *Proper {
 // Range is a reference to a range of verses relative to a Book. It is formed of
 // two ref.Verse references, which are the inclusive bounds of a relative Bible
 // reference. The First ref.Verse may either be a ref.CV or
-// ref.V. The Last ref.Verse must be a ref.V if the first is
-// ref.V. It may be a ref.V if the First is a ref.CV.
+// ref.N. The Last ref.Verse must be a ref.N if the first is
+// ref.N. It may be a ref.N if the First is a ref.CV.
 // In either case, the given ref.Verse in Last must be greater than First.
 type Range struct {
 	First Verse
@@ -298,8 +330,8 @@ func (r *Range) Validate() error {
 		return invalid("range is incorrect: %w", errors.Join(errs...))
 	}
 
-	_, isJvFirst := r.First.(*V)
-	_, isJvLast := r.Last.(*V)
+	_, isJvFirst := r.First.(N)
+	_, isJvLast := r.Last.(N)
 	if isJvFirst && !isJvLast {
 		return invalid("range is incorrect: first is verse-only but last is not")
 	}
@@ -543,8 +575,8 @@ func (r *Resolved) Verses() []Verse {
 	return verses
 }
 
-var _ Verse = (*CV)(nil)
-var _ Verse = (*V)(nil)
+var _ Verse = CV{}
+var _ Verse = N{}
 var _ Relative = (*Single)(nil)
 var _ Relative = (*AndFollowing)(nil)
 var _ Relative = (*Range)(nil)
