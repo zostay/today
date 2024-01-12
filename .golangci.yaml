@@ -39,6 +39,8 @@ linters-settings:
         allow:
           - "$gostd"
           - github.com/zostay
+          - github.com/spf13/cobra
+          - github.com/bbrks/wrap
 
       tests:
         files:

@@ -1,7 +1,6 @@
 package ref
 
 import (
-	"fmt"
 	"math/rand"
 )
 
@@ -57,7 +56,7 @@ func FromCategory(name string) RandomReferenceOption {
 
 // Random pulls a random reference from the Bible and returns it. You can use the
 // options to help narrow down where the passages are selected from.
-func Random(opt ...RandomReferenceOption) (string, error) {
+func Random(opt ...RandomReferenceOption) (*Resolved, error) {
 	o := &randomOpts{}
 	for _, f := range opt {
 		f(o)
@@ -88,7 +87,7 @@ func Random(opt ...RandomReferenceOption) (string, error) {
 	if o.book != "" {
 		ex, err := Lookup(Canonical, o.book+" 1:1ffb", "")
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		b = ex.Ref.Book
@@ -101,11 +100,11 @@ func Random(opt ...RandomReferenceOption) (string, error) {
 
 	v1, v2 := vs[0], vs[len(vs)-1]
 
-	if len(vs) > 1 {
-		return fmt.Sprintf("%s %s-%s", b.Name, v1.Ref(), v2.Ref()), nil
-	}
-
-	return fmt.Sprintf("%s %s", b.Name, v1.Ref()), nil
+	return &Resolved{
+		Book:  b,
+		First: v1,
+		Last:  v2,
+	}, nil
 }
 
 // // RandomReference returns a random reference to a passage in the Bible in a

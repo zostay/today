@@ -7,6 +7,6 @@ import (
 )
 
 type Resolver interface {
-	Verse(ref ref.Resolved) (string, error)
-	VerseHTML(ref ref.Resolved) (template.HTML, error)
+	Verse(ref *ref.Resolved) (string, error)
+	VerseHTML(ref *ref.Resolved) (template.HTML, error)
 }

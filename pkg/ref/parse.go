@@ -31,18 +31,13 @@ func (p *parseState) peek() rune {
 	return p.input[pos]
 }
 
-func (p *parseState) next() rune {
+func (p *parseState) next() {
 	pos := p.pos
 	for pos < len(p.input) && unicode.IsSpace(p.input[pos]) {
 		pos++
 	}
 
-	if pos >= len(p.input) {
-		return -1
-	}
-
 	p.pos = pos + 1
-	return p.input[pos]
 }
 
 func (p *parseState) expectRune(r rune) bool {

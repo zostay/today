@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"text/template"
@@ -26,7 +25,7 @@ type BookConfig struct {
 }
 
 func main() {
-	esvj, err := ioutil.ReadFile(DatabaseFile)
+	esvj, err := os.ReadFile(DatabaseFile)
 	if err != nil {
 		panic(err)
 	}
@@ -37,7 +36,7 @@ func main() {
 		panic(err)
 	}
 
-	tmplBytes, err := ioutil.ReadFile(TemplateFile)
+	tmplBytes, err := os.ReadFile(TemplateFile)
 	if err != nil {
 		panic(err)
 	}

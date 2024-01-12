@@ -412,7 +412,9 @@ func (p *Proper) IsSingleRange() bool {
 // The first references must a ref.Proper reference. The remaining references will
 // be considered relative to that.
 //
-// For example: Genesis 3:15-18; 5:8; 12:10ff; 14:14-23; 15:1-6
+// For example:
+//
+//	Genesis 3:15-18; 5:8; 12:10ff; 14:14-23; 15:1-6
 type Multiple struct {
 	Refs []Ref
 }
