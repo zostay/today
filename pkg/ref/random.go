@@ -1,6 +1,7 @@
 package ref
 
 import (
+	"fmt"
 	"math/rand"
 )
 
@@ -24,7 +25,7 @@ func RandomPassage(b *Book) []Verse {
 	return b.Verses[x:y]
 }
 
-func RandomPassageFromExtract(b *Resolved) []Verse {
+func RandomPassageFromRef(b *Resolved) []Verse {
 	x := rand.Int() % len(b.Verses()) //nolint:gosec // weak random is fine here
 	o := rand.Int() % 30              //nolint:gosec // weak random is fine here
 	y := x + o
@@ -66,37 +67,37 @@ func Random(opt ...RandomReferenceOption) (*Resolved, error) {
 		b  *Book
 		vs []Verse
 	)
-	// if o.category != "" {
-	// 	exs, err := LookupCategory(o.category)
-	// 	if err != nil {
-	// 		return "", err
-	// 	}
-	//
-	// 	// lazy way to weight the books by the number of verses they have
-	// 	bag := make([]Resolved, 0, len(exs))
-	// 	for i := range exs {
-	// 		for range exs[i].Verses() {
-	// 			bag = append(bag, exs[i])
-	// 		}
-	// 	}
-	//
-	// 	be := bag[rand.Int()%len(bag)] //nolint:gosec // weak random is fine here
-	// 	b = be.Book
-	// 	vs = RandomPassageFromExtract(&be)
-	// } else {
-	if o.book != "" {
-		ex, err := Lookup(Canonical, o.book+" 1:1ffb", "")
-		if err != nil {
-			return nil, err
+	if o.category != "" {
+		ps, hasCategory := Categories()[o.category]
+		if !hasCategory {
+			return nil, fmt.Errorf("unknown category: %s", o.category)
 		}
 
-		b = ex.Ref.Book
-	} else {
-		b = RandomCanonical()
-	}
+		// lazy way to weight the books by the number of verses they have
+		bag := make([]*Pericope, 0, len(ps))
+		for i := range ps {
+			for range ps[i].Ref.Verses() {
+				bag = append(bag, ps[i])
+			}
+		}
 
-	vs = RandomPassage(b)
-	//}
+		be := bag[rand.Int()%len(bag)] //nolint:gosec // weak random is fine here
+		b = be.Ref.Book
+		vs = RandomPassageFromRef(be.Ref)
+	} else {
+		if o.book != "" {
+			ex, err := Lookup(Canonical, o.book+" 1:1ffb", "")
+			if err != nil {
+				return nil, err
+			}
+
+			b = ex.Ref.Book
+		} else {
+			b = RandomCanonical()
+		}
+
+		vs = RandomPassage(b)
+	}
 
 	v1, v2 := vs[0], vs[len(vs)-1]
 
