@@ -11,102 +11,116 @@ package ref
 // These categories would overlap heavily. I think I will need to do my own
 // survey of the Bible to get this to approximate what I'm looking for.
 
-//var lb = MustLookupBook
-//var lbe = MustLookupBookExtract
-//var Categories = map[string][]Resolved{
-//	"Law": {
-//		*lb("Genesis"),
-//		*lb("Exodus"),
-//		*lb("Leviticus"),
-//		*lb("Numbers"),
-//		*lb("Deuteronomy"),
-//	},
-//	"History": {
-//		*lb("Joshua"),
-//		*lb("Judges"),
-//		*lb("Ruth"),
-//		*lb("1 Samuel"),
-//		*lb("2 Samuel"),
-//		*lb("1 Kings"),
-//		*lb("2 Kings"),
-//		*lb("1 Chronicles"),
-//		*lb("2 Chronicles"),
-//		*lb("Ezra"),
-//		*lb("Nehemiah"),
-//		*lb("Esther"),
-//	},
-//	"Wisdom": {
-//		*lb("Job"),
-//		*lb("Psalms"),
-//		*lb("Proverbs"),
-//		*lb("Ecclesiastes"),
-//		*lb("Song of Solomon"),
-//	},
-//	"Prophets": {
-//		*lb("Isaiah"),
-//		*lb("Jeremiah"),
-//		*lb("Lamentations"),
-//		*lb("Ezekiel"),
-//		*lb("Daniel"),
-//		*lb("Hosea"),
-//		*lb("Joel"),
-//		*lb("Amos"),
-//		*lb("Obadiah"),
-//		*lb("Jonah"),
-//		*lb("Micah"),
-//		*lb("Nahum"),
-//		*lb("Habakkuk"),
-//		*lb("Zephaniah"),
-//		*lb("Haggai"),
-//		*lb("Zechariah"),
-//		*lb("Malachi"),
-//	},
-//	"Gospels": {
-//		*lb("Matthew"),
-//		*lb("Mark"),
-//		*lb("Luke"),
-//		*lb("John"),
-//
-//		// And Acts because it's a sequel to Luke
-//		*lb("Acts"),
-//	},
-//	"Epistles": {
-//		*lb("Romans"),
-//		*lb("1 Corinthians"),
-//		*lb("2 Corinthians"),
-//		*lb("Galatians"),
-//		*lb("Ephesians"),
-//		*lb("Philippians"),
-//		*lb("Colossians"),
-//		*lb("1 Thessalonians"),
-//		*lb("2 Thessalonians"),
-//		*lb("1 Timothy"),
-//		*lb("2 Timothy"),
-//		*lb("Titus"),
-//		*lb("Philemon"),
-//		*lb("Hebrews"),
-//		*lb("James"),
-//		*lb("1 Peter"),
-//		*lb("2 Peter"),
-//		*lb("1 John"),
-//		*lb("2 John"),
-//		*lb("3 John"),
-//		*lb("Jude"),
-//	},
-//	"Apocalyptic": {
-//		// Apocalypse passages
-//		*lbe("Daniel", "7:1", "*:*"),
-//		*lb("Revelation"),
-//
-//		// Proto-Apocalyptic Passages
-//		*lbe("Amos", "7:1", "7:9"),
-//		*lbe("Amos", "8:1", "8:13"),
-//		*lbe("Isaiah", "24:1", "27:*"),
-//		*lbe("Isaiah", "33:1", "33:*"),
-//		*lbe("Isaiah", "55:1", "56:*"),
-//		*lbe("Jeremiah", "1:11", "1:16"),
-//		*lbe("Ezekiel", "38:1", "39:*"),
-//		*lbe("Zechariah", "9:1", "14:*"),
-//		*lb("Joel"),
-//	},
-//}
+func bk(name string) *Pericope {
+	p, err := Lookup(Canonical, name+"1:1ffb", "")
+	if err != nil {
+		panic(err)
+	}
+	return p
+}
+
+func vv(ref string) *Pericope {
+	p, err := Lookup(Canonical, ref, "")
+	if err != nil {
+		panic(err)
+	}
+	return p
+}
+
+var Categories = map[string][]*Pericope{
+	"Law": {
+		bk("Genesis"),
+		bk("Exodus"),
+		bk("Leviticus"),
+		bk("Numbers"),
+		bk("Deuteronomy"),
+	},
+	"History": {
+		bk("Joshua"),
+		bk("Judges"),
+		bk("Ruth"),
+		bk("1 Samuel"),
+		bk("2 Samuel"),
+		bk("1 Kings"),
+		bk("2 Kings"),
+		bk("1 Chronicles"),
+		bk("2 Chronicles"),
+		bk("Ezra"),
+		bk("Nehemiah"),
+		bk("Esther"),
+	},
+	"Wisdom": {
+		bk("Job"),
+		bk("Psalms"),
+		bk("Proverbs"),
+		bk("Ecclesiastes"),
+		bk("Song of Solomon"),
+	},
+	"Prophets": {
+		bk("Isaiah"),
+		bk("Jeremiah"),
+		bk("Lamentations"),
+		bk("Ezekiel"),
+		bk("Daniel"),
+		bk("Hosea"),
+		bk("Joel"),
+		bk("Amos"),
+		bk("Obadiah"),
+		bk("Jonah"),
+		bk("Micah"),
+		bk("Nahum"),
+		bk("Habakkuk"),
+		bk("Zephaniah"),
+		bk("Haggai"),
+		bk("Zechariah"),
+		bk("Malachi"),
+	},
+	"Gospels": {
+		bk("Matthew"),
+		bk("Mark"),
+		bk("Luke"),
+		bk("John"),
+
+		// And Acts because it's a sequel to Luke
+		bk("Acts"),
+	},
+	"Epistles": {
+		bk("Romans"),
+		bk("1 Corinthians"),
+		bk("2 Corinthians"),
+		bk("Galatians"),
+		bk("Ephesians"),
+		bk("Philippians"),
+		bk("Colossians"),
+		bk("1 Thessalonians"),
+		bk("2 Thessalonians"),
+		bk("1 Timothy"),
+		bk("2 Timothy"),
+		bk("Titus"),
+		bk("Philemon"),
+		bk("Hebrews"),
+		bk("James"),
+		bk("1 Peter"),
+		bk("2 Peter"),
+		bk("1 John"),
+		bk("2 John"),
+		bk("3 John"),
+		bk("Jude"),
+	},
+	"Apocalyptic": {
+		// Apocalypse passages
+		vv("Daniel 7:1ffb"),
+		bk("Revelation"),
+
+		// Proto-Apocalyptic Passages
+		vv("Amos 7:1-9"),
+		vv("Amos 8:1-13"),
+		vv("Isaiah 24:1-27:13"),
+		vv("Isaiah 33:1ff"),
+		vv("Isaiah 55:1-56:12"),
+		vv("Jeremiah 1:11-16"),
+		vv("Ezekiel 38:1-39:29"),
+		vv("Zechariah 9:1ffb"),
+		bk("Joel"),
+	},
+}

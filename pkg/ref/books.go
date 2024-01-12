@@ -200,7 +200,7 @@ func (c Canon) resolveRange(
 		return nil, ErrNotFound
 	}
 
-	hasLast := b.Contains(r.Last)
+	hasLast := b.Contains(r.Last.RelativeTo(r.First))
 	if !hasLast {
 		return nil, ErrNotFound
 	}
@@ -271,31 +271,3 @@ func (b Book) Sub(first, last Verse) ([]Verse, error) {
 
 	return vs, nil
 }
-
-//type BookExtract struct {
-//	*Book
-//	First Verse
-//	Last  Verse
-//}
-//
-//func (e *BookExtract) FullRef() string {
-//	return e.Book.Name + " " + e.First.Ref() + "-" + e.Last.Ref()
-//}
-//
-//func (e *BookExtract) Verses() []Verse {
-//	verses := make([]Verse, 0, len(e.Book.Verses))
-//	started := false
-//	for _, verse := range e.Book.Verses {
-//		if verse == e.First {
-//			started = true
-//		}
-//		if started {
-//			verses = append(verses, verse)
-//		}
-//		if verse == e.Last {
-//			break
-//		}
-//	}
-//
-//	return verses
-//}

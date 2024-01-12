@@ -9,6 +9,8 @@ import (
 )
 
 func TestCanon_Resolve_Proper(t *testing.T) {
+	t.Parallel()
+
 	rs, err := ref.Canonical.Resolve(
 		&ref.Proper{
 			Book: "Genesis",
@@ -35,6 +37,8 @@ func TestCanon_Resolve_Proper(t *testing.T) {
 }
 
 func TestCanon_Resolve_Multiple_Simple(t *testing.T) {
+	t.Parallel()
+
 	rs, err := ref.Canonical.Resolve(
 		&ref.Multiple{
 			Refs: []ref.Ref{
@@ -83,6 +87,8 @@ func TestCanon_Resolve_Multiple_Simple(t *testing.T) {
 }
 
 func TestCanon_Resolve_Resolved(t *testing.T) {
+	t.Parallel()
+
 	rs, err := ref.Canonical.Resolve(
 		&ref.Resolved{
 			Book: &ref.Canonical[0],
@@ -107,6 +113,8 @@ func TestCanon_Resolve_Resolved(t *testing.T) {
 }
 
 func TestCanon_Resolve_Multiple_Relative(t *testing.T) {
+	t.Parallel()
+
 	rs, err := ref.Canonical.Resolve(
 		&ref.Multiple{
 			Refs: []ref.Ref{

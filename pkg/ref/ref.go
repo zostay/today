@@ -44,7 +44,7 @@ func unravelInvalid(err error) error {
 	if err == nil {
 		return nil
 	}
-	if verr, isInvalid := err.(*ValidationError); isInvalid {
+	if verr, isInvalid := err.(*ValidationError); isInvalid { //nolint:errorlint // I want to unwrap only the topmost here...
 		return verr.Cause
 	}
 	return err
@@ -79,6 +79,7 @@ type Verse interface {
 	Relative
 	Before(Verse) bool
 	Equal(Verse) bool
+	RelativeTo(Verse) Verse
 }
 
 // Absolute is any kind of reference that specifies a Book.
@@ -133,7 +134,14 @@ func (v *CV) Before(ov Verse) bool {
 }
 
 func (v *CV) Equal(ov Verse) bool {
-	return v.Chapter == ov.(*CV).Chapter && v.Verse == ov.(*CV).Verse
+	if cv, isCV := ov.(*CV); isCV {
+		return v.Chapter == cv.Chapter && v.Verse == cv.Verse
+	}
+	return false
+}
+
+func (v *CV) RelativeTo(Verse) Verse {
+	return v
 }
 
 // V is a reference to a specific verse for books without chapters.
@@ -171,7 +179,17 @@ func (v *V) Before(ov Verse) bool {
 }
 
 func (v *V) Equal(ov Verse) bool {
-	return v.Verse == ov.(*V).Verse
+	if jv, isJV := ov.(*V); isJV {
+		return v.Verse == jv.Verse
+	}
+	return false
+}
+
+func (v *V) RelativeTo(ov Verse) Verse {
+	if cv, isCV := ov.(*CV); isCV {
+		return &CV{Chapter: cv.Chapter, Verse: v.Verse}
+	}
+	return v
 }
 
 // Single is a relative reference to a single verse. It wraps a single verse.

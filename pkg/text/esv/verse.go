@@ -38,5 +38,5 @@ func (r *Resolver) VerseHTML(ref ref.Resolved) (template.HTML, error) {
 		return "", err
 	}
 
-	return template.HTML(tr.Passages[0]), nil
+	return template.HTML(tr.Passages[0]), nil //nolint:gosec // we trust the ESV API
 }

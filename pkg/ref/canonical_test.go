@@ -9,10 +9,14 @@ import (
 )
 
 func TestCanonical(t *testing.T) {
+	t.Parallel()
+
 	assert.Len(t, ref.Canonical, 66)
 }
 
 func TestCanonicalBook(t *testing.T) {
+	t.Parallel()
+
 	g, err := ref.Canonical.Book("Genesis")
 	assert.NoError(t, err)
 	assert.Equal(t, "Genesis", g.Name)

@@ -67,24 +67,24 @@ func Random(opt ...RandomReferenceOption) (string, error) {
 		b  *Book
 		vs []Verse
 	)
-	//if o.category != "" {
-	//	exs, err := LookupCategory(o.category)
-	//	if err != nil {
-	//		return "", err
-	//	}
+	// if o.category != "" {
+	// 	exs, err := LookupCategory(o.category)
+	// 	if err != nil {
+	// 		return "", err
+	// 	}
 	//
-	//	// lazy way to weight the books by the number of verses they have
-	//	bag := make([]Resolved, 0, len(exs))
-	//	for i := range exs {
-	//		for range exs[i].Verses() {
-	//			bag = append(bag, exs[i])
-	//		}
-	//	}
+	// 	// lazy way to weight the books by the number of verses they have
+	// 	bag := make([]Resolved, 0, len(exs))
+	// 	for i := range exs {
+	// 		for range exs[i].Verses() {
+	// 			bag = append(bag, exs[i])
+	// 		}
+	// 	}
 	//
-	//	be := bag[rand.Int()%len(bag)] //nolint:gosec // weak random is fine here
-	//	b = be.Book
-	//	vs = RandomPassageFromExtract(&be)
-	//} else {
+	// 	be := bag[rand.Int()%len(bag)] //nolint:gosec // weak random is fine here
+	// 	b = be.Book
+	// 	vs = RandomPassageFromExtract(&be)
+	// } else {
 	if o.book != "" {
 		ex, err := Lookup(Canonical, o.book+" 1:1ffb", "")
 		if err != nil {
@@ -108,30 +108,30 @@ func Random(opt ...RandomReferenceOption) (string, error) {
 	return fmt.Sprintf("%s %s", b.Name, v1.Ref()), nil
 }
 
-//// RandomReference returns a random reference to a passage in the Bible in a
-//// standard notation recognizable for American English speakers.
-////
-//// This uses RandomCanonical and RandomPassage to generate the reference.
-////
-//// Deprecated: Use Random() instead.
-//func RandomReference() string {
-//	b := RandomCanonical()
-//	vs := RandomPassage(b)
+// // RandomReference returns a random reference to a passage in the Bible in a
+// // standard notation recognizable for American English speakers.
+// //
+// // This uses RandomCanonical and RandomPassage to generate the reference.
+// //
+// // Deprecated: Use Random() instead.
+// func RandomReference() string {
+// 	b := RandomCanonical()
+// 	vs := RandomPassage(b)
 //
-//	v1 := vs[0]
-//	v2 := vs[len(vs)-1]
+// 	v1 := vs[0]
+// 	v2 := vs[len(vs)-1]
 //
-//	if len(vs) > 1 {
-//		return fmt.Sprintf("%s %s-%s", b.Name, v1.Ref(), v2.Ref())
-//	} else {
-//		return fmt.Sprintf("%s %s", b.Name, v1.Ref())
-//	}
-//}
+// 	if len(vs) > 1 {
+// 		return fmt.Sprintf("%s %s-%s", b.Name, v1.Ref(), v2.Ref())
+// 	} else {
+// 		return fmt.Sprintf("%s %s", b.Name, v1.Ref())
+// 	}
+// }
 //
-//// RandomVerse returns a random verse from the Bible. This uses RandomReference
-//// to select a random reference and then uses GetVerse to retrieve the text of
-//// the verse.
-//func RandomVerse() (string, error) {
-//	ref := RandomReference()
-//	return GetVerse(ref)
-//}
+// // RandomVerse returns a random verse from the Bible. This uses RandomReference
+// // to select a random reference and then uses GetVerse to retrieve the text of
+// // the verse.
+// func RandomVerse() (string, error) {
+// 	ref := RandomReference()
+// 	return GetVerse(ref)
+// }

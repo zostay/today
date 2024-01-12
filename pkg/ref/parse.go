@@ -74,6 +74,22 @@ func (p *parseState) expectWhile(pred func(rune) bool) []rune {
 	return rs
 }
 
+func (p *parseState) expectWhilePreserveWS(pred func(rune) bool) []rune {
+	rs := make([]rune, 0, 10)
+	for {
+		was := p.pos
+		if r, ok := p.expect(pred); ok {
+			if p.pos-was > 1 {
+				rs = append(rs, ' ')
+			}
+			rs = append(rs, r)
+			continue
+		}
+		break
+	}
+	return rs
+}
+
 func (p *parseState) endOfInput() bool {
 	return p.pos >= len(p.input)
 }
@@ -247,7 +263,7 @@ type MoreInputError struct {
 
 // Error implements error.
 func (e *MoreInputError) Error() string {
-	return fmt.Sprintf("parse completed, but more input remains")
+	return "parse completed, but more input remains"
 }
 
 var _ error = (*MoreInputError)(nil)
@@ -329,15 +345,10 @@ func expectAndFollowing(ref parseState) (*AndFollowing, parseState, error) {
 		return r == 'b' || r == 'c'
 	}
 
-	var f *AndFollowing
-	if r, ok := ps.expect(untilLetters); ok {
-		switch r {
-		case 'b':
-			f = &AndFollowing{Verse: s.Verse, Following: FollowingRemainingBook}
-		}
+	f := &AndFollowing{Verse: s.Verse, Following: FollowingRemainingChapter}
+	if r, ok := ps.expect(untilLetters); ok && r == 'b' {
+		f = &AndFollowing{Verse: s.Verse, Following: FollowingRemainingBook}
 	}
-
-	f = &AndFollowing{Verse: s.Verse, Following: FollowingRemainingChapter}
 
 	if err := f.Validate(); err != nil {
 		return f, ps, err
@@ -421,14 +432,13 @@ func expectBookName(ref parseState) (string, parseState, error) {
 		return r >= 'a' && r <= 'z' ||
 			r >= 'A' && r <= 'Z' ||
 			r >= '1' && r <= '9'
-
 	})
 
 	if !ok {
 		return "", ref, fmt.Errorf("%w: expected a letter or number to start book name or abbreviation", ErrParseFail)
 	}
 
-	rest := ps.expectWhile(func(r rune) bool {
+	rest := ps.expectWhilePreserveWS(func(r rune) bool {
 		return r >= 'a' && r <= 'z' ||
 			r >= 'A' && r <= 'Z' ||
 			r == '.'

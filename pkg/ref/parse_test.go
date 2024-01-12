@@ -175,6 +175,8 @@ func TestParseRange(t *testing.T) {
 }
 
 func TestParseRelated(t *testing.T) {
+	t.Parallel()
+
 	r, err := ref.ParseRelated("1:2, 4, 6-8, 5:12ff, 12:34-13:56")
 	assert.NoError(t, err)
 	assert.Equal(t, &ref.Related{
@@ -318,9 +320,18 @@ func TestParseProper(t *testing.T) {
 		Book:  "Ge.",
 		Verse: &ref.Single{Verse: &ref.CV{Chapter: 1, Verse: 2}},
 	}, p)
+
+	p, err = ref.ParseProper("1 Samuel 1:2")
+	assert.NoError(t, err)
+	assert.Equal(t, &ref.Proper{
+		Book:  "1 Samuel",
+		Verse: &ref.Single{Verse: &ref.CV{Chapter: 1, Verse: 2}},
+	}, p)
 }
 
 func TestParseMultiple(t *testing.T) {
+	t.Parallel()
+
 	m, err := ref.ParseMultiple("Genesis 1:2-3:4, 5:6-7:8")
 	assert.NoError(t, err)
 	assert.Equal(t, &ref.Multiple{
