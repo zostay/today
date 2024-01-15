@@ -234,12 +234,19 @@ func (c Canon) resolveRange(
 		return nil, ErrNotFound
 	}
 
-	last := r.Last.RelativeTo(first)
+	var last Verse
 	if wholeChapter {
+		last, _, err = ensureVerseMatchesBook(b, r.Last)
+		if err != nil {
+			return nil, err
+		}
+
 		last, err = c.lastVerseInChapter(b, last)
 		if err != nil {
 			return nil, err
 		}
+	} else {
+		last = r.Last.RelativeTo(first)
 	}
 
 	hasLast := b.Contains(last)

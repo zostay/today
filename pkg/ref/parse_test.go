@@ -334,6 +334,16 @@ func TestParseProper(t *testing.T) {
 		Book:  "Isaiah",
 		Verse: &ref.Single{Verse: ref.N{Number: 33}},
 	}, p)
+
+	p, err = ref.ParseProper("Isaiah 24-27")
+	assert.NoError(t, err)
+	assert.Equal(t, &ref.Proper{
+		Book: "Isaiah",
+		Verse: &ref.Range{
+			First: ref.N{Number: 24},
+			Last:  ref.N{Number: 27},
+		},
+	}, p)
 }
 
 func TestParseMultiple(t *testing.T) {
