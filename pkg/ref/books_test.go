@@ -29,7 +29,7 @@ func TestCanon_Resolve_Proper(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, []ref.Resolved{
 		{
-			Book:  &ref.Canonical[0],
+			Book:  &ref.Canonical.Books[0],
 			First: ref.CV{Chapter: 1, Verse: 1},
 			Last:  ref.CV{Chapter: 1, Verse: 31},
 		},
@@ -48,7 +48,7 @@ func TestCanon_Resolve_Single_WholeChapter(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, []ref.Resolved{
 		{
-			Book:  &ref.Canonical[22],
+			Book:  &ref.Canonical.Books[22],
 			First: ref.CV{Chapter: 33, Verse: 1},
 			Last:  ref.CV{Chapter: 33, Verse: 24},
 		},
@@ -70,7 +70,7 @@ func TestCanon_Resolve_Range_WholeChapter(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, []ref.Resolved{
 		{
-			Book:  &ref.Canonical[22],
+			Book:  &ref.Canonical.Books[22],
 			First: ref.CV{Chapter: 24, Verse: 1},
 			Last:  ref.CV{Chapter: 27, Verse: 13},
 		},
@@ -115,12 +115,12 @@ func TestCanon_Resolve_Multiple_Simple(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, []ref.Resolved{
 		{
-			Book:  &ref.Canonical[0],
+			Book:  &ref.Canonical.Books[0],
 			First: ref.CV{Chapter: 1, Verse: 1},
 			Last:  ref.CV{Chapter: 1, Verse: 31},
 		},
 		{
-			Book:  &ref.Canonical[1],
+			Book:  &ref.Canonical.Books[1],
 			First: ref.CV{Chapter: 1, Verse: 1},
 			Last:  ref.CV{Chapter: 1, Verse: 7},
 		},
@@ -132,7 +132,7 @@ func TestCanon_Resolve_Resolved(t *testing.T) {
 
 	rs, err := ref.Canonical.Resolve(
 		&ref.Resolved{
-			Book: &ref.Canonical[0],
+			Book: &ref.Canonical.Books[0],
 			First: ref.CV{
 				Chapter: 1,
 				Verse:   1,
@@ -146,7 +146,7 @@ func TestCanon_Resolve_Resolved(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, []ref.Resolved{
 		{
-			Book:  &ref.Canonical[0],
+			Book:  &ref.Canonical.Books[0],
 			First: ref.CV{Chapter: 1, Verse: 1},
 			Last:  ref.CV{Chapter: 1, Verse: 31},
 		},
@@ -215,27 +215,27 @@ func TestCanon_Resolve_Multiple_Relative(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, []ref.Resolved{
 		{
-			Book:  &ref.Canonical[0],
+			Book:  &ref.Canonical.Books[0],
 			First: ref.CV{Chapter: 1, Verse: 1},
 			Last:  ref.CV{Chapter: 1, Verse: 31},
 		},
 		{
-			Book:  &ref.Canonical[0],
+			Book:  &ref.Canonical.Books[0],
 			First: ref.CV{Chapter: 10, Verse: 21},
 			Last:  ref.CV{Chapter: 10, Verse: 32},
 		},
 		{
-			Book:  &ref.Canonical[0],
+			Book:  &ref.Canonical.Books[0],
 			First: ref.CV{Chapter: 12, Verse: 10},
 			Last:  ref.CV{Chapter: 12, Verse: 16},
 		},
 		{
-			Book:  &ref.Canonical[0],
+			Book:  &ref.Canonical.Books[0],
 			First: ref.CV{Chapter: 15, Verse: 1},
 			Last:  ref.CV{Chapter: 15, Verse: 1},
 		},
 		{
-			Book:  &ref.Canonical[0],
+			Book:  &ref.Canonical.Books[0],
 			First: ref.CV{Chapter: 16, Verse: 11},
 			Last:  ref.CV{Chapter: 16, Verse: 12},
 		},

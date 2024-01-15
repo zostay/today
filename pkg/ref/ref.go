@@ -18,8 +18,7 @@ const (
 type Following int
 
 const (
-	FollowingNone Following = iota
-	FollowingRemainingChapter
+	FollowingRemainingChapter Following = iota
 	FollowingRemainingBook
 )
 
@@ -51,8 +50,7 @@ func unravelInvalid(err error) error {
 }
 
 func ValidFollowing(n Following) bool {
-	return n == FollowingNone ||
-		n == FollowingRemainingChapter ||
+	return n == FollowingRemainingChapter ||
 		n == FollowingRemainingBook
 }
 
@@ -271,11 +269,10 @@ func NewAndFollowing(verse Verse, following Following) *AndFollowing {
 
 func (v *AndFollowing) Ref() string {
 	switch v.Following {
-	case FollowingNone:
-		return v.Verse.Ref()
-	case FollowingRemainingChapter:
-		return v.Verse.Ref() + FollowingChapterNotation
 	case FollowingRemainingBook:
+		if v.Verse.Ref() == "1" || v.Verse.Ref() == "1:1" {
+			return ""
+		}
 		return v.Verse.Ref() + FollowingBookNotation
 	default:
 		return v.Verse.Ref() + FollowingNotation

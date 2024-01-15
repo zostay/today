@@ -5,12 +5,15 @@ import (
 	"os"
 	"os/exec"
 	"text/template"
+
+	"gopkg.in/yaml.v3"
 )
 
 //go:generate go run main.go
 
 const (
 	DatabaseFile = "esv.json"
+	CategoryFile = "categories.yaml"
 	TemplateFile = "verses.go.tmpl"
 	OutputFile   = "../../../pkg/ref/canonical.go"
 )
@@ -24,14 +27,47 @@ type BookConfig struct {
 	Verses [][]int `json:"verses"`
 }
 
-func main() {
+type CategoriesConfig struct {
+	Categories map[string][]string `yaml:"categories"`
+}
+
+func loadDatabase() (*BooksConfig, error) {
 	esvj, err := os.ReadFile(DatabaseFile)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	var bookConfig BooksConfig
 	err = json.Unmarshal(esvj, &bookConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return &bookConfig, nil
+}
+
+func loadCategories() (*CategoriesConfig, error) {
+	catj, err := os.ReadFile(CategoryFile)
+	if err != nil {
+		return nil, err
+	}
+
+	var catConfig CategoriesConfig
+	err = yaml.Unmarshal(catj, &catConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return &catConfig, nil
+}
+
+func main() {
+	bookConfig, err := loadDatabase()
+	if err != nil {
+		panic(err)
+	}
+
+	catConfig, err := loadCategories()
 	if err != nil {
 		panic(err)
 	}
@@ -55,7 +91,13 @@ func main() {
 		panic(err)
 	}
 
-	err = tmpl.Execute(fh, bookConfig)
+	err = tmpl.Execute(fh, struct {
+		Books      []BookConfig
+		Categories map[string][]string
+	}{
+		Books:      bookConfig.Books,
+		Categories: catConfig.Categories,
+	})
 	if err != nil {
 		panic(err)
 	}

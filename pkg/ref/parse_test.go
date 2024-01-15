@@ -344,6 +344,16 @@ func TestParseProper(t *testing.T) {
 			Last:  ref.N{Number: 27},
 		},
 	}, p)
+
+	p, err = ref.ParseProper("Malachi")
+	assert.NoError(t, err)
+	assert.Equal(t, &ref.Proper{
+		Book: "Malachi",
+		Verse: &ref.AndFollowing{
+			Verse:     ref.N{Number: 1},
+			Following: ref.FollowingRemainingBook,
+		},
+	}, p)
 }
 
 func TestParseMultiple(t *testing.T) {

@@ -5,11 +5,11 @@ import "fmt"
 // Pericope represents a resolved extract from a canon.
 type Pericope struct {
 	Ref   *Resolved
-	Canon Canon
+	Canon *Canon
 	Title string
 }
 
-func Lookup(c Canon, ref, title string) (*Pericope, error) {
+func Lookup(c *Canon, ref, title string) (*Pericope, error) {
 	p, err := ParseProper(ref)
 	if err != nil {
 		return nil, err

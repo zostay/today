@@ -18,12 +18,16 @@ type Book struct {
 	Verses    []Verse
 }
 
-// Canon is a list of books.
-type Canon []Book
+// Canon is primarily a collection of books, but may include other metadata.
+type Canon struct {
+	Name       string
+	Books      []Book
+	Categories map[string][]string
+}
 
-func (c Canon) Book(name string) (*Book, error) {
-	for i := range c {
-		b := &c[i]
+func (c *Canon) Book(name string) (*Book, error) {
+	for i := range c.Books {
+		b := &c.Books[i]
 		if b.Name == name {
 			return b, nil
 		}
@@ -31,9 +35,27 @@ func (c Canon) Book(name string) (*Book, error) {
 	return nil, fmt.Errorf("%w: %s", ErrNotFound, name)
 }
 
+// Category returns a list of Pericopes associated with that Category or nil if
+// no such category is defined. Returns nil and error if there's a problem with
+// the category definition.
+func (c *Canon) Category(name string) ([]*Pericope, error) {
+	if refs, hasCategory := c.Categories[name]; hasCategory {
+		var ps []*Pericope
+		for i := range refs {
+			p, err := Lookup(c, refs[i], "")
+			if err != nil {
+				return nil, err
+			}
+			ps = append(ps, p)
+		}
+		return ps, nil
+	}
+	return nil, nil
+}
+
 // Resolve turns an absolute reference into a slice of Resolved references or
 // returns an error if the references do not match this Canon.
-func (c Canon) Resolve(ref Absolute) ([]Resolved, error) {
+func (c *Canon) Resolve(ref Absolute) ([]Resolved, error) {
 	if err := ref.Validate(); err != nil {
 		return nil, err
 	}
@@ -49,7 +71,7 @@ func (c Canon) Resolve(ref Absolute) ([]Resolved, error) {
 	return nil, fmt.Errorf("unknown reference type: %T", ref)
 }
 
-func (c Canon) resolveMultiple(m *Multiple) ([]Resolved, error) {
+func (c *Canon) resolveMultiple(m *Multiple) ([]Resolved, error) {
 	var rs []Resolved
 	var b *Book
 	for i := range m.Refs {
@@ -78,7 +100,7 @@ func (c Canon) resolveMultiple(m *Multiple) ([]Resolved, error) {
 	return rs, nil
 }
 
-func (c Canon) resolveRelative(b *Book, r Relative) ([]Resolved, error) {
+func (c *Canon) resolveRelative(b *Book, r Relative) ([]Resolved, error) {
 	switch r := r.(type) {
 	case *AndFollowing:
 		return c.resolveAndFollowing(b, r)
@@ -90,7 +112,7 @@ func (c Canon) resolveRelative(b *Book, r Relative) ([]Resolved, error) {
 	return nil, fmt.Errorf("unknown reference type: %T", r)
 }
 
-func (c Canon) resolveProper(p *Proper) ([]Resolved, error) {
+func (c *Canon) resolveProper(p *Proper) ([]Resolved, error) {
 	b, err := c.Book(p.Book)
 	if err != nil {
 		return nil, err
@@ -127,7 +149,7 @@ func ensureVerseMatchesBook(b *Book, v Verse) (Verse, bool, error) {
 	return v, wholeChapter, nil
 }
 
-func (c Canon) resolveSingle(b *Book, s *Single) ([]Resolved, error) {
+func (c *Canon) resolveSingle(b *Book, s *Single) ([]Resolved, error) {
 	v, wholeChapter, err := ensureVerseMatchesBook(b, s.Verse)
 	if err != nil {
 		return nil, err
@@ -149,7 +171,7 @@ func (c Canon) resolveSingle(b *Book, s *Single) ([]Resolved, error) {
 	}, nil
 }
 
-func (c Canon) resolveAndFollowing(
+func (c *Canon) resolveAndFollowing(
 	b *Book,
 	a *AndFollowing,
 ) ([]Resolved, error) {
@@ -159,9 +181,15 @@ func (c Canon) resolveAndFollowing(
 	}
 
 	switch a.Following {
-	case FollowingNone:
-		return c.resolveSingle(b, &Single{Verse: v})
-	case FollowingRemainingChapter:
+	case FollowingRemainingBook:
+		return []Resolved{
+			{
+				Book:  b,
+				First: v,
+				Last:  b.Verses[len(b.Verses)-1],
+			},
+		}, nil
+	default:
 		lv, err := c.lastVerseInChapter(b, v)
 		if err != nil {
 			return nil, err
@@ -174,20 +202,12 @@ func (c Canon) resolveAndFollowing(
 				Last:  lv,
 			},
 		}, nil
-	case FollowingRemainingBook:
-		return []Resolved{
-			{
-				Book:  b,
-				First: v,
-				Last:  b.Verses[len(b.Verses)-1],
-			},
-		}, nil
 	}
 
 	return nil, fmt.Errorf("unknown following type: %d", a.Following)
 }
 
-func (c Canon) lastVerseInChapter(
+func (c *Canon) lastVerseInChapter(
 	b *Book,
 	v Verse,
 ) (Verse, error) {
@@ -220,7 +240,7 @@ func (c Canon) lastVerseInChapter(
 	return lv, nil
 }
 
-func (c Canon) resolveRange(
+func (c *Canon) resolveRange(
 	b *Book,
 	r *Range,
 ) ([]Resolved, error) {
@@ -263,7 +283,7 @@ func (c Canon) resolveRange(
 	}, nil
 }
 
-func (c Canon) resolveRelated(
+func (c *Canon) resolveRelated(
 	b *Book,
 	r *Related,
 ) ([]Resolved, error) {

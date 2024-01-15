@@ -11,7 +11,7 @@ import (
 func TestCanonical(t *testing.T) {
 	t.Parallel()
 
-	assert.Len(t, ref.Canonical, 66)
+	assert.Len(t, ref.Canonical.Books, 66)
 }
 
 func TestCanonicalBook(t *testing.T) {

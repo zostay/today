@@ -452,6 +452,16 @@ func expectProper(ref parseState) (*Proper, parseState, error) {
 		return nil, ref, err
 	}
 
+	if ps.endOfInput() {
+		return &Proper{
+			Book: name,
+			Verse: &AndFollowing{
+				Verse:     N{Number: 1},
+				Following: FollowingRemainingBook,
+			},
+		}, ps, nil
+	}
+
 	var rel Relative
 	rel, ps, err = expectRelated(ps)
 	if err != nil {

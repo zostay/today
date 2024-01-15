@@ -7,7 +7,7 @@ import (
 
 // RandomCanonical returns a random book of the Bible.
 func RandomCanonical() *Book {
-	return &Canonical[rand.Int()%len(Canonical)] //nolint:gosec // weak random is fine here
+	return &Canonical.Books[rand.Int()%len(Canonical.Books)] //nolint:gosec // weak random is fine here
 }
 
 // RandomPassage returns a random passage from the given book of the Bible. It
@@ -39,9 +39,16 @@ func RandomPassageFromRef(b *Resolved) []Verse {
 type randomOpts struct {
 	category string
 	book     string
+	canon    *Canon
 }
 
 type RandomReferenceOption func(*randomOpts)
+
+func FromCanon(canon *Canon) RandomReferenceOption {
+	return func(o *randomOpts) {
+		o.canon = canon
+	}
+}
 
 func FromBook(name string) RandomReferenceOption {
 	return func(o *randomOpts) {
@@ -58,7 +65,9 @@ func FromCategory(name string) RandomReferenceOption {
 // Random pulls a random reference from the Bible and returns it. You can use the
 // options to help narrow down where the passages are selected from.
 func Random(opt ...RandomReferenceOption) (*Resolved, error) {
-	o := &randomOpts{}
+	o := &randomOpts{
+		canon: Canonical,
+	}
 	for _, f := range opt {
 		f(o)
 	}
@@ -67,10 +76,16 @@ func Random(opt ...RandomReferenceOption) (*Resolved, error) {
 		b  *Book
 		vs []Verse
 	)
+
 	if o.category != "" {
-		ps, hasCategory := Categories()[o.category]
+		_, hasCategory := o.canon.Categories[o.category]
 		if !hasCategory {
 			return nil, fmt.Errorf("unknown category: %s", o.category)
+		}
+
+		ps, err := o.canon.Category(o.category)
+		if err != nil {
+			return nil, err
 		}
 
 		// lazy way to weight the books by the number of verses they have

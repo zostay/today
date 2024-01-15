@@ -1,21 +1,33 @@
 package ref
 
-var Canonical = Canon{
+var Canonical = &Canon{
+    Name: "Protestant Canon",
+    Books: []Book{
 {{- range .Books}}
-    {
-        Name: "{{.Name}}",
-        JustVerse: {{if eq 0 (index .Verses 0 0)}}true{{else}}false{{end}},
-        Verses: []Verse{
+        {
+            Name: "{{.Name}}",
+            JustVerse: {{if eq 0 (index .Verses 0 0)}}true{{else}}false{{end}},
+            Verses: []Verse{
 {{- range $i, $v := .Verses}}
 {{- if eq 0 (index $v 0) -}}
-            N{ {{index $v 1}} },
+                N{ {{index $v 1}} },
 {{- else -}}
-            CV{ {{index $v 0}},{{index $v 1}} },
+                CV{ {{index $v 0}},{{index $v 1}} },
 {{- end -}}
 {{- if Mod $i 4}}
 {{end}}
 {{- end}}
+            },
         },
-    },
 {{- end}}
+    },
+    Categories: map[string][]string{
+{{- range $k, $v := .Categories}}
+        "{{ $k }}": []string{
+{{- range $i, $s := $v}}
+            "{{ $s }}",
+{{- end }}
+        },
+{{- end }}
+    },
 }
