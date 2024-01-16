@@ -57,5 +57,4 @@ func TestService(t *testing.T) {
 		First: ref.CV{Chapter: 4, Verse: 1},
 		Last:  ref.CV{Chapter: 4, Verse: 1},
 	}, tr.lastRef)
-
 }
