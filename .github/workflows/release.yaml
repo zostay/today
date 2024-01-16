@@ -1,0 +1,49 @@
+on:
+  pull_request:
+    branches:
+      - releases/*
+    types:
+      - closed
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: 1.21
+      - name: Release Version
+        run: echo RELEASE_VERSION=$(grep -Eo '[0-9]+\.[0-9]+\.[0-9]+.*$') >> $GITHUB_ENV
+      - name: Changes Heading Up-To-Date Check
+        run: |
+          date=$(date "+%Y-%m-%d")
+          header=$(head -n1 Changes.md)
+          if [ "$header" != "$RELEASE_VERSION  $date" ]; then
+              echo "Changes.md is out of date!"
+              echo "Expected header: $RELEASE_VERSION  $date"
+              echo "Found header:    $header"
+              exit 1
+          else
+              echo "Changes.md heading looks good."
+          fi
+      - name: Release Notes Capture
+        run: |
+          sed -n '/^[0-9]/,/^[0-9]/p' | head -n-1 | tail -n-1 > release-notes.md
+      - env:
+          GOOS: linux
+          GOARCH: amd64
+        run: go build -o today-$RELEASE_VERSION-$GOOS-$GOARCH ./
+      - env:
+          GOOS: darwin
+          GOARCH: arm64
+        run: go build -o today-$RELEASE_VERSION-$GOOS-$GOARCH ./
+      - env:
+          GOOS: darwin
+          GOARCH: amd64
+        run: go build -o today-$RELEASE_VERSION-$GOOS-GOARCH ./
+      - run: gh release create "v$RELEASE_VERSION" --draft --notes-file=release-notes.md
+      - run: gh release upload "v$RELEASE_VERSION" today-$RELEASE_VERSION-linux-amd64
+      - run: gh release upload "v$RELEASE_VERSION" today-$RELEASE_VERSION-darwin-arm64
+      - run: gh release upload "v$RELEASE_VERSION" today-$RELEASE_VERSION-darwin-amd64
+      - run: gh release edit "v$RELEASE_VERSION" --draft=false
