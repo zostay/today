@@ -180,7 +180,7 @@ func (c *Canon) resolveAndFollowing(
 		return nil, err
 	}
 
-	switch a.Following {
+	switch a.Following { //nolint:exhaustive // we don't need to handle all cases
 	case FollowingRemainingBook:
 		return []Resolved{
 			{
@@ -203,8 +203,6 @@ func (c *Canon) resolveAndFollowing(
 			},
 		}, nil
 	}
-
-	return nil, fmt.Errorf("unknown following type: %d", a.Following)
 }
 
 func (c *Canon) lastVerseInChapter(

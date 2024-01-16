@@ -8182,7 +8182,7 @@ var Canonical = &Canon{
 		},
 	},
 	Categories: map[string][]string{
-		"Apocalyptic": []string{
+		"Apocalyptic": {
 			"Daniel 7:1ffb",
 			"Revelation",
 			"Amos 7:1-9",
@@ -8195,7 +8195,7 @@ var Canonical = &Canon{
 			"Zechariah 9:1ffb",
 			"Joel",
 		},
-		"Epistles": []string{
+		"Epistles": {
 			"Romans",
 			"1 Corinthians",
 			"2 Corinthians",
@@ -8218,14 +8218,14 @@ var Canonical = &Canon{
 			"3 John",
 			"Jude",
 		},
-		"Gospels": []string{
+		"Gospels": {
 			"Matthew",
 			"Mark",
 			"Luke",
 			"John",
 			"Acts",
 		},
-		"History": []string{
+		"History": {
 			"Joshua",
 			"Judges",
 			"Ruth",
@@ -8239,14 +8239,14 @@ var Canonical = &Canon{
 			"Nehemiah",
 			"Esther",
 		},
-		"Law": []string{
+		"Law": {
 			"Genesis",
 			"Exodus",
 			"Leviticus",
 			"Numbers",
 			"Deuteronomy",
 		},
-		"Prophets": []string{
+		"Prophets": {
 			"Isaiah",
 			"Jeremiah",
 			"Lamentations",
@@ -8265,7 +8265,7 @@ var Canonical = &Canon{
 			"Zechariah",
 			"Malachi",
 		},
-		"Wisdom": []string{
+		"Wisdom": {
 			"Job",
 			"Psalms",
 			"Proverbs",

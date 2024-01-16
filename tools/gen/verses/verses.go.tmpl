@@ -23,7 +23,7 @@ var Canonical = &Canon{
     },
     Categories: map[string][]string{
 {{- range $k, $v := .Categories}}
-        "{{ $k }}": []string{
+        "{{ $k }}": {
 {{- range $i, $s := $v}}
             "{{ $s }}",
 {{- end }}

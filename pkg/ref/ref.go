@@ -268,7 +268,7 @@ func NewAndFollowing(verse Verse, following Following) *AndFollowing {
 }
 
 func (v *AndFollowing) Ref() string {
-	switch v.Following {
+	switch v.Following { //nolint:exhaustive // we don't need to handle all cases
 	case FollowingRemainingBook:
 		if v.Verse.Ref() == "1" || v.Verse.Ref() == "1:1" {
 			return ""
