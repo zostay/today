@@ -1,5 +1,7 @@
 package main
 
-func main() {
+import "github.com/zostay/today/cmd"
 
+func main() {
+	cmd.Execute()
 }

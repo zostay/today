@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"errors"
@@ -141,7 +141,7 @@ func RunTodayShow(cmd *cobra.Command, args []string) {
 	fmt.Println(wrap.Wrap(v, 70))
 }
 
-func main() {
+func Execute() {
 	err := cmd.Execute()
 	cobra.CheckErr(err)
 }
