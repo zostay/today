@@ -30,6 +30,8 @@ func (t *testResolver) VerseHTML(ref *ref.Resolved) (template.HTML, error) {
 var _ text.Resolver = (*testResolver)(nil)
 
 func TestService(t *testing.T) {
+	t.Parallel()
+
 	tr := &testResolver{}
 	svc := text.NewService(tr)
 	assert.NotNil(t, svc)
@@ -49,10 +51,11 @@ func TestService(t *testing.T) {
 
 	htxt, err := svc.VerseHTML("1 John 4:1")
 	assert.NoError(t, err)
-	assert.Equal(t, template.HTML(fjn41), htxt)
+	assert.Equal(t, template.HTML(fjn41), htxt) //nolint:gosec // srsly?
 	assert.Equal(t, &ref.Resolved{
 		Book:  b,
 		First: ref.CV{Chapter: 4, Verse: 1},
 		Last:  ref.CV{Chapter: 4, Verse: 1},
 	}, tr.lastRef)
+
 }
