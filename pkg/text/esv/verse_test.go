@@ -90,5 +90,5 @@ func TestResolver_VerseHTML(t *testing.T) {
 
 	txt, err := res.VerseHTML(&ref[0])
 	assert.NoError(t, err)
-	assert.Equal(t, template.HTML(jn11), txt)
+	assert.Equal(t, template.HTML(jn11), txt) //nolint:gosec // seriously, it's a mock, it's not even HTML
 }
