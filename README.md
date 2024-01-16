@@ -4,7 +4,14 @@ A command-line tool for working with the text of Christian scriptures.
 
 # Installation
 
-TBD
+Visit the [releases](https://github.com/zostay/today/releases) page for latest
+binaries for your system.
+
+Or you can install via the Golang compiler, if you have it installed:
+
+```shell
+go install github.com/zostay/today@latest
+```
 
 # Command-Line Usage
 
