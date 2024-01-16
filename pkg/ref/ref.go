@@ -227,17 +227,14 @@ type Single struct {
 	Verse Verse
 }
 
-func NewSingle(verse Verse) *Single {
-	return &Single{
-		Verse: verse,
-	}
-}
-
 func (v *Single) Ref() string {
 	return v.Verse.Ref()
 }
 
 func (v *Single) Validate() error {
+	if v.Verse == nil {
+		return errors.New("verse is required")
+	}
 	return v.Verse.Validate()
 }
 
@@ -260,13 +257,6 @@ type AndFollowing struct {
 	Following Following
 }
 
-func NewAndFollowing(verse Verse, following Following) *AndFollowing {
-	return &AndFollowing{
-		Verse:     verse,
-		Following: following,
-	}
-}
-
 func (v *AndFollowing) Ref() string {
 	switch v.Following { //nolint:exhaustive // we don't need to handle all cases
 	case FollowingRemainingBook:
@@ -282,6 +272,9 @@ func (v *AndFollowing) Ref() string {
 func (v *AndFollowing) Validate() error {
 	if !ValidFollowing(v.Following) {
 		return invalid("invalid following notation")
+	}
+	if v.Verse == nil {
+		return errors.New("verse is required")
 	}
 	return v.Verse.Validate()
 }
@@ -370,14 +363,25 @@ func (r *Related) Validate() error {
 		return invalid("related list of references is incorrect: no references")
 	}
 
-	isJV := !strings.Contains(r.Refs[0].Ref(), ":")
+	first := true
+	isJV := false
 	for _, ref := range r.Refs {
 		if ref == nil {
 			return invalid("related list of references is incorrect: nil reference")
 		}
 
+		if _, isRelated := ref.(*Related); isRelated {
+			return invalid("related list of references may not contain a nested list of related references")
+		}
+
 		if err := ref.Validate(); err != nil {
 			return invalid("related list of references is incorrect: %w", unravelInvalid(err))
+		}
+
+		if first {
+			isJV = !strings.Contains(r.Refs[0].Ref(), ":")
+			first = false
+			continue
 		}
 
 		if isJV && strings.Contains(ref.Ref(), ":") {
@@ -540,7 +544,20 @@ func (r *Resolved) Validate() error {
 		return invalid("last reference is invalid: %w", unravelInvalid(err))
 	}
 
-	if r.Last.Before(r.First) {
+	if _, isCV := r.First.(CV); r.Book.JustVerse && isCV {
+		return invalid("book has no chapters, but first reference is a chapter and verse reference")
+	}
+	if _, isCV := r.Last.(CV); r.Book.JustVerse && isCV {
+		return invalid("book has no chapters, but last reference is a chapter and verse reference")
+	}
+	if _, isCV := r.First.(CV); !r.Book.JustVerse && !isCV {
+		return invalid("book has chapters, but first reference is not a chapter and verse reference")
+	}
+	if _, isCV := r.Last.(CV); !r.Book.JustVerse && !isCV {
+		return invalid("book has chapters, but last reference is not a chapter and verse reference")
+	}
+
+	if r.Last.RelativeTo(r.First).Before(r.First) {
 		return fmt.Errorf("first reference must be before or equal to last reference")
 	}
 
@@ -569,6 +586,7 @@ func (r *Resolved) Verses() []Verse {
 			break
 		}
 	}
+
 	return verses
 }
 

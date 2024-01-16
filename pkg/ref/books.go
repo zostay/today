@@ -190,7 +190,7 @@ func (c *Canon) resolveAndFollowing(
 			},
 		}, nil
 	default:
-		lv, err := c.lastVerseInChapter(b, v)
+		lv, err := lastVerseInChapter(b, v)
 		if err != nil {
 			return nil, err
 		}
@@ -205,7 +205,7 @@ func (c *Canon) resolveAndFollowing(
 	}
 }
 
-func (c *Canon) lastVerseInChapter(
+func lastVerseInChapter(
 	b *Book,
 	v Verse,
 ) (Verse, error) {
@@ -259,7 +259,7 @@ func (c *Canon) resolveRange(
 			return nil, err
 		}
 
-		last, err = c.lastVerseInChapter(b, last)
+		last, err = lastVerseInChapter(b, last)
 		if err != nil {
 			return nil, err
 		}
