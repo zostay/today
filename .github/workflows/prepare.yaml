@@ -1,3 +1,4 @@
+name: Prepare for Release
 on:
   push:
     branches:
@@ -5,6 +6,7 @@ on:
 
 jobs:
   prepare:
+    name: Prepare for Release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
