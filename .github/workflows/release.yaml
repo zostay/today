@@ -1,16 +1,13 @@
 name: Release
 on:
-  pull_request:
-    branches:
-      - release/*
-    types:
-      - closed
+  push:
+    tags:
+      - v*
 
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v4
