@@ -1,7 +1,9 @@
 on:
-  push:
-    tags:
-      - releases/*
+  pull_request:
+    branches:
+      - release/*
+    types:
+      - closed
 
 jobs:
   release:
@@ -28,20 +30,31 @@ jobs:
       - name: Release Notes Capture
         run: |
           sed -n '/^[0-9]/,/^[0-9]/p' | head -n-1 | tail -n-1 > release-notes.md
-      - env:
+          echo "Release Notes Will be..."
+          echo "========================"
+          cat release-notes.md
+      - name: Linux 64-bit Build
+        env:
           GOOS: linux
           GOARCH: amd64
         run: go build -o today-$RELEASE_VERSION-$GOOS-$GOARCH ./
-      - env:
+      - name: Apple Silicon Build
+        env:
           GOOS: darwin
           GOARCH: arm64
         run: go build -o today-$RELEASE_VERSION-$GOOS-$GOARCH ./
-      - env:
+      - name: Apple Intel Build
+        env:
           GOOS: darwin
           GOARCH: amd64
         run: go build -o today-$RELEASE_VERSION-$GOOS-GOARCH ./
-      - run: gh release create "v$RELEASE_VERSION" --draft --notes-file=release-notes.md
-      - run: gh release upload "v$RELEASE_VERSION" today-$RELEASE_VERSION-linux-amd64
-      - run: gh release upload "v$RELEASE_VERSION" today-$RELEASE_VERSION-darwin-arm64
-      - run: gh release upload "v$RELEASE_VERSION" today-$RELEASE_VERSION-darwin-amd64
-      - run: gh release edit "v$RELEASE_VERSION" --draft=false
+      - name: Create Release
+        run: gh release create "v$RELEASE_VERSION" --draft --notes-file=release-notes.md
+      - name: Upload Linux 64-bit Binary
+        run: gh release upload "v$RELEASE_VERSION" today-$RELEASE_VERSION-linux-amd64
+      - name: Upload Apple Silicon Binary
+        run: gh release upload "v$RELEASE_VERSION" today-$RELEASE_VERSION-darwin-arm64
+      - name: Upload Apple Intel Binary
+        run: gh release upload "v$RELEASE_VERSION" today-$RELEASE_VERSION-darwin-amd64
+      - name: Finalize Release
+        run: gh release edit "v$RELEASE_VERSION" --draft=false
