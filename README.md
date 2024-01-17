@@ -1,6 +1,7 @@
 # Today
 
-A command-line tool for working with the text of Christian scriptures.
+A command-line tool for working with the text of Christian scriptures. This tool
+is closely associated with the website <openscripture.today>.
 
 # Installation
 
