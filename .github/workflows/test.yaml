@@ -29,7 +29,7 @@ jobs:
             echo "Coverage is less than $REQUIRED_COVERAGE %"
             exit 1
           fi
-      - step: Prepare/Release Workflows Check
+      - name: Prepare/Release Workflows Check
         run: |
           go install github.com/mikefarah/yq/v4@latest
           yq '.jobs.release.steps.[0:5]' .github/workflows/release.yaml > release-steps.yaml
