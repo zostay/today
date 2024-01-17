@@ -1,4 +1,4 @@
-0.0.0  2024-01-18
+0.0.0  2024-01-17
 
  * Initial release.
  * Provides a library for working with Bible references in `pkg/ref`
