@@ -6,7 +6,11 @@ import (
 )
 
 var (
-	ErrNotFound  = errors.New("scripture reference not found")
+	// ErrNotFound is returned when a reference is not found in the canon.
+	ErrNotFound = errors.New("scripture reference not found")
+
+	// ErrWideRange is returned when the second reference in a range is not
+	// found.
 	ErrWideRange = errors.New("last verse is after the end of the book")
 )
 
