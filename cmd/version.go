@@ -3,6 +3,7 @@ package cmd
 import (
 	_ "embed"
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -21,5 +22,6 @@ func init() {
 var Version string
 
 func RunVersion(cmd *cobra.Command, args []string) {
-	fmt.Printf("today v%s", Version)
+	v := strings.TrimSpace(Version)
+	fmt.Printf("today v%s\n", v)
 }
