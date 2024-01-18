@@ -13,16 +13,14 @@ import (
 	"github.com/zostay/today/pkg/text/esv"
 )
 
+var randomCmd = &cobra.Command{
+	Use:   "random",
+	Short: "Pick a scripture to read at random",
+	Args:  cobra.ExactArgs(0),
+	RunE:  RunTodayRandom,
+}
+
 func init() {
-	randomCmd := &cobra.Command{
-		Use:   "random",
-		Short: "Pick a scripture to read at random",
-		Args:  cobra.ExactArgs(0),
-		RunE:  RunTodayRandom,
-	}
-
-	cmd.AddCommand(randomCmd)
-
 	randomCmd.Flags().BoolVarP(&asHtml, "html", "H", false, "Output as HTML")
 	randomCmd.Flags().StringVarP(&fromCategory, "category", "c", "", "Pick a random verse from a category")
 	randomCmd.Flags().StringVarP(&fromBook, "book", "b", "", "Pick a random verse from a book")

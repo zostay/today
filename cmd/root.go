@@ -18,6 +18,14 @@ func init() {
 		Use:   "today",
 		Short: "Read some scripture today",
 	}
+
+	cmd.AddCommand(
+		listBooksCmd,
+		listCategoriesCmd,
+		randomCmd,
+		showCmd,
+		versionCmd,
+	)
 }
 
 func Execute() {

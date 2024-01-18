@@ -8,15 +8,11 @@ import (
 	"github.com/zostay/today/pkg/ref"
 )
 
-func init() {
-	listBooks := &cobra.Command{
-		Use:   "books",
-		Short: "List the available books",
-		Args:  cobra.NoArgs,
-		Run:   RunListBooks,
-	}
-
-	cmd.AddCommand(listBooks)
+var listBooksCmd = &cobra.Command{
+	Use:   "books",
+	Short: "List the available books",
+	Args:  cobra.NoArgs,
+	Run:   RunListBooks,
 }
 
 func RunListBooks(cmd *cobra.Command, args []string) {

@@ -12,16 +12,14 @@ import (
 	"github.com/zostay/today/pkg/text/esv"
 )
 
+var showCmd = &cobra.Command{
+	Use:   "show",
+	Short: "Show a specified scripture",
+	Args:  cobra.MinimumNArgs(1),
+	Run:   RunTodayShow,
+}
+
 func init() {
-	showCmd := &cobra.Command{
-		Use:   "show",
-		Short: "Show a specified scripture",
-		Args:  cobra.MinimumNArgs(1),
-		Run:   RunTodayShow,
-	}
-
-	cmd.AddCommand(showCmd)
-
 	showCmd.Flags().BoolVarP(&asHtml, "html", "H", false, "Output as HTML")
 }
 
