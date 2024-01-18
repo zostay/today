@@ -22,6 +22,7 @@ func init() {
 	cmd.AddCommand(
 		listBooksCmd,
 		listCategoriesCmd,
+		ostCmd,
 		randomCmd,
 		showCmd,
 		versionCmd,
