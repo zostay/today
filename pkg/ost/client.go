@@ -12,10 +12,12 @@ import (
 	"github.com/zostay/today/pkg/text/esv"
 )
 
-const rootURL = `https://openscripture.today`
+const DefaultBaseURL = `https://openscripture.today`
 
 type Client struct {
-	svc *text.Service
+	Client  *http.Client
+	Service *text.Service
+	BaseURL string
 }
 
 func New() (*Client, error) {
@@ -26,12 +28,14 @@ func New() (*Client, error) {
 
 	svc := text.NewService(res)
 	return &Client{
-		svc: svc,
+		Client:  http.DefaultClient,
+		BaseURL: DefaultBaseURL,
+		Service: svc,
 	}, nil
 }
 
 func (c *Client) TodayVerse() (*Verse, error) {
-	ru, err := url.Parse(rootURL)
+	ru, err := url.Parse(c.BaseURL)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +59,7 @@ func (c *Client) Today() (string, error) {
 		return "", err
 	}
 
-	return c.svc.Verse(verse.Reference)
+	return c.Service.Verse(verse.Reference)
 }
 
 func (c *Client) TodayHTML() (template.HTML, error) {
@@ -64,5 +68,5 @@ func (c *Client) TodayHTML() (template.HTML, error) {
 		return "", err
 	}
 
-	return c.svc.VerseHTML(verse.Reference)
+	return c.Service.VerseHTML(verse.Reference)
 }
