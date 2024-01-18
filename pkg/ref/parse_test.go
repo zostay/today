@@ -119,6 +119,10 @@ func TestParseAndFollowing(t *testing.T) {
 	assert.ErrorIs(t, err, ref.ErrParseFail)
 	assert.Nil(t, af)
 
+	af, err = ref.ParseAndFollowing("11f")
+	assert.ErrorIs(t, err, ref.ErrParseFail)
+	assert.Nil(t, af)
+
 	af, err = ref.ParseAndFollowing("1:2ff")
 	assert.NoError(t, err)
 	assert.Equal(t, &ref.AndFollowing{Verse: ref.CV{Chapter: 1, Verse: 2}, Following: ref.FollowingRemainingChapter}, af)
