@@ -11,14 +11,23 @@ import (
 )
 
 var ostCmd = &cobra.Command{
-	Use:     "openscripture.today",
+	Use:     "openscripture",
 	Short:   "Work with current scripture of the day from openscripture.today",
 	Args:    cobra.NoArgs,
 	Run:     RunOst,
 	Aliases: []string{"ost"},
 }
 
+var ostTodayCmd = &cobra.Command{
+	Use:   "today",
+	Short: "Show the current scripture of the day from openscripture.today",
+	Args:  cobra.NoArgs,
+	Run:   RunOst,
+}
+
 func init() {
+	ostCmd.AddCommand(ostTodayCmd)
+
 	ostCmd.Flags().BoolVarP(&asHtml, "html", "H", false, "Output as HTML")
 }
 
