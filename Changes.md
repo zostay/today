@@ -1,4 +1,4 @@
-WIP  TBD
+0.1.0  2024-01-18
 
  * Added the `version` command to track which version is installed.
  * Added the `openscripture.today` (with `ost` alias) to allow for showing the scripture of the day from [openscripture.today](https://openscripture.today).
