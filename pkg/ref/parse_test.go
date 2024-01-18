@@ -172,6 +172,11 @@ func TestParseRange(t *testing.T) {
 	assert.ErrorAs(t, err, &moreInputErr)
 	assert.Equal(t, "ff", moreInputErr.Remaining)
 	assert.Equal(t, &ref.Range{First: ref.CV{Chapter: 1, Verse: 2}, Last: ref.CV{Chapter: 3, Verse: 4}}, r)
+
+	// The - here is an en dash (U+2013)
+	r, err = ref.ParseRange("2:20–21")
+	assert.NoError(t, err)
+	assert.Equal(t, &ref.Range{First: ref.CV{Chapter: 2, Verse: 20}, Last: ref.N{Number: 21}}, r)
 }
 
 func TestParseRelated(t *testing.T) {
