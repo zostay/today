@@ -1,6 +1,8 @@
 WIP  TBD
 
-
+ * Added the `version` command to track which version is installed.
+ * Added the `openscripture.today` (with `ost` alias) to allow for showing the scripture of the day from [openscripture.today](https://openscripture.today).
+ * Added the API library in `pkg/ost` for working with the openscripture.today API.
 
 0.0.0  2024-01-17
 

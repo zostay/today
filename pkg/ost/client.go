@@ -30,7 +30,7 @@ func New() (*Client, error) {
 	}, nil
 }
 
-func (c *Client) fetchToday() (*Verse, error) {
+func (c *Client) TodayVerse() (*Verse, error) {
 	ru, err := url.Parse(rootURL)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (c *Client) fetchToday() (*Verse, error) {
 }
 
 func (c *Client) Today() (string, error) {
-	verse, err := c.fetchToday()
+	verse, err := c.TodayVerse()
 	if err != nil {
 		return "", err
 	}
@@ -59,7 +59,7 @@ func (c *Client) Today() (string, error) {
 }
 
 func (c *Client) TodayHTML() (template.HTML, error) {
-	verse, err := c.fetchToday()
+	verse, err := c.TodayVerse()
 	if err != nil {
 		return "", err
 	}
