@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"time"
 
 	"gopkg.in/yaml.v3"
 
@@ -34,10 +35,37 @@ func New() (*Client, error) {
 	}, nil
 }
 
-func (c *Client) TodayVerse() (*Verse, error) {
+type options struct {
+	onTime time.Time
+}
+
+type Option func(*options)
+
+func On(t time.Time) Option {
+	return func(o *options) {
+		o.onTime = t
+	}
+}
+
+func processOptions(opts []Option) *options {
+	o := &options{}
+	for _, opt := range opts {
+		opt(o)
+	}
+
+	return o
+}
+
+func (c *Client) TodayVerse(opts ...Option) (*Verse, error) {
 	ru, err := url.Parse(c.BaseURL)
 	if err != nil {
 		return nil, err
+	}
+
+	o := processOptions(opts)
+	if !o.onTime.IsZero() {
+		datePath := o.onTime.Format("2006/01/02")
+		ru.Path = path.Join(ru.Path, "verses", datePath)
 	}
 
 	ru.Path = path.Join(ru.Path, "verse.yaml")
@@ -53,8 +81,8 @@ func (c *Client) TodayVerse() (*Verse, error) {
 	return &verse, err
 }
 
-func (c *Client) Today() (string, error) {
-	verse, err := c.TodayVerse()
+func (c *Client) Today(opts ...Option) (string, error) {
+	verse, err := c.TodayVerse(opts...)
 	if err != nil {
 		return "", err
 	}
@@ -62,8 +90,8 @@ func (c *Client) Today() (string, error) {
 	return c.Service.Verse(verse.Reference)
 }
 
-func (c *Client) TodayHTML() (template.HTML, error) {
-	verse, err := c.TodayVerse()
+func (c *Client) TodayHTML(opts ...Option) (template.HTML, error) {
+	verse, err := c.TodayVerse(opts...)
 	if err != nil {
 		return "", err
 	}

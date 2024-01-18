@@ -1,6 +1,7 @@
 WIP  TBD
 
  * Renaming `openscripture.today` to `openscripture` and adding `today` as a subcommand. (Both the upper level and sub-command do the same thing as the previous `openscripture.today` command.)
+ * Adding an `opensripture on` command to fetch previous scriptures of the day from [openscripture.today](https://openscripture.today).
 
 0.1.0  2024-01-18
 
