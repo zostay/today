@@ -76,3 +76,28 @@ func TestClient(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, template.HTML(today.Content), htxt) //nolint:gosec // srsly?
 }
+
+func TestClient_Sad(t *testing.T) {
+	t.Parallel()
+
+	ts := testServer()
+	defer ts.Close()
+
+	c := &ost.Client{
+		BaseURL: "%^&*",
+		Client:  http.DefaultClient,
+		Service: text.NewService(&testResolver{}),
+	}
+
+	v, err := c.TodayVerse()
+	assert.Error(t, err)
+	assert.Nil(t, v)
+
+	txt, err := c.Today()
+	assert.Error(t, err)
+	assert.Empty(t, txt)
+
+	htxt, err := c.TodayHTML()
+	assert.Error(t, err)
+	assert.Empty(t, htxt)
+}
