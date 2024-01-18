@@ -55,6 +55,50 @@ func TestCanon_Resolve_Single_WholeChapter(t *testing.T) {
 	}, rs)
 }
 
+func TestCanon_Resolve_AndFollowingChapter(t *testing.T) {
+	t.Parallel()
+
+	rs, err := ref.Canonical.Resolve(
+		&ref.Proper{
+			Book: "Isaiah",
+			Verse: &ref.AndFollowing{
+				Verse:     ref.CV{Chapter: 33, Verse: 1},
+				Following: ref.FollowingRemainingChapter,
+			},
+		},
+	)
+	assert.NoError(t, err)
+	assert.Equal(t, []ref.Resolved{
+		{
+			Book:  &ref.Canonical.Books[22],
+			First: ref.CV{Chapter: 33, Verse: 1},
+			Last:  ref.CV{Chapter: 33, Verse: 24},
+		},
+	}, rs)
+}
+
+func TestCanon_Resolve_AndFollowingBook(t *testing.T) {
+	t.Parallel()
+
+	rs, err := ref.Canonical.Resolve(
+		&ref.Proper{
+			Book: "Isaiah",
+			Verse: &ref.AndFollowing{
+				Verse:     ref.CV{Chapter: 33, Verse: 1},
+				Following: ref.FollowingRemainingBook,
+			},
+		},
+	)
+	assert.NoError(t, err)
+	assert.Equal(t, []ref.Resolved{
+		{
+			Book:  &ref.Canonical.Books[22],
+			First: ref.CV{Chapter: 33, Verse: 1},
+			Last:  ref.CV{Chapter: 66, Verse: 24},
+		},
+	}, rs)
+}
+
 func TestCanon_Resolve_Range_WholeChapter(t *testing.T) {
 	t.Parallel()
 

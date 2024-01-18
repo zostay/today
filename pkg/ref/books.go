@@ -322,31 +322,3 @@ func (b Book) Contains(v Verse) bool {
 	}
 	return false
 }
-
-// Sub returns a subset of verses in a book. If the given verses are not found,
-// this will return nil with an error.
-func (b Book) Sub(first, last Verse) ([]Verse, error) {
-	var (
-		vs        []Verse
-		lastFound bool
-	)
-	for i := range b.Verses {
-		if b.Verses[i].Equal(first) || len(vs) > 0 {
-			vs = append(vs, b.Verses[i])
-		}
-		if b.Verses[i].Equal(last) {
-			lastFound = true
-			break
-		}
-	}
-
-	if !lastFound {
-		return nil, ErrWideRange
-	}
-
-	if len(vs) == 0 {
-		return nil, ErrNotFound
-	}
-
-	return vs, nil
-}

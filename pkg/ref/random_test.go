@@ -75,3 +75,29 @@ func TestRandomPassageFromRef(t *testing.T) {
 		assert.True(t, lastv.Equal(lastp) || lastv.Before(lastp))
 	}
 }
+
+func TestRandom(t *testing.T) {
+	t.Parallel()
+
+	r, err := ref.Random()
+	assert.NoError(t, err)
+	assert.NotNil(t, r)
+
+	assert.NoError(t, r.Validate())
+
+	r, err = ref.Random(ref.FromCategory("Gospels"))
+	assert.NoError(t, err)
+	assert.NotNil(t, r)
+
+	// TODO Make sure it matches the category
+
+	assert.NoError(t, r.Validate())
+
+	r, err = ref.Random(ref.FromBook("John"))
+	assert.NoError(t, err)
+	assert.NotNil(t, r)
+
+	assert.Equal(t, "John", r.Book.Name)
+
+	assert.NoError(t, r.Validate())
+}
