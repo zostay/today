@@ -15,6 +15,12 @@ jobs:
           go-version: 1.21
       - name: Release Version
         run: echo RELEASE_VERSION=$(echo $GITHUB_REF_NAME | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+.*$') >> $GITHUB_ENV
+      - name: Version Check
+        run: |
+          if ! grep -q "$RELEASE_VERSION" cmd/version.txt; then
+            echo "cmd/version.txt does not match $RELEASE_VERSION!"
+            exit 1
+          fi
       - name: Changes Heading Up-To-Date Check
         run: |
           date=$(date "+%Y-%m-%d")
@@ -33,3 +39,18 @@ jobs:
           echo "Release Notes Will be..."
           echo "========================"
           cat release-notes.md
+      - name: Linux 64-bit Build
+        env:
+          GOOS: linux
+          GOARCH: amd64
+        run: go build -o today-$RELEASE_VERSION-$GOOS-$GOARCH ./
+      - name: Apple Silicon Build
+        env:
+          GOOS: darwin
+          GOARCH: arm64
+        run: go build -o today-$RELEASE_VERSION-$GOOS-$GOARCH ./
+      - name: Apple Intel Build
+        env:
+          GOOS: darwin
+          GOARCH: amd64
+        run: go build -o today-$RELEASE_VERSION-$GOOS-$GOARCH ./
