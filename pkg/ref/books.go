@@ -166,6 +166,10 @@ func (c *Canon) resolveSingle(b *Book, s *Single) ([]Resolved, error) {
 		})
 	}
 
+	if !b.Contains(v) {
+		return nil, ErrNotFound
+	}
+
 	return []Resolved{
 		{
 			Book:  b,
@@ -182,6 +186,10 @@ func (c *Canon) resolveAndFollowing(
 	v, _, err := ensureVerseMatchesBook(b, a.Verse)
 	if err != nil {
 		return nil, err
+	}
+
+	if !b.Contains(v) {
+		return nil, ErrNotFound
 	}
 
 	switch a.Following { //nolint:exhaustive // we don't need to handle all cases

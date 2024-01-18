@@ -43,7 +43,7 @@ func RunTodayRandom(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		panic(err)
 	}
-	esvClient := text.NewService(ec)
+	svc := text.NewService(ec)
 
 	var (
 		r ref.Ref
@@ -51,10 +51,10 @@ func RunTodayRandom(cmd *cobra.Command, args []string) error {
 	)
 	if asHtml {
 		var vh template.HTML
-		r, vh, err = esvClient.RandomVerseHTML(opts...)
+		r, vh, err = svc.RandomVerseHTML(opts...)
 		v = string(vh)
 	} else {
-		r, v, err = esvClient.RandomVerse(opts...)
+		r, v, err = svc.RandomVerse(opts...)
 	}
 	if err != nil {
 		panic(err)

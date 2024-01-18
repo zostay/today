@@ -57,4 +57,50 @@ func TestService(t *testing.T) {
 		First: ref.CV{Chapter: 4, Verse: 1},
 		Last:  ref.CV{Chapter: 4, Verse: 1},
 	}, tr.lastRef)
+
+	r, txt, err := svc.RandomVerse()
+	assert.NoError(t, err)
+	assert.Equal(t, fjn41, txt)
+	assert.NoError(t, r.Validate())
+
+	r, htxt, err = svc.RandomVerseHTML()
+	assert.NoError(t, err)
+	assert.Equal(t, template.HTML(fjn41), htxt) //nolint:gosec // srsly?
+	assert.NoError(t, r.Validate())
+}
+
+func TestService_Sad(t *testing.T) {
+	t.Parallel()
+
+	tr := &testResolver{}
+	svc := text.NewService(tr)
+	assert.NotNil(t, svc)
+
+	b, err := ref.Canonical.Book("1 John")
+	require.NoError(t, err)
+	require.NotNil(t, b)
+
+	txt, err := svc.Verse("1 John 4:")
+	assert.Error(t, err)
+	assert.Empty(t, txt)
+
+	htxt, err := svc.VerseHTML("1 John 4:")
+	assert.Error(t, err)
+	assert.Empty(t, htxt)
+
+	txt, err = svc.Verse("1 John 400:1")
+	assert.Error(t, err)
+	assert.Empty(t, txt)
+
+	htxt, err = svc.VerseHTML("1 John 400:1")
+	assert.Error(t, err)
+	assert.Empty(t, htxt)
+
+	txt, err = svc.Verse("1 John 4:1; 5:1")
+	assert.Error(t, err)
+	assert.Empty(t, txt)
+
+	htxt, err = svc.VerseHTML("1 John 4:1; 5:1")
+	assert.Error(t, err)
+	assert.Empty(t, htxt)
 }
