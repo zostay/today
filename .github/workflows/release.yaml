@@ -58,7 +58,7 @@ jobs:
           GOARCH: amd64
         run: go build -o today-$RELEASE_VERSION-$GOOS-$GOARCH ./
       - name: Create Release
-        run: gh release create "v$RELEASE_VERSION" --draft --notes-file=release-notes.md
+        run: gh release create -t "v$RELEASE_VERSION" "v$RELEASE_VERSION" --draft --notes-file=release-notes.md
       - name: Upload Linux 64-bit Binary
         run: gh release upload "v$RELEASE_VERSION" today-$RELEASE_VERSION-linux-amd64
       - name: Upload Apple Silicon Binary
