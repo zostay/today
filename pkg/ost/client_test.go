@@ -34,7 +34,7 @@ func (t *testResolver) Verse(ref *ref.Resolved) (string, error) {
 
 func (t *testResolver) VerseHTML(ref *ref.Resolved) (template.HTML, error) {
 	t.lastRef = ref
-	return template.HTML(today.Content), nil
+	return template.HTML(today.Content), nil //nolint:gosec // srsly?
 }
 
 var _ text.Resolver = (*testResolver)(nil)
@@ -74,5 +74,5 @@ func TestClient(t *testing.T) {
 
 	htxt, err := c.TodayHTML()
 	assert.NoError(t, err)
-	assert.Equal(t, template.HTML(today.Content), htxt)
+	assert.Equal(t, template.HTML(today.Content), htxt) //nolint:gosec // srsly?
 }
