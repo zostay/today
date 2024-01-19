@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v3"
@@ -39,23 +40,28 @@ func (t *testResolver) VerseHTML(ref *ref.Resolved) (template.HTML, error) {
 
 var _ text.Resolver = (*testResolver)(nil)
 
-func testServer() *httptest.Server {
+type requestInfo struct {
+	path string
+	err  error
+}
+
+func testServer() (*httptest.Server, *requestInfo) {
+	ri := requestInfo{}
 	ts := httptest.NewServer(http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
+			ri.path = r.URL.Path
 			enc := yaml.NewEncoder(w)
 			err := enc.Encode(today)
-			if err != nil {
-				panic(err)
-			}
+			ri.err = err
 		},
 	))
-	return ts
+	return ts, &ri
 }
 
 func TestClient(t *testing.T) {
 	t.Parallel()
 
-	ts := testServer()
+	ts, ri := testServer()
 	defer ts.Close()
 
 	c := &ost.Client{
@@ -67,20 +73,34 @@ func TestClient(t *testing.T) {
 	v, err := c.TodayVerse()
 	assert.NoError(t, err)
 	assert.Equal(t, &today, v)
+	assert.NoError(t, ri.err)
+	assert.Equal(t, "/verse.yaml", ri.path)
 
 	txt, err := c.Today()
 	assert.NoError(t, err)
 	assert.Equal(t, string(today.Content), txt)
+	assert.NoError(t, ri.err)
+	assert.Equal(t, "/verse.yaml", ri.path)
 
 	htxt, err := c.TodayHTML()
 	assert.NoError(t, err)
 	assert.Equal(t, template.HTML(today.Content), htxt) //nolint:gosec // srsly?
+	assert.NoError(t, ri.err)
+	assert.Equal(t, "/verse.yaml", ri.path)
+
+	on := time.Date(2023, 12, 30, 0, 0, 0, 0, time.Local)
+
+	v, err = c.TodayVerse(ost.On(on))
+	assert.NoError(t, err)
+	assert.Equal(t, &today, v)
+	assert.NoError(t, ri.err)
+	assert.Equal(t, "/verses/2023/12/30/verse.yaml", ri.path)
 }
 
 func TestClient_Sad(t *testing.T) {
 	t.Parallel()
 
-	ts := testServer()
+	ts, _ := testServer()
 	defer ts.Close()
 
 	c := &ost.Client{

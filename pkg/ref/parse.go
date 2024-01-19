@@ -352,13 +352,23 @@ func expectAndFollowing(ref parseState) (*AndFollowing, parseState, error) {
 	return f, ps, nil
 }
 
+func expectDash(ref *parseState) bool {
+	_, found := ref.expect(func(r rune) bool {
+		return r == '-' || r == '\u2010' ||
+			r == '\u2011' || r == '\u2012' ||
+			r == '\u2013' || r == '\u2014'
+	})
+
+	return found
+}
+
 func expectRange(ref parseState) (*Range, parseState, error) {
 	sf, ps, err := expectSingle(ref)
 	if err != nil {
 		return nil, ref, err
 	}
 
-	if !ps.expectRune('-') {
+	if !expectDash(&ps) {
 		return nil, ref, fmt.Errorf("%w: expected a dash", ErrParseFail)
 	}
 
