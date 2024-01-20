@@ -79,7 +79,10 @@ func (u *Source) Photo(
 }
 
 // Download fetches the photo for the photo info.
-func (u *Source) Download(ctx context.Context, info *image.PhotoInfo) error {
+func (u *Source) Download(
+	ctx context.Context,
+	info *image.PhotoInfo,
+) error {
 	photoId, err := idFromUrl(info.Photo.Link)
 	if err != nil {
 		return err
@@ -110,6 +113,8 @@ func (u *Source) Download(ctx context.Context, info *image.PhotoInfo) error {
 	if err != nil {
 		return err
 	}
+
+	info.File = f
 
 	return nil
 }
