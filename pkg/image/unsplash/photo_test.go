@@ -111,4 +111,6 @@ func TestSource(t *testing.T) { //nolint:paralleltest // unsplash client has glo
 	assert.NoError(t, err)
 	assert.True(t, pi.HasDownload())
 	assert.NotNil(t, pi.File)
+
+	assert.NoError(t, pi.Close())
 }

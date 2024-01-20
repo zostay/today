@@ -89,7 +89,7 @@ func (s *Service) ResizedImage(
 ) (*os.File, error) {
 	o := processOptions(opts)
 
-	if info.HasDownload() {
+	if !info.HasDownload() {
 		err := s.Source.Download(ctx, info)
 		if err != nil {
 			return nil, err
@@ -149,7 +149,7 @@ func (s *Service) DominantImageColor(
 	ctx context.Context,
 	photo *PhotoInfo,
 ) (color.Color, error) {
-	if photo.HasDownload() {
+	if !photo.HasDownload() {
 		err := s.Source.Download(ctx, photo)
 		if err != nil {
 			return nil, err

@@ -15,6 +15,17 @@ func (pi *PhotoInfo) HasDownload() bool {
 	return pi.File != nil
 }
 
+// Close ensures the file handle is closed, if present. Should always be called
+// when done with the photo info.
+func (pi *PhotoInfo) Close() error {
+	if pi.File != nil {
+		f := pi.File
+		pi.File = nil
+		return f.Close()
+	}
+	return nil
+}
+
 // Photo contains the metadata about a photo.
 type Photo struct {
 	Link  string `yaml:"link"`
