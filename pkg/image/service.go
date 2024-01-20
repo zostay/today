@@ -113,11 +113,12 @@ func (s *Service) ResizedImage(
 	var (
 		resizeWidth, resizeHeight uint = 0, 0
 	)
-	if w > o.maxWidth {
+	switch {
+	case w > o.maxWidth:
 		resizeWidth = o.maxWidth
-	} else if h > o.maxHeight {
+	case h > o.maxHeight:
 		resizeHeight = o.maxHeight
-	} else {
+	default:
 		return info.File, nil
 	}
 

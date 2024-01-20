@@ -160,6 +160,9 @@ func (c *Client) TodayPhotoWithDownload(
 	var photo image.PhotoInfo
 	dec := yaml.NewDecoder(res.Body)
 	err = dec.Decode(&photo)
+	if err != nil {
+		return nil, err
+	}
 
 	err = c.PhotoService.Download(ctx, &photo)
 	if err != nil {

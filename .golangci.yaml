@@ -41,11 +41,14 @@ linters-settings:
           - github.com/zostay
           - github.com/spf13/cobra
           - github.com/bbrks/wrap
+          - github.com/hbagdi/go-unsplash/unsplash
+          - github.com/nfnt/resize
 
       tests:
         files:
           - "$test"
         allow:
           - "$gostd"
-          - github.com/stretchr/testify
           - github.com/zostay
+          - github.com/stretchr/testify
+          - github.com/hbagdi/go-unsplash/unsplash

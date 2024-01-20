@@ -14,11 +14,10 @@ import (
 func TestSource_New(t *testing.T) {
 	t.Parallel()
 
-	cli, err := unsplash.New(context.Background(), &unsplash.Auth{
+	cli := unsplash.New(context.Background(), &unsplash.Auth{
 		AccessKey: "test-token",
 	})
 
-	assert.NoError(t, err)
 	require.NotNil(t, cli)
 	assert.NotNil(t, cli.Client)
 }

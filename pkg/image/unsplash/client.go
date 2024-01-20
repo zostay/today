@@ -22,27 +22,24 @@ var _ image.Source = (*Source)(nil)
 func unsplashClient(
 	ctx context.Context,
 	accessKey string,
-) (*unsplash.Unsplash, error) {
+) *unsplash.Unsplash {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: "Client-ID " + accessKey},
 	)
 	client := oauth2.NewClient(ctx, ts)
 
-	return unsplash.New(client), nil
+	return unsplash.New(client)
 }
 
 func New(
 	ctx context.Context,
 	auth *Auth,
-) (*Source, error) {
-	client, err := unsplashClient(ctx, auth.AccessKey)
-	if err != nil {
-		return nil, err
-	}
+) *Source {
+	client := unsplashClient(ctx, auth.AccessKey)
 
 	return &Source{
 		Client: client,
-	}, nil
+	}
 }
 
 func NewFromAuthFile(
@@ -54,14 +51,14 @@ func NewFromAuthFile(
 		return nil, err
 	}
 
-	return New(ctx, auth)
+	return New(ctx, auth), nil
 }
 
 func NewFromEnvironment(ctx context.Context) (*Source, error) {
 	// try the environment first
 	tok := os.Getenv("UNSPLASH_API_TOKEN")
 	if tok != "" {
-		return New(ctx, &Auth{AccessKey: tok})
+		return New(ctx, &Auth{AccessKey: tok}), nil
 	}
 
 	// try the auth file
