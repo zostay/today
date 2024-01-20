@@ -58,7 +58,7 @@ func RunOst(cmd *cobra.Command, args []string) {
 		opts = append(opts, ost.On(onTime))
 	}
 
-	client, err := ost.New()
+	client, err := ost.New(cmd.Context())
 	if err != nil {
 		panic(err)
 	}

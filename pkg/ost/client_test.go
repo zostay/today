@@ -1,6 +1,7 @@
 package ost_test
 
 import (
+	"context"
 	"html/template"
 	"net/http"
 	"net/http/httptest"
@@ -10,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v3"
 
+	"github.com/zostay/today/pkg/image"
 	"github.com/zostay/today/pkg/ost"
 	"github.com/zostay/today/pkg/ref"
 	"github.com/zostay/today/pkg/text"
@@ -40,6 +42,22 @@ func (t *testResolver) VerseHTML(ref *ref.Resolved) (template.HTML, error) {
 
 var _ text.Resolver = (*testResolver)(nil)
 
+type testSource struct{}
+
+func (t *testSource) CacheKey(url string) (string, bool) {
+	panic("implement me")
+}
+
+func (t *testSource) Photo(ctx context.Context, url string) (info *image.PhotoInfo, err error) {
+	panic("implement me")
+}
+
+func (t *testSource) Download(ctx context.Context, info *image.PhotoInfo) error {
+	panic("implement me")
+}
+
+var _ image.Source = (*testSource)(nil)
+
 type requestInfo struct {
 	path string
 	err  error
@@ -65,9 +83,10 @@ func TestClient(t *testing.T) {
 	defer ts.Close()
 
 	c := &ost.Client{
-		BaseURL: ts.URL,
-		Client:  http.DefaultClient,
-		Service: text.NewService(&testResolver{}),
+		BaseURL:      ts.URL,
+		Client:       http.DefaultClient,
+		TextService:  text.NewService(&testResolver{}),
+		PhotoService: image.NewService(&testSource{}),
 	}
 
 	v, err := c.TodayVerse()
@@ -104,9 +123,10 @@ func TestClient_Sad(t *testing.T) {
 	defer ts.Close()
 
 	c := &ost.Client{
-		BaseURL: "%^&*",
-		Client:  http.DefaultClient,
-		Service: text.NewService(&testResolver{}),
+		BaseURL:      "%^&*",
+		Client:       http.DefaultClient,
+		TextService:  text.NewService(&testResolver{}),
+		PhotoService: image.NewService(&testSource{}),
 	}
 
 	v, err := c.TodayVerse()
