@@ -13,12 +13,12 @@ import (
 
 // Source sources photos from unsplash.com.
 type Source struct {
-	client *unsplash.Unsplash
+	Client *unsplash.Unsplash
 }
 
 var _ image.Source = (*Source)(nil)
 
-// unsplashClient creates a new Source client.
+// unsplashClient creates a new Source Client.
 func unsplashClient(
 	ctx context.Context,
 	accessKey string,
@@ -41,7 +41,7 @@ func New(
 	}
 
 	return &Source{
-		client: client,
+		Client: client,
 	}, nil
 }
 
@@ -59,7 +59,7 @@ func NewFromAuthFile(
 
 func NewFromEnvironment(ctx context.Context) (*Source, error) {
 	// try the environment first
-	tok := os.Getenv("ESV_API_TOKEN")
+	tok := os.Getenv("UNSPLASH_API_TOKEN")
 	if tok != "" {
 		return New(ctx, &Auth{AccessKey: tok})
 	}

@@ -12,7 +12,7 @@ import (
 	"github.com/zostay/today/pkg/image"
 )
 
-// stringValue is a helper for use with the Source client to pull out strings
+// stringValue is a helper for use with the Source Client to pull out strings
 // from responses.
 func stringValue(str *string) string {
 	if str == nil {
@@ -21,7 +21,7 @@ func stringValue(str *string) string {
 	return *str
 }
 
-// urlValueString is a helper for use with the Source client to pull out URL
+// urlValueString is a helper for use with the Source Client to pull out URL
 // strings from responses.
 func urlValueString(u *unsplash.URL) string {
 	if u == nil {
@@ -59,7 +59,7 @@ func (u *Source) Photo(
 		return nil, err
 	}
 
-	photo, _, err := u.client.Photos.Photo(photoId, nil)
+	photo, _, err := u.Client.Photos.Photo(photoId, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func (u *Source) Download(ctx context.Context, info *image.PhotoInfo) error {
 	}
 	defer os.Remove(f.Name())
 
-	dl, _, err := u.client.Photos.DownloadLink(photoId)
+	dl, _, err := u.Client.Photos.DownloadLink(photoId)
 	if err != nil {
 		return err
 	}
