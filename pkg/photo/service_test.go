@@ -1,4 +1,4 @@
-package image_test
+package photo_test
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/zostay/today/pkg/image"
+	"github.com/zostay/today/pkg/photo"
 )
 
 type testSource struct{}
@@ -22,14 +22,14 @@ func (t *testSource) CacheKey(url string) (string, bool) {
 	return "test/" + url, true
 }
 
-func (t *testSource) Photo(ctx context.Context, url string) (info *image.PhotoInfo, err error) {
+func (t *testSource) Photo(ctx context.Context, url string) (info *photo.Info, err error) {
 	key, _ := t.CacheKey(url)
-	return &image.PhotoInfo{
+	return &photo.Info{
 		Key: key,
-		Photo: &image.Photo{
+		Meta: &photo.Meta{
 			Link:  url,
-			Title: "Test Photo",
-			Creator: image.Creator{
+			Title: "Test Meta",
+			Creator: photo.Creator{
 				Name: "Test Creator",
 				Link: "https://example.com",
 			},
@@ -37,26 +37,26 @@ func (t *testSource) Photo(ctx context.Context, url string) (info *image.PhotoIn
 	}, nil
 }
 
-func (t *testSource) Download(ctx context.Context, info *image.PhotoInfo) (err error) {
+func (t *testSource) Download(ctx context.Context, info *photo.Info) (err error) {
 	info.File, err = os.Open("unsplash/testdata/waa.jpg")
 	return
 }
 
-var _ image.Source = (*testSource)(nil)
+var _ photo.Source = (*testSource)(nil)
 
 func TestService(t *testing.T) {
 	t.Parallel()
 
-	s := image.NewService(&testSource{})
+	s := photo.NewService(&testSource{})
 
 	pi, err := s.Photo(context.Background(), "https://example.com")
 	assert.NoError(t, err)
-	assert.Equal(t, &image.PhotoInfo{
+	assert.Equal(t, &photo.Info{
 		Key: "test/https-example-com",
-		Photo: &image.Photo{
+		Meta: &photo.Meta{
 			Link:  "https://example.com",
-			Title: "Test Photo",
-			Creator: image.Creator{
+			Title: "Test Meta",
+			Creator: photo.Creator{
 				Name: "Test Creator",
 				Link: "https://example.com",
 			},
@@ -75,8 +75,8 @@ func TestService(t *testing.T) {
 	resized, err := s.ResizedImage(
 		context.Background(),
 		pi,
-		image.MaxWidth(1000),
-		image.MaxHeight(1000),
+		photo.MaxWidth(1000),
+		photo.MaxHeight(1000),
 	)
 	assert.NoError(t, err)
 	assert.NotNil(t, resized)

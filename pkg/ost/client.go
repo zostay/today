@@ -10,8 +10,8 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/zostay/today/pkg/image"
-	"github.com/zostay/today/pkg/image/unsplash"
+	"github.com/zostay/today/pkg/photo"
+	"github.com/zostay/today/pkg/photo/unsplash"
 	"github.com/zostay/today/pkg/text"
 	"github.com/zostay/today/pkg/text/esv"
 )
@@ -21,7 +21,7 @@ const DefaultBaseURL = `https://openscripture.today`
 type Client struct {
 	Client       *http.Client
 	TextService  *text.Service
-	PhotoService *image.Service
+	PhotoService *photo.Service
 	BaseURL      string
 }
 
@@ -36,7 +36,7 @@ func New(ctx context.Context) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	imgSvc := image.NewService(src)
+	imgSvc := photo.NewService(src)
 
 	return &Client{
 		Client:       http.DefaultClient,
@@ -110,7 +110,7 @@ func (c *Client) TodayHTML(opts ...Option) (template.HTML, error) {
 	return c.TextService.VerseHTML(verse.Reference)
 }
 
-func (c *Client) TodayPhoto(opts ...Option) (*image.PhotoInfo, error) {
+func (c *Client) TodayPhoto(opts ...Option) (*photo.Info, error) {
 	ru, err := url.Parse(c.BaseURL)
 	if err != nil {
 		return nil, err
@@ -129,7 +129,7 @@ func (c *Client) TodayPhoto(opts ...Option) (*image.PhotoInfo, error) {
 		return nil, err
 	}
 
-	var photo image.PhotoInfo
+	var photo photo.Info
 	dec := yaml.NewDecoder(res.Body)
 	err = dec.Decode(&photo)
 	return &photo, err

@@ -1,4 +1,4 @@
-package image
+package photo
 
 import (
 	"context"
@@ -27,12 +27,12 @@ func NewService(s Source) *Service {
 	}
 }
 
-// Photo returns the photo info for a given photo URL. It will cache the
+// Meta returns the photo info for a given photo URL. It will cache the
 // photo info in the local filesystem and in S3.
 func (s *Service) Photo(
 	ctx context.Context,
 	photoUrl string,
-) (*PhotoInfo, error) {
+) (*Info, error) {
 	pi, err := s.Source.Photo(ctx, photoUrl)
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func (s *Service) Photo(
 // Download fetches file.
 func (s *Service) Download(
 	ctx context.Context,
-	info *PhotoInfo,
+	info *Info,
 ) error {
 	return s.Source.Download(ctx, info)
 }
@@ -84,7 +84,7 @@ func processOptions(opts []Option) *options {
 // the maximum width and height I have set.
 func (s *Service) ResizedImage(
 	ctx context.Context,
-	info *PhotoInfo,
+	info *Info,
 	opts ...Option,
 ) (*os.File, error) {
 	o := processOptions(opts)
@@ -147,7 +147,7 @@ func (s *Service) ResizedImage(
 // the maximum width and height I have set.
 func (s *Service) DominantImageColor(
 	ctx context.Context,
-	photo *PhotoInfo,
+	photo *Info,
 ) (color.Color, error) {
 	if !photo.HasDownload() {
 		err := s.Source.Download(ctx, photo)

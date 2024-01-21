@@ -9,7 +9,7 @@ import (
 
 	"github.com/hbagdi/go-unsplash/unsplash"
 
-	"github.com/zostay/today/pkg/image"
+	"github.com/zostay/today/pkg/photo"
 )
 
 // stringValue is a helper for use with the Source Client to pull out strings
@@ -53,26 +53,26 @@ func (u *Source) CacheKey(photoUrl string) (string, bool) {
 func (u *Source) Photo(
 	ctx context.Context,
 	photoUrl string,
-) (*image.PhotoInfo, error) {
+) (*photo.Info, error) {
 	photoId, err := idFromUrl(photoUrl)
 	if err != nil {
 		return nil, err
 	}
 
-	photo, _, err := u.Client.Photos.Photo(photoId, nil)
+	image, _, err := u.Client.Photos.Photo(photoId, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	photoKey, _ := u.CacheKey(photoUrl)
-	return &image.PhotoInfo{
+	return &photo.Info{
 		Key: photoKey,
-		Photo: &image.Photo{
-			Link: urlValueString(photo.Links.HTML),
+		Meta: &photo.Meta{
+			Link: urlValueString(image.Links.HTML),
 			Type: "unsplash",
-			Creator: image.Creator{
-				Name: stringValue(photo.Photographer.Name),
-				Link: urlValueString(photo.Photographer.Links.HTML),
+			Creator: photo.Creator{
+				Name: stringValue(image.Photographer.Name),
+				Link: urlValueString(image.Photographer.Links.HTML),
 			},
 		},
 	}, nil
@@ -81,9 +81,9 @@ func (u *Source) Photo(
 // Download fetches the photo for the photo info.
 func (u *Source) Download(
 	ctx context.Context,
-	info *image.PhotoInfo,
+	info *photo.Info,
 ) error {
-	photoId, err := idFromUrl(info.Photo.Link)
+	photoId, err := idFromUrl(info.Meta.Link)
 	if err != nil {
 		return err
 	}

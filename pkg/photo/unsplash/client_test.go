@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/zostay/today/pkg/image/unsplash"
+	"github.com/zostay/today/pkg/photo/unsplash"
 )
 
 func TestSource_New(t *testing.T) {

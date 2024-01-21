@@ -14,8 +14,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/zostay/today/pkg/image"
-	"github.com/zostay/today/pkg/image/unsplash"
+	"github.com/zostay/today/pkg/photo"
+	"github.com/zostay/today/pkg/photo/unsplash"
 )
 
 func testServer() *httptest.Server {
@@ -92,13 +92,13 @@ func TestSource(t *testing.T) { //nolint:paralleltest // unsplash client has glo
 
 	pi, err := src.Photo(context.Background(), "https://unsplash.com/photos/a-test-photo-with-title-that-does-not-matter-abc123-_XYZ")
 	assert.NoError(t, err)
-	assert.Equal(t, &image.PhotoInfo{
+	assert.Equal(t, &photo.Info{
 		Key: "unsplash/abc123-_XYZ",
-		Photo: &image.Photo{
+		Meta: &photo.Meta{
 			Link:  u.String() + "/photos/a-test-photo-with-title-that-does-not-matter-abc123-_XYZ",
 			Type:  "unsplash",
 			Title: "",
-			Creator: image.Creator{
+			Creator: photo.Creator{
 				Name: "Test User",
 				Link: u.String() + "/testuser",
 			},

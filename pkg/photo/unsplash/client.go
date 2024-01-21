@@ -8,7 +8,7 @@ import (
 	"github.com/hbagdi/go-unsplash/unsplash"
 	"golang.org/x/oauth2"
 
-	"github.com/zostay/today/pkg/image"
+	"github.com/zostay/today/pkg/photo"
 )
 
 // Source sources photos from unsplash.com.
@@ -16,7 +16,7 @@ type Source struct {
 	Client *unsplash.Unsplash
 }
 
-var _ image.Source = (*Source)(nil)
+var _ photo.Source = (*Source)(nil)
 
 // unsplashClient creates a new Source Client.
 func unsplashClient(

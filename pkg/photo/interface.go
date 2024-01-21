@@ -1,4 +1,4 @@
-package image
+package photo
 
 import "context"
 
@@ -8,9 +8,9 @@ type Source interface {
 	// have a value for the URL, it returns false.
 	CacheKey(url string) (string, bool)
 
-	// Photo returns the photo info for a given URL.
-	Photo(ctx context.Context, url string) (info *PhotoInfo, err error)
+	// Meta returns the photo info for a given URL.
+	Photo(ctx context.Context, url string) (info *Info, err error)
 
-	// Download downloads the photo and attaches it to the given PhotoInfo.
-	Download(ctx context.Context, info *PhotoInfo) error
+	// Download downloads the photo and attaches it to the given Info.
+	Download(ctx context.Context, info *Info) error
 }

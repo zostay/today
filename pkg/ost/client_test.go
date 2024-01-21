@@ -12,8 +12,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v3"
 
-	"github.com/zostay/today/pkg/image"
 	"github.com/zostay/today/pkg/ost"
+	"github.com/zostay/today/pkg/photo"
 	"github.com/zostay/today/pkg/ref"
 	"github.com/zostay/today/pkg/text"
 )
@@ -27,12 +27,12 @@ var (
 			Link: "https://www.esv.org/Luke+10:25",
 		},
 	}
-	photo = image.PhotoInfo{
+	image = photo.Info{
 		Key: "test/https-example-com",
-		Photo: &image.Photo{
+		Meta: &photo.Meta{
 			Link:  "https://example.com",
 			Title: "",
-			Creator: image.Creator{
+			Creator: photo.Creator{
 				Name: "Test Photographer",
 				Link: "https://example.com/testuser",
 			},
@@ -62,15 +62,15 @@ func (t *testSource) CacheKey(url string) (string, bool) {
 	panic("implement me")
 }
 
-func (t *testSource) Photo(ctx context.Context, url string) (info *image.PhotoInfo, err error) {
+func (t *testSource) Photo(ctx context.Context, url string) (info *photo.Info, err error) {
 	panic("implement me")
 }
 
-func (t *testSource) Download(ctx context.Context, info *image.PhotoInfo) error {
+func (t *testSource) Download(ctx context.Context, info *photo.Info) error {
 	panic("implement me")
 }
 
-var _ image.Source = (*testSource)(nil)
+var _ photo.Source = (*testSource)(nil)
 
 type requestInfo struct {
 	path string
@@ -90,7 +90,7 @@ func testServer() (*httptest.Server, *requestInfo) {
 			case strings.HasSuffix(r.URL.Path, "/photo.yaml"):
 				ri.path = r.URL.Path
 				enc := yaml.NewEncoder(w)
-				err := enc.Encode(photo)
+				err := enc.Encode(image)
 				ri.err = err
 			default:
 				w.WriteHeader(404)
@@ -110,7 +110,7 @@ func TestClient(t *testing.T) {
 		BaseURL:      ts.URL,
 		Client:       http.DefaultClient,
 		TextService:  text.NewService(&testResolver{}),
-		PhotoService: image.NewService(&testSource{}),
+		PhotoService: photo.NewService(&testSource{}),
 	}
 
 	v, err := c.TodayVerse()
@@ -141,19 +141,17 @@ func TestClient(t *testing.T) {
 
 	pi, err := c.TodayPhoto()
 	assert.NoError(t, err)
-	assert.Equal(t, &photo, pi)
+	assert.Equal(t, &image, pi)
 	assert.NoError(t, ri.err)
 	assert.Equal(t, "/photo.yaml", ri.path)
 	assert.NoError(t, pi.Close())
 
 	pi, err = c.TodayPhoto(ost.On(on))
 	assert.NoError(t, err)
-	assert.Equal(t, &photo, pi)
+	assert.Equal(t, &image, pi)
 	assert.NoError(t, ri.err)
 	assert.Equal(t, "/verses/2023/12/30/photo.yaml", ri.path)
 	assert.NoError(t, pi.Close())
-
-	pi, err := c.TodayPhotoWithDownload()
 }
 
 func TestClient_Sad(t *testing.T) {
@@ -166,7 +164,7 @@ func TestClient_Sad(t *testing.T) {
 		BaseURL:      "%^&*",
 		Client:       http.DefaultClient,
 		TextService:  text.NewService(&testResolver{}),
-		PhotoService: image.NewService(&testSource{}),
+		PhotoService: photo.NewService(&testSource{}),
 	}
 
 	v, err := c.TodayVerse()

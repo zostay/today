@@ -1,4 +1,4 @@
-package image_test
+package photo_test
 
 import (
 	"os"
@@ -7,13 +7,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/zostay/today/pkg/image"
+	"github.com/zostay/today/pkg/photo"
 )
 
 func TestPhotoInfo_HasDownload(t *testing.T) {
 	t.Parallel()
 
-	pi := image.PhotoInfo{}
+	pi := photo.Info{}
 	assert.False(t, pi.HasDownload())
 
 	pi.File = &os.File{}
@@ -23,7 +23,7 @@ func TestPhotoInfo_HasDownload(t *testing.T) {
 func TestPhotoInfo_Close(t *testing.T) {
 	t.Parallel()
 
-	pi := image.PhotoInfo{}
+	pi := photo.Info{}
 	assert.NoError(t, pi.Close())
 
 	var err error

@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/zostay/today/pkg/image/unsplash"
+	"github.com/zostay/today/pkg/photo/unsplash"
 )
 
 func TestLoadAuth(t *testing.T) {
