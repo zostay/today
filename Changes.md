@@ -1,3 +1,11 @@
+WIP  TBD
+
+ * Breaking Change: The `ref.RandomPassage` ane `ref.RandomPassageFromRef` functions now take two additional integer arguments to select width of range returned.
+ * Added the `--minimum-verses` and `--maximum-verses` options to `today random` to allow control over how many verses are selected for the passage.
+ * Added `ref.WithAtLeast()` and `ref.WithAtMost()` options to `ref.Random` to allow control over how many verses are selected for the passage.
+ * Fix: Fixed a bug where the `today random` output showed the passage reference twice.
+ * Fix: Random passages should now be unbiased (previously, there was a slight bias towards picking passages at the end of a book or passage).
+
 0.3.0  2024-01-22
 
  * Adding a `today openscripture photo` command with `--download`, `--on`, and `--yaml` flags for downloadinng and fetching metadata regarding the photo for the scripture of the day from [openscripture.today](https://openscripture.today).
