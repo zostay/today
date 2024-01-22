@@ -3,12 +3,15 @@ package cmd
 import (
 	"fmt"
 	"html/template"
-	"time"
+	"io"
+	"os"
 
 	"github.com/bbrks/wrap"
+	"github.com/markusmobius/go-dateparser"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 
+	"github.com/zostay/today/cmd/flag"
 	"github.com/zostay/today/pkg/ost"
 )
 
@@ -35,30 +38,51 @@ var (
 		Run:   RunOst,
 	}
 
+	ostPhotoCmd = &cobra.Command{
+		Use:   "photo",
+		Short: "Show information about or download the photo used with the scripture of the day from openscripture.today",
+		Args:  cobra.NoArgs,
+		Run:   RunOstPhoto,
+	}
+
 	asMeta, asYaml bool
+	on             flag.Date
+	download       string
 )
 
 func init() {
-	ostCmd.AddCommand(ostTodayCmd, ostOnCmd)
+	ostCmd.AddCommand(ostTodayCmd, ostOnCmd, ostPhotoCmd)
 
-	ostCmd.PersistentFlags().BoolVarP(&asHtml, "html", "H", false, "Output as HTML")
-	ostCmd.PersistentFlags().BoolVarP(&asMeta, "meta", "m", false, "Output information about Scripture")
-	ostCmd.PersistentFlags().BoolVarP(&asYaml, "yaml", "y", false, "Output as YAML")
+	ostCmd.Flags().BoolVarP(&asHtml, "html", "H", false, "Output as HTML")
+	ostCmd.Flags().BoolVarP(&asMeta, "meta", "m", false, "Output information about Scripture")
+	ostCmd.Flags().BoolVarP(&asYaml, "yaml", "y", false, "Output as YAML")
+
+	ostTodayCmd.Flags().BoolVarP(&asHtml, "html", "H", false, "Output as HTML")
+	ostTodayCmd.Flags().BoolVarP(&asMeta, "meta", "m", false, "Output information about Scripture")
+	ostTodayCmd.Flags().BoolVarP(&asYaml, "yaml", "y", false, "Output as YAML")
+
+	ostOnCmd.Flags().BoolVarP(&asHtml, "html", "H", false, "Output as HTML")
+	ostOnCmd.Flags().BoolVarP(&asMeta, "meta", "m", false, "Output information about Scripture")
+	ostOnCmd.Flags().BoolVarP(&asYaml, "yaml", "y", false, "Output as YAML")
+
+	ostPhotoCmd.Flags().StringVarP(&download, "download", "d", "openscripture.jpg", "Download the file photo to the named file")
+	ostPhotoCmd.Flags().VarP(&on, "on", "o", "Specify the date to get the photo for")
+	ostPhotoCmd.Flags().BoolVarP(&asYaml, "yaml", "y", false, "Output as YAML")
 }
 
 func RunOst(cmd *cobra.Command, args []string) {
 	opts := []ost.Option{}
 	if len(args) == 1 {
 		on := args[0]
-		onTime, err := time.ParseInLocation("2006-01-02", on, time.Local)
+		onTime, err := dateparser.Parse(nil, on)
 		if err != nil {
 			panic(err)
 		}
 
-		opts = append(opts, ost.On(onTime))
+		opts = append(opts, ost.On(onTime.Time))
 	}
 
-	client, err := ost.New()
+	client, err := ost.New(cmd.Context())
 	if err != nil {
 		panic(err)
 	}
@@ -99,4 +123,51 @@ func RunOst(cmd *cobra.Command, args []string) {
 	}
 
 	fmt.Println(wrap.Wrap(v, 70))
+}
+
+func RunOstPhoto(cmd *cobra.Command, args []string) {
+	opts := []ost.Option{}
+	if !on.Value.IsZero() {
+		opts = append(opts, ost.On(on.Value.Time))
+	}
+
+	client, err := ost.New(cmd.Context())
+	if err != nil {
+		panic(err)
+	}
+
+	pi, err := client.TodayPhoto(opts...)
+	if err != nil {
+		panic(err)
+	}
+
+	switch {
+	case asYaml:
+		enc := yaml.NewEncoder(cmd.OutOrStdout())
+		err = enc.Encode(pi)
+		if err != nil {
+			panic(err)
+		}
+	default:
+		fmt.Printf("Link: %s\n", pi.Link)
+		fmt.Printf("Author: %s (%s)\n", pi.Creator.Name, pi.Creator.Link)
+	}
+
+	if download != "" {
+		err = client.PhotoService.Download(cmd.Context(), pi)
+		if err != nil {
+			panic(err)
+		}
+
+		f, err := os.Create(download)
+		if err != nil {
+			panic(err)
+		}
+		defer f.Close()
+
+		_, err = io.Copy(f, pi.File)
+		if err != nil {
+			panic(err)
+		}
+	}
 }

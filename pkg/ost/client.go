@@ -1,6 +1,7 @@
 package ost
 
 import (
+	"context"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -9,6 +10,8 @@ import (
 
 	"gopkg.in/yaml.v3"
 
+	"github.com/zostay/today/pkg/photo"
+	"github.com/zostay/today/pkg/photo/unsplash"
 	"github.com/zostay/today/pkg/text"
 	"github.com/zostay/today/pkg/text/esv"
 )
@@ -16,22 +19,30 @@ import (
 const DefaultBaseURL = `https://openscripture.today`
 
 type Client struct {
-	Client  *http.Client
-	Service *text.Service
-	BaseURL string
+	Client       *http.Client
+	TextService  *text.Service
+	PhotoService *photo.Service
+	BaseURL      string
 }
 
-func New() (*Client, error) {
+func New(ctx context.Context) (*Client, error) {
 	res, err := esv.NewFromEnvironment()
 	if err != nil {
 		return nil, err
 	}
+	txtSvc := text.NewService(res)
 
-	svc := text.NewService(res)
+	src, err := unsplash.NewFromEnvironment(ctx)
+	if err != nil {
+		return nil, err
+	}
+	imgSvc := photo.NewService(src)
+
 	return &Client{
-		Client:  http.DefaultClient,
-		BaseURL: DefaultBaseURL,
-		Service: svc,
+		Client:       http.DefaultClient,
+		BaseURL:      DefaultBaseURL,
+		TextService:  txtSvc,
+		PhotoService: imgSvc,
 	}, nil
 }
 
@@ -87,7 +98,7 @@ func (c *Client) Today(opts ...Option) (string, error) {
 		return "", err
 	}
 
-	return c.Service.Verse(verse.Reference)
+	return c.TextService.Verse(verse.Reference)
 }
 
 func (c *Client) TodayHTML(opts ...Option) (template.HTML, error) {
@@ -96,5 +107,32 @@ func (c *Client) TodayHTML(opts ...Option) (template.HTML, error) {
 		return "", err
 	}
 
-	return c.Service.VerseHTML(verse.Reference)
+	return c.TextService.VerseHTML(verse.Reference)
+}
+
+func (c *Client) TodayPhoto(opts ...Option) (*photo.Info, error) {
+	ru, err := url.Parse(c.BaseURL)
+	if err != nil {
+		return nil, err
+	}
+
+	o := processOptions(opts)
+	if !o.onTime.IsZero() {
+		datePath := o.onTime.Format("2006/01/02")
+		ru.Path = path.Join(ru.Path, "verses", datePath)
+	}
+
+	ru.Path = path.Join(ru.Path, "photo.yaml")
+	photoYamlUrl := ru.String()
+	res, err := http.DefaultClient.Get(photoYamlUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	var photo photo.Info
+	dec := yaml.NewDecoder(res.Body)
+	err = dec.Decode(&photo.Meta)
+
+	photo.Key, _ = c.PhotoService.CacheKey(photo.Meta.Link)
+	return &photo, err
 }
