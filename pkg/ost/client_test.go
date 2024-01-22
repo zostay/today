@@ -27,15 +27,12 @@ var (
 			Link: "https://www.esv.org/Luke+10:25",
 		},
 	}
-	image = photo.Info{
-		Key: "test/https-example-com",
-		Meta: &photo.Meta{
-			Link:  "https://example.com",
-			Title: "",
-			Creator: photo.Creator{
-				Name: "Test Photographer",
-				Link: "https://example.com/testuser",
-			},
+	image = photo.Meta{
+		Link:  "https://example.com",
+		Title: "",
+		Creator: photo.Creator{
+			Name: "Test Photographer",
+			Link: "https://example.com/testuser",
 		},
 	}
 )
@@ -59,7 +56,7 @@ var _ text.Resolver = (*testResolver)(nil)
 type testSource struct{}
 
 func (t *testSource) CacheKey(url string) (string, bool) {
-	panic("implement me")
+	return "test/" + url, true
 }
 
 func (t *testSource) Photo(ctx context.Context, url string) (info *photo.Info, err error) {
@@ -141,14 +138,20 @@ func TestClient(t *testing.T) {
 
 	pi, err := c.TodayPhoto()
 	assert.NoError(t, err)
-	assert.Equal(t, &image, pi)
+	assert.Equal(t, &photo.Info{
+		Key:  "test/https://example.com",
+		Meta: &image,
+	}, pi)
 	assert.NoError(t, ri.err)
 	assert.Equal(t, "/photo.yaml", ri.path)
 	assert.NoError(t, pi.Close())
 
 	pi, err = c.TodayPhoto(ost.On(on))
 	assert.NoError(t, err)
-	assert.Equal(t, &image, pi)
+	assert.Equal(t, &photo.Info{
+		Key:  "test/https://example.com",
+		Meta: &image,
+	}, pi)
 	assert.NoError(t, ri.err)
 	assert.Equal(t, "/verses/2023/12/30/photo.yaml", ri.path)
 	assert.NoError(t, pi.Close())
