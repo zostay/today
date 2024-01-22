@@ -1,6 +1,7 @@
 package text
 
 import (
+	"context"
 	"errors"
 	"html/template"
 
@@ -37,40 +38,44 @@ func parseToResolved(vr string) (*ref.Resolved, error) {
 	return &ref[0], nil
 }
 
-func (c *Service) Verse(vr string) (string, error) {
+func (c *Service) VersionInformation(ctx context.Context) (*Version, error) {
+	return c.Resolver.VersionInformation(ctx)
+}
+
+func (c *Service) Verse(ctx context.Context, vr string) (string, error) {
 	res, err := parseToResolved(vr)
 	if err != nil {
 		return "", err
 	}
 
-	return c.Resolver.Verse(res)
+	return c.Resolver.Verse(ctx, res)
 }
 
-func (c *Service) VerseHTML(vr string) (template.HTML, error) {
+func (c *Service) VerseHTML(ctx context.Context, vr string) (template.HTML, error) {
 	res, err := parseToResolved(vr)
 	if err != nil {
 		return "", err
 	}
 
-	return c.Resolver.VerseHTML(res)
+	return c.Resolver.VerseHTML(ctx, res)
 }
 
-func (c *Service) RandomVerse(opt ...ref.RandomReferenceOption) (*ref.Resolved, string, error) {
+func (c *Service) RandomVerse(ctx context.Context, opt ...ref.RandomReferenceOption) (*ref.Resolved, string, error) {
 	res, err := ref.Random(opt...)
 	if err != nil {
 		return nil, "", err
 	}
 
-	txt, err := c.Resolver.Verse(res)
+	txt, err := c.Resolver.Verse(ctx, res)
 	return res, txt, err
 }
 
-func (c *Service) RandomVerseHTML(opt ...ref.RandomReferenceOption) (*ref.Resolved, template.HTML, error) {
+func (c *Service) RandomVerseHTML(ctx context.Context, opt ...ref.RandomReferenceOption) (*ref.Resolved, template.HTML, error) {
 	res, err := ref.Random(opt...)
 	if err != nil {
 		return nil, "", err
 	}
 
-	txt, err := c.Resolver.VerseHTML(res)
+	txt, err := c.Resolver.VerseHTML(ctx, res)
 	return res, txt, err
 }

@@ -1,6 +1,11 @@
 WIP  TBD
 
  * Breaking Change: The `ref.RandomPassage` ane `ref.RandomPassageFromRef` functions now take two additional integer arguments to select width of range returned.
+ * Breaking Change: The `text.Service` methods `Verse`, `VerseHTML`, `RandomVerse`, and `RandomVerseHTML` now require a `context.Context` argument.
+ * Breaking Change: The `text.Resolver` service now requires a `context.Context` argument for all methods.
+ * Breaking Change: The `text.Resolver` service noq requires a `VersionInformation` method.
+ * Breaking Change: The `esv.Resolver` implements new `text.Resolver` changes.
+ * Breaking Change: The `ost.Version` structure has been moved to `text.Version`.
  * Added the `--minimum-verses` and `--maximum-verses` options to `today random` to allow control over how many verses are selected for the passage.
  * Added `ref.WithAtLeast()` and `ref.WithAtMost()` options to `ref.Random` to allow control over how many verses are selected for the passage.
  * Fix: Fixed a bug where the `today random` output showed the passage reference twice.

@@ -1,6 +1,7 @@
 package esv
 
 import (
+	"context"
 	"html/template"
 
 	"github.com/zostay/go-esv-api/pkg/esv"
@@ -10,7 +11,7 @@ import (
 )
 
 // VersionInformation returns the metadata for the ESV from esv.org
-func (r *Resolver) VersionInformation() (*text.Version, error) {
+func (r *Resolver) VersionInformation(context.Context) (*text.Version, error) {
 	return &text.Version{
 		Name: "ESV",
 		Link: "https://www.esv.org/",
@@ -18,8 +19,8 @@ func (r *Resolver) VersionInformation() (*text.Version, error) {
 }
 
 // Verse returns the text of the given verse reference using the ESV API.
-func (r *Resolver) Verse(ref *ref.Resolved) (string, error) {
-	tr, err := r.Client.PassageText(ref.Ref(),
+func (r *Resolver) Verse(ctx context.Context, ref *ref.Resolved) (string, error) {
+	tr, err := r.Client.PassageTextContext(ctx, ref.Ref(),
 		esv.WithIncludeVerseNumbers(false),
 		esv.WithIncludeHeadings(false),
 		esv.WithIncludeFootnotes(false),
@@ -32,8 +33,8 @@ func (r *Resolver) Verse(ref *ref.Resolved) (string, error) {
 }
 
 // VerseHTML returns the HTML of the given verse reference using the ESV API.
-func (r *Resolver) VerseHTML(ref *ref.Resolved) (template.HTML, error) {
-	tr, err := r.Client.PassageHtml(ref.Ref(),
+func (r *Resolver) VerseHTML(ctx context.Context, ref *ref.Resolved) (template.HTML, error) {
+	tr, err := r.Client.PassageHtmlContext(ctx, ref.Ref(),
 		esv.WithIncludeVerseNumbers(false),
 		esv.WithIncludeHeadings(false),
 		esv.WithIncludeFootnotes(false),
