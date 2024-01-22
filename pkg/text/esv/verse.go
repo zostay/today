@@ -6,7 +6,16 @@ import (
 	"github.com/zostay/go-esv-api/pkg/esv"
 
 	"github.com/zostay/today/pkg/ref"
+	"github.com/zostay/today/pkg/text"
 )
+
+// VersionInformation returns the metadata for the ESV from esv.org
+func (r *Resolver) VersionInformation() (*text.Version, error) {
+	return &text.Version{
+		Name: "ESV",
+		Link: "https://www.esv.org/",
+	}, nil
+}
 
 // Verse returns the text of the given verse reference using the ESV API.
 func (r *Resolver) Verse(ref *ref.Resolved) (string, error) {

@@ -92,3 +92,14 @@ func TestResolver_VerseHTML(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, template.HTML(jn11), txt) //nolint:gosec // seriously, it's a mock, it's not even HTML
 }
+
+func TestResolver_VersionInformation(t *testing.T) {
+	t.Parallel()
+
+	res := &esv.Resolver{}
+
+	v, err := res.VersionInformation()
+	assert.NoError(t, err)
+	assert.Equal(t, "ESV", v.Name)
+	assert.Equal(t, "https://www.esv.org/", v.Link)
+}
