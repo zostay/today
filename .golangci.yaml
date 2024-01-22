@@ -43,6 +43,7 @@ linters-settings:
           - github.com/bbrks/wrap
           - github.com/hbagdi/go-unsplash/unsplash
           - github.com/nfnt/resize
+          - github.com/markusmobius/go-dateparser
 
       tests:
         files:
