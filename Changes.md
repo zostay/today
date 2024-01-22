@@ -6,6 +6,7 @@ WIP  TBD
  * Breaking Change: The `text.Resolver` service noq requires a `VersionInformation` method.
  * Breaking Change: The `esv.Resolver` implements new `text.Resolver` changes.
  * Breaking Change: The `ost.Version` structure has been moved to `text.Version`.
+ * Breaking Change: The `ost.Client` methods `Today`, `TodayVerse`, `TodayHTML`, and `TodayPhoto` now require a `context.Context` argument.
  * Added the `--minimum-verses` and `--maximum-verses` options to `today random` to allow control over how many verses are selected for the passage.
  * Added `ref.WithAtLeast()` and `ref.WithAtMost()` options to `ref.Random` to allow control over how many verses are selected for the passage.
  * Fix: Fixed a bug where the `today random` output showed the passage reference twice.

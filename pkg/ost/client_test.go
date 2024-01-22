@@ -22,7 +22,7 @@ var (
 	today = ost.Verse{
 		Reference: "Luke 10:25",
 		Content:   "And behold, a lawyer stood up to put him to the test, saying, “Teacher, what shall I do to inherit eternal life?”",
-		Version: ost.Version{
+		Version: text.Version{
 			Name: "ESV",
 			Link: "https://www.esv.org/Luke+10:25",
 		},
@@ -41,12 +41,16 @@ type testResolver struct {
 	lastRef *ref.Resolved
 }
 
-func (t *testResolver) Verse(ref *ref.Resolved) (string, error) {
+func (t *testResolver) VersionInformation(_ context.Context) (*text.Version, error) {
+	return &today.Version, nil
+}
+
+func (t *testResolver) Verse(_ context.Context, ref *ref.Resolved) (string, error) {
 	t.lastRef = ref
 	return string(today.Content), nil
 }
 
-func (t *testResolver) VerseHTML(ref *ref.Resolved) (template.HTML, error) {
+func (t *testResolver) VerseHTML(_ context.Context, ref *ref.Resolved) (template.HTML, error) {
 	t.lastRef = ref
 	return template.HTML(today.Content), nil //nolint:gosec // srsly?
 }
@@ -116,13 +120,13 @@ func TestClient(t *testing.T) {
 	assert.NoError(t, ri.err)
 	assert.Equal(t, "/verse.yaml", ri.path)
 
-	txt, err := c.Today()
+	txt, err := c.Today(context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, string(today.Content), txt)
 	assert.NoError(t, ri.err)
 	assert.Equal(t, "/verse.yaml", ri.path)
 
-	htxt, err := c.TodayHTML()
+	htxt, err := c.TodayHTML(context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, template.HTML(today.Content), htxt) //nolint:gosec // srsly?
 	assert.NoError(t, ri.err)
@@ -170,15 +174,15 @@ func TestClient_Sad(t *testing.T) {
 		PhotoService: photo.NewService(&testSource{}),
 	}
 
-	v, err := c.TodayVerse()
+	v, err := c.TodayVerse(context.Background())
 	assert.Error(t, err)
 	assert.Nil(t, v)
 
-	txt, err := c.Today()
+	txt, err := c.Today(context.Background())
 	assert.Error(t, err)
 	assert.Empty(t, txt)
 
-	htxt, err := c.TodayHTML()
+	htxt, err := c.TodayHTML(context.Background())
 	assert.Error(t, err)
 	assert.Empty(t, htxt)
 }

@@ -66,10 +66,10 @@ func RunTodayRandom(cmd *cobra.Command, args []string) error {
 	)
 	if asHtml {
 		var vh template.HTML
-		_, vh, err = svc.RandomVerseHTML(opts...)
+		_, vh, err = svc.RandomVerseHTML(cmd.Context(), opts...)
 		v = string(vh)
 	} else {
-		_, v, err = svc.RandomVerse(opts...)
+		_, v, err = svc.RandomVerse(cmd.Context(), opts...)
 	}
 	if err != nil {
 		panic(err)

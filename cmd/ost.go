@@ -113,10 +113,10 @@ func RunOst(cmd *cobra.Command, args []string) {
 		return
 	case asHtml:
 		var vh template.HTML
-		vh, err = client.TodayHTML(opts...)
+		vh, err = client.TodayHTML(cmd.Context(), opts...)
 		v = string(vh)
 	default:
-		v, err = client.Today(opts...)
+		v, err = client.Today(cmd.Context(), opts...)
 	}
 	if err != nil {
 		panic(err)
