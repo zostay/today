@@ -1,4 +1,4 @@
-WIP  TBD
+0.3.0  2024-01-22
 
  * Adding a `today openscripture photo` command with `--download`, `--on`, and `--yaml` flags for downloadinng and fetching metadata regarding the photo for the scripture of the day from [openscripture.today](https://openscripture.today).
  * Added the `TodayPhoto` command to the `ost` package for pulling photos from openscripture.today.
