@@ -32,7 +32,7 @@ func TestRandomPassage(t *testing.T) {
 	for i := range ref.Canonical.Books {
 		b := &ref.Canonical.Books[i]
 
-		p := ref.RandomPassage(b)
+		p := ref.RandomPassage(b, 1, 30)
 		assert.NotNil(t, p)
 		assert.NotEmpty(t, p)
 
@@ -48,7 +48,7 @@ func TestRandomPassageFromRef(t *testing.T) {
 	for i := range ref.Canonical.Books {
 		b := &ref.Canonical.Books[i]
 
-		p := ref.RandomPassage(b)
+		p := ref.RandomPassage(b, 1, 30)
 		require.NotNil(t, p)
 		require.NotEmpty(t, p)
 
@@ -61,7 +61,7 @@ func TestRandomPassageFromRef(t *testing.T) {
 			Last:  p[len(p)-1],
 		}
 
-		vs := ref.RandomPassageFromRef(r)
+		vs := ref.RandomPassageFromRef(r, 1, 30)
 		require.NotNil(t, vs)
 		require.NotEmpty(t, vs)
 
