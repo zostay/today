@@ -131,6 +131,8 @@ func (c *Client) TodayPhoto(opts ...Option) (*photo.Info, error) {
 
 	var photo photo.Info
 	dec := yaml.NewDecoder(res.Body)
-	err = dec.Decode(&photo)
+	err = dec.Decode(&photo.Meta)
+
+	photo.Key, _ = c.PhotoService.CacheKey(photo.Meta.Link)
 	return &photo, err
 }

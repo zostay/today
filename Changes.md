@@ -1,3 +1,9 @@
+WIP  TBD
+
+ * Adding a `today openscripture photo` command with `--download`, `--on`, and `--yaml` flags for downloadinng and fetching metadata regarding the photo for the scripture of the day from [openscripture.today](https://openscripture.today).
+ * Added the `TodayPhoto` command to the `ost` package for pulling photos from openscripture.today.
+ * Added the `photo` and `unsplash` packages for working with photos, which are used to support the `ost` change and the CLI change, but also have future uses.
+
 0.2.0  2024-01-19
 
  * Renaming `openscripture.today` to `openscripture` and adding `today` as a subcommand. (Both the upper level and sub-command do the same thing as the previous `openscripture.today` command.)

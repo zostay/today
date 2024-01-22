@@ -5,8 +5,14 @@ import "os"
 // Info is the information about a photo. It combines the cache key, the
 // loaded photo metadata, and the file handle to the JPEG.
 type Info struct {
+	// Key is a special value that is usually set.
 	Key string
+
+	// Meta is the photo metadata.
 	*Meta
+
+	// File, if not nil, holds a reference to a file handle open for reading the
+	// image.
 	*os.File
 }
 
