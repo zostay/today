@@ -114,7 +114,7 @@ func TestClient(t *testing.T) {
 		PhotoService: photo.NewService(&testSource{}),
 	}
 
-	v, err := c.TodayVerse()
+	v, err := c.TodayVerse(context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, &today, v)
 	assert.NoError(t, ri.err)
@@ -134,13 +134,13 @@ func TestClient(t *testing.T) {
 
 	on := time.Date(2023, 12, 30, 0, 0, 0, 0, time.Local)
 
-	v, err = c.TodayVerse(ost.On(on))
+	v, err = c.TodayVerse(context.Background(), ost.On(on))
 	assert.NoError(t, err)
 	assert.Equal(t, &today, v)
 	assert.NoError(t, ri.err)
 	assert.Equal(t, "/verses/2023/12/30/verse.yaml", ri.path)
 
-	pi, err := c.TodayPhoto()
+	pi, err := c.TodayPhoto(context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, &photo.Info{
 		Key:  "test/https://example.com",
@@ -150,7 +150,7 @@ func TestClient(t *testing.T) {
 	assert.Equal(t, "/photo.yaml", ri.path)
 	assert.NoError(t, pi.Close())
 
-	pi, err = c.TodayPhoto(ost.On(on))
+	pi, err = c.TodayPhoto(context.Background(), ost.On(on))
 	assert.NoError(t, err)
 	assert.Equal(t, &photo.Info{
 		Key:  "test/https://example.com",
