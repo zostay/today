@@ -42,6 +42,13 @@ today show John 3:16
 
 It will output the text. 
 
+```text
+John 3:16
+
+  “For God so loved the world, that he gave his only Son, that
+whoever believes in him should not perish but have eternal life. (ESV)
+```
+
 ## Pick a Random Verse
 
 To display a verse at random:
@@ -51,6 +58,19 @@ today random
 ```
 
 This will display a random passage. You can use the `--book` option or the `--category` option to limit the random passage to a given book or category.
+
+You can use the `-m` and `-M` command to select the minimum and maximum verses to be returned, respectively. The output is the same as for `today show`, for example:
+
+```text
+Philemon 8–11
+
+  Accordingly, though I am bold enough in Christ to command you to do
+what is required, yet for love’s sake I prefer to appeal to you—I,
+Paul, an old man and now a prisoner also for Christ Jesus—I appeal
+to you for my child, Onesimus, whose father I became in my
+imprisonment. (Formerly he was useless to you, but now he is indeed
+useful to you and to me.) (ESV)
+```
 
 # Developer Tools
 
