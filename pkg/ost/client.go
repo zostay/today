@@ -105,7 +105,7 @@ func (c *Client) Today(ctx context.Context, opts ...Option) (string, error) {
 		return "", err
 	}
 
-	return c.TextService.Verse(ctx, verse.Reference)
+	return c.TextService.VerseText(ctx, verse.Reference)
 }
 
 func (c *Client) TodayHTML(ctx context.Context, opts ...Option) (template.HTML, error) {

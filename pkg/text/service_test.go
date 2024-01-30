@@ -3,6 +3,7 @@ package text_test
 import (
 	"context"
 	"html/template"
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -25,7 +26,23 @@ func (t *testResolver) VersionInformation(context.Context) (*text.Version, error
 	}, nil
 }
 
-func (t *testResolver) Verse(_ context.Context, ref *ref.Resolved) (string, error) {
+func (t *testResolver) Verse(_ context.Context, ref *ref.Resolved) (*text.Verse, error) {
+	t.lastRef = ref
+	return &text.Verse{
+		Reference: ref.Ref(),
+		Content: text.Content{
+			Text: fjn41,
+			HTML: template.HTML(fjn41),
+		},
+		Link: "https://www.esv.org/" + url.PathEscape(ref.Ref()),
+		Version: text.Version{
+			Name: "ESV",
+			Link: "https://www.esv.org/",
+		},
+	}, nil
+}
+
+func (t *testResolver) VerseText(_ context.Context, ref *ref.Resolved) (string, error) {
 	t.lastRef = ref
 	return fjn41, nil
 }
@@ -49,7 +66,7 @@ func TestService(t *testing.T) {
 	require.NotNil(t, b)
 
 	ctx := context.Background()
-	txt, err := svc.Verse(ctx, "1 John 4:1")
+	txt, err := svc.VerseText(ctx, "1 John 4:1")
 	assert.NoError(t, err)
 	assert.Equal(t, fjn41, txt)
 	assert.Equal(t, &ref.Resolved{
@@ -67,7 +84,7 @@ func TestService(t *testing.T) {
 		Last:  ref.CV{Chapter: 4, Verse: 1},
 	}, tr.lastRef)
 
-	r, txt, err := svc.RandomVerse(ctx)
+	r, txt, err := svc.RandomVerseText(ctx)
 	assert.NoError(t, err)
 	assert.Equal(t, fjn41, txt)
 	assert.NoError(t, r.Validate())

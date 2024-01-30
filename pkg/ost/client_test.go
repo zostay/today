@@ -49,7 +49,12 @@ func (t *testResolver) VersionInformation(_ context.Context) (*text.Version, err
 	return &today.Version, nil
 }
 
-func (t *testResolver) Verse(_ context.Context, ref *ref.Resolved) (string, error) {
+func (t *testResolver) Verse(_ context.Context, ref *ref.Resolved) (*text.Verse, error) {
+	t.lastRef = ref
+	return &today, nil
+}
+
+func (t *testResolver) VerseText(_ context.Context, ref *ref.Resolved) (string, error) {
 	t.lastRef = ref
 	return today.Content.Text, nil
 }

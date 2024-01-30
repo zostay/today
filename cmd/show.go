@@ -37,7 +37,7 @@ func RunTodayShow(cmd *cobra.Command, args []string) {
 		vhtml, err = svc.VerseHTML(cmd.Context(), ref)
 		v = string(vhtml)
 	} else {
-		v, err = svc.Verse(cmd.Context(), ref)
+		v, err = svc.VerseText(cmd.Context(), ref)
 	}
 	if err != nil {
 		panic(err)

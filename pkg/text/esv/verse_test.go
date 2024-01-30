@@ -38,7 +38,7 @@ func testServer() *httptest.Server {
 	return ts
 }
 
-func TestResolver_Verse(t *testing.T) {
+func TestResolver_VerseText(t *testing.T) {
 	t.Parallel()
 
 	ts := testServer()
@@ -61,7 +61,7 @@ func TestResolver_Verse(t *testing.T) {
 	ref, err := ref.Canonical.Resolve(p)
 	require.NoError(t, err)
 
-	txt, err := res.Verse(context.Background(), &ref[0])
+	txt, err := res.VerseText(context.Background(), &ref[0])
 	assert.NoError(t, err)
 	assert.Equal(t, jn11, txt)
 }

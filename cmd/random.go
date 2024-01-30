@@ -69,7 +69,7 @@ func RunTodayRandom(cmd *cobra.Command, args []string) error {
 		_, vh, err = svc.RandomVerseHTML(cmd.Context(), opts...)
 		v = string(vh)
 	} else {
-		_, v, err = svc.RandomVerse(cmd.Context(), opts...)
+		_, v, err = svc.RandomVerseText(cmd.Context(), opts...)
 	}
 	if err != nil {
 		panic(err)
