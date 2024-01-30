@@ -16,6 +16,7 @@ WIP  TBD
  * Added the `--minimum-verses` and `--maximum-verses` options to `today random` to allow control over how many verses are selected for the passage.
  * Added `ref.WithAtLeast()` and `ref.WithAtMost()` options to `ref.Random` to allow control over how many verses are selected for the passage.
  * Added a field for loading and saving the preferred color of an image to `photo.Meta` and the `SetColor` method for converting `color.Color` to a CSS hex color code and `GetColor` to perform the same operation in reverse.
+ * When checking for dominant color in a photo, black and white are generally disqualified.
  * Fix: Fixed a bug where the `today random` output showed the passage reference twice.
  * Fix: Random passages should now be unbiased (previously, there was a slight bias towards picking passages at the end of a book or passage).
 

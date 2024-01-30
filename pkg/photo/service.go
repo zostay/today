@@ -180,6 +180,12 @@ func (s *Service) DominantImageColor(
 		}
 	}
 
+	// disquality black and white unless they might be the only colors
+	if len(hist) > 2 {
+		delete(hist, color.RGBA{0, 0, 0, 255})
+		delete(hist, color.RGBA{255, 255, 255, 255})
+	}
+
 	var best color.RGBA
 	var bestCount uint32
 	for color, count := range hist {
