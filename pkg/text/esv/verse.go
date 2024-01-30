@@ -3,6 +3,7 @@ package esv
 import (
 	"context"
 	"html/template"
+	"net/url"
 
 	"github.com/zostay/go-esv-api/pkg/esv"
 
@@ -18,8 +19,44 @@ func (r *Resolver) VersionInformation(context.Context) (*text.Version, error) {
 	}, nil
 }
 
-// Verse returns the text of the given verse reference using the ESV API.
-func (r *Resolver) Verse(ctx context.Context, ref *ref.Resolved) (string, error) {
+// Verse fetches a verse an associated metadata for the given reference.
+func (r *Resolver) Verse(ctx context.Context, ref *ref.Resolved) (*text.Verse, error) {
+	txt, err := r.VerseText(ctx, ref)
+	if err != nil {
+		return nil, err
+	}
+
+	html, err := r.VerseHTML(ctx, ref)
+	if err != nil {
+		return nil, err
+	}
+
+	path, err := url.JoinPath(
+		"https://www.esv.org/",
+		url.PathEscape(ref.Ref()),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	vi, err := r.VersionInformation(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &text.Verse{
+		Reference: ref.Ref(),
+		Content: text.Content{
+			Text: txt,
+			HTML: html,
+		},
+		Link:    path,
+		Version: *vi,
+	}, nil
+}
+
+// VerseText returns the text of the given verse reference using the ESV API.
+func (r *Resolver) VerseText(ctx context.Context, ref *ref.Resolved) (string, error) {
 	tr, err := r.Client.PassageTextContext(ctx, ref.Ref(),
 		esv.WithIncludeVerseNumbers(false),
 		esv.WithIncludeHeadings(false),
@@ -50,3 +87,5 @@ func (r *Resolver) VerseHTML(ctx context.Context, ref *ref.Resolved) (template.H
 
 	return template.HTML(tr.Passages[0]), nil //nolint:gosec // we trust the ESV API
 }
+
+var _ text.Resolver = (*Resolver)(nil)

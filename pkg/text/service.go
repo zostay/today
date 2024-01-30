@@ -42,7 +42,14 @@ func (c *Service) VersionInformation(ctx context.Context) (*Version, error) {
 	return c.Resolver.VersionInformation(ctx)
 }
 
-func (c *Service) Verse
+func (c *Service) Verse(ctx context.Context, vr string) (*Verse, error) {
+	res, err := parseToResolved(vr)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.Resolver.Verse(ctx, res)
+}
 
 func (c *Service) VerseText(ctx context.Context, vr string) (string, error) {
 	res, err := parseToResolved(vr)
@@ -62,13 +69,23 @@ func (c *Service) VerseHTML(ctx context.Context, vr string) (template.HTML, erro
 	return c.Resolver.VerseHTML(ctx, res)
 }
 
-func (c *Service) RandomVerse(ctx context.Context, opt ...ref.RandomReferenceOption) (*ref.Resolved, string, error) {
+func (c *Service) RandomVerse(ctx context.Context, opt ...ref.RandomReferenceOption) (*ref.Resolved, *Verse, error) {
+	res, err := ref.Random(opt...)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	v, err := c.Resolver.Verse(ctx, res)
+	return res, v, err
+}
+
+func (c *Service) RandomVerseText(ctx context.Context, opt ...ref.RandomReferenceOption) (*ref.Resolved, string, error) {
 	res, err := ref.Random(opt...)
 	if err != nil {
 		return nil, "", err
 	}
 
-	txt, err := c.Resolver.Verse(ctx, res)
+	txt, err := c.Resolver.VerseText(ctx, res)
 	return res, txt, err
 }
 
