@@ -32,7 +32,7 @@ func (t *testResolver) Verse(_ context.Context, ref *ref.Resolved) (*text.Verse,
 		Reference: ref.Ref(),
 		Content: text.Content{
 			Text: fjn41,
-			HTML: template.HTML(fjn41),
+			HTML: template.HTML(fjn41), //nolint:gosec // this is a test
 		},
 		Link: "https://www.esv.org/" + url.PathEscape(ref.Ref()),
 		Version: text.Version{

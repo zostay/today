@@ -11,7 +11,7 @@ import (
 	"github.com/zostay/today/pkg/text"
 )
 
-// VersionInformation returns the metadata for the ESV from esv.org
+// VersionInformation returns the metadata for the ESV from esv.org.
 func (r *Resolver) VersionInformation(context.Context) (*text.Version, error) {
 	return &text.Version{
 		Name: "ESV",

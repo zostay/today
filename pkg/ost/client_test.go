@@ -61,7 +61,7 @@ func (t *testResolver) VerseText(_ context.Context, ref *ref.Resolved) (string, 
 
 func (t *testResolver) VerseHTML(_ context.Context, ref *ref.Resolved) (template.HTML, error) {
 	t.lastRef = ref
-	return today.Content.HTML, nil //nolint:gosec // srsly?
+	return today.Content.HTML, nil
 }
 
 var _ text.Resolver = (*testResolver)(nil)
@@ -137,7 +137,7 @@ func TestClient(t *testing.T) {
 
 	htxt, err := c.TodayHTML(context.Background())
 	assert.NoError(t, err)
-	assert.Equal(t, today.Content.HTML, htxt) //nolint:gosec // srsly?
+	assert.Equal(t, today.Content.HTML, htxt)
 	assert.NoError(t, ri.err)
 	assert.Equal(t, "/verse.yaml", ri.path)
 
