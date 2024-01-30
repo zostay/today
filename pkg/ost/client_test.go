@@ -19,12 +19,16 @@ import (
 )
 
 var (
-	today = ost.Verse{
+	today = text.Verse{
 		Reference: "Luke 10:25",
-		Content:   "And behold, a lawyer stood up to put him to the test, saying, “Teacher, what shall I do to inherit eternal life?”",
+		Content: text.Content{
+			Text: "And behold, a lawyer stood up to put him to the test, saying, “Teacher, what shall I do to inherit eternal life?”",
+			HTML: "And behold, a lawyer stood up to put him to the test, saying, “Teacher, what shall I do to inherit eternal life?”",
+		},
+		Link: "https://www.esv.org/Luke+10:25",
 		Version: text.Version{
 			Name: "ESV",
-			Link: "https://www.esv.org/Luke+10:25",
+			Link: "https://www.esv.org/",
 		},
 	}
 	image = photo.Meta{
@@ -47,12 +51,12 @@ func (t *testResolver) VersionInformation(_ context.Context) (*text.Version, err
 
 func (t *testResolver) Verse(_ context.Context, ref *ref.Resolved) (string, error) {
 	t.lastRef = ref
-	return string(today.Content), nil
+	return today.Content.Text, nil
 }
 
 func (t *testResolver) VerseHTML(_ context.Context, ref *ref.Resolved) (template.HTML, error) {
 	t.lastRef = ref
-	return template.HTML(today.Content), nil //nolint:gosec // srsly?
+	return today.Content.HTML, nil //nolint:gosec // srsly?
 }
 
 var _ text.Resolver = (*testResolver)(nil)
@@ -122,13 +126,13 @@ func TestClient(t *testing.T) {
 
 	txt, err := c.Today(context.Background())
 	assert.NoError(t, err)
-	assert.Equal(t, string(today.Content), txt)
+	assert.Equal(t, today.Content.Text, txt)
 	assert.NoError(t, ri.err)
 	assert.Equal(t, "/verse.yaml", ri.path)
 
 	htxt, err := c.TodayHTML(context.Background())
 	assert.NoError(t, err)
-	assert.Equal(t, template.HTML(today.Content), htxt) //nolint:gosec // srsly?
+	assert.Equal(t, today.Content.HTML, htxt) //nolint:gosec // srsly?
 	assert.NoError(t, ri.err)
 	assert.Equal(t, "/verse.yaml", ri.path)
 

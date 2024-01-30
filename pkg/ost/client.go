@@ -67,7 +67,7 @@ func processOptions(opts []Option) *options {
 	return o
 }
 
-func (c *Client) TodayVerse(ctx context.Context, opts ...Option) (*Verse, error) {
+func (c *Client) TodayVerse(ctx context.Context, opts ...Option) (*text.Verse, error) {
 	ru, err := url.Parse(c.BaseURL)
 	if err != nil {
 		return nil, err
@@ -93,7 +93,7 @@ func (c *Client) TodayVerse(ctx context.Context, opts ...Option) (*Verse, error)
 		return nil, err
 	}
 
-	var verse Verse
+	var verse text.Verse
 	dec := yaml.NewDecoder(res.Body)
 	err = dec.Decode(&verse)
 	return &verse, err

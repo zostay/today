@@ -42,13 +42,15 @@ func (c *Service) VersionInformation(ctx context.Context) (*Version, error) {
 	return c.Resolver.VersionInformation(ctx)
 }
 
-func (c *Service) Verse(ctx context.Context, vr string) (string, error) {
+func (c *Service) Verse
+
+func (c *Service) VerseText(ctx context.Context, vr string) (string, error) {
 	res, err := parseToResolved(vr)
 	if err != nil {
 		return "", err
 	}
 
-	return c.Resolver.Verse(ctx, res)
+	return c.Resolver.VerseText(ctx, res)
 }
 
 func (c *Service) VerseHTML(ctx context.Context, vr string) (template.HTML, error) {

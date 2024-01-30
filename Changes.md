@@ -1,9 +1,15 @@
 WIP  TBD
 
  * Breaking Change: The `ref.RandomPassage` ane `ref.RandomPassageFromRef` functions now take two additional integer arguments to select width of range returned.
- * Breaking Change: The `text.Service` methods `Verse`, `VerseHTML`, `RandomVerse`, and `RandomVerseHTML` now require a `context.Context` argument.
- * Breaking Change: The `text.Resolver` service now requires a `context.Context` argument for all methods.
- * Breaking Change: The `text.Resolver` service noq requires a `VersionInformation` method.
+ * Breaking Change: The `ost.Verse` structure has been moved to `text.Verse`. It has also been restructured to include a `Link` field and the HTML `Content` field has been replaced with a structure that contains `Text` and `HTML` fields.
+ * Breaking Change: The `text.Service` has changed substantially: 
+   - Methods `Verse`, `VerseText`, `VerseHTML`, `RandomVerse`, `RandomVerseText`, and `RandomVerseHTML` now require a `context.Context` argument.
+   - The `Verse` method has been renamed to `VerseText` and a new `Verse` method that returns `text.Verse` has been added.
+   - The `RandomVerse` method has been renamed to `RandomVerseText` and a new `RandomVerse` method that returns `text.Verse` has been added.
+ * Breaking Change: The `text.Resolver` interface has changed substantially:
+   - Requires a `context.Context` argument for all methods.
+   - Requires a `VersionInformation` method.
+   - Renamed `Verse` to `VerseText` and a new `Verse` method that returns `text.Verse` has been added.
  * Breaking Change: The `esv.Resolver` implements new `text.Resolver` changes.
  * Breaking Change: The `ost.Version` structure has been moved to `text.Version`.
  * Breaking Change: The `ost.Client` methods `Today`, `TodayVerse`, `TodayHTML`, and `TodayPhoto` now require a `context.Context` argument.
