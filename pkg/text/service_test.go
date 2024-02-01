@@ -1,7 +1,9 @@
 package text_test
 
 import (
+	"context"
 	"html/template"
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,12 +19,35 @@ type testResolver struct {
 	lastRef *ref.Resolved
 }
 
-func (t *testResolver) Verse(ref *ref.Resolved) (string, error) {
+func (t *testResolver) VersionInformation(context.Context) (*text.Version, error) {
+	return &text.Version{
+		Name: "ESV",
+		Link: "https://www.esv.org/",
+	}, nil
+}
+
+func (t *testResolver) Verse(_ context.Context, ref *ref.Resolved) (*text.Verse, error) {
+	t.lastRef = ref
+	return &text.Verse{
+		Reference: ref.Ref(),
+		Content: text.Content{
+			Text: fjn41,
+			HTML: template.HTML(fjn41), //nolint:gosec // this is a test
+		},
+		Link: "https://www.esv.org/" + url.PathEscape(ref.Ref()),
+		Version: text.Version{
+			Name: "ESV",
+			Link: "https://www.esv.org/",
+		},
+	}, nil
+}
+
+func (t *testResolver) VerseText(_ context.Context, ref *ref.Resolved) (string, error) {
 	t.lastRef = ref
 	return fjn41, nil
 }
 
-func (t *testResolver) VerseHTML(ref *ref.Resolved) (template.HTML, error) {
+func (t *testResolver) VerseHTML(_ context.Context, ref *ref.Resolved) (template.HTML, error) {
 	t.lastRef = ref
 	return fjn41, nil
 }
@@ -40,7 +65,8 @@ func TestService(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, b)
 
-	txt, err := svc.Verse("1 John 4:1")
+	ctx := context.Background()
+	txt, err := svc.VerseText(ctx, "1 John 4:1")
 	assert.NoError(t, err)
 	assert.Equal(t, fjn41, txt)
 	assert.Equal(t, &ref.Resolved{
@@ -49,7 +75,7 @@ func TestService(t *testing.T) {
 		Last:  ref.CV{Chapter: 4, Verse: 1},
 	}, tr.lastRef)
 
-	htxt, err := svc.VerseHTML("1 John 4:1")
+	htxt, err := svc.VerseHTML(ctx, "1 John 4:1")
 	assert.NoError(t, err)
 	assert.Equal(t, template.HTML(fjn41), htxt) //nolint:gosec // srsly?
 	assert.Equal(t, &ref.Resolved{
@@ -58,12 +84,12 @@ func TestService(t *testing.T) {
 		Last:  ref.CV{Chapter: 4, Verse: 1},
 	}, tr.lastRef)
 
-	r, txt, err := svc.RandomVerse()
+	r, txt, err := svc.RandomVerseText(ctx)
 	assert.NoError(t, err)
 	assert.Equal(t, fjn41, txt)
 	assert.NoError(t, r.Validate())
 
-	r, htxt, err = svc.RandomVerseHTML()
+	r, htxt, err = svc.RandomVerseHTML(ctx)
 	assert.NoError(t, err)
 	assert.Equal(t, template.HTML(fjn41), htxt) //nolint:gosec // srsly?
 	assert.NoError(t, r.Validate())
@@ -80,27 +106,28 @@ func TestService_Sad(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, b)
 
-	txt, err := svc.Verse("1 John 4:")
+	ctx := context.Background()
+	txt, err := svc.Verse(ctx, "1 John 4:")
 	assert.Error(t, err)
 	assert.Empty(t, txt)
 
-	htxt, err := svc.VerseHTML("1 John 4:")
+	htxt, err := svc.VerseHTML(ctx, "1 John 4:")
 	assert.Error(t, err)
 	assert.Empty(t, htxt)
 
-	txt, err = svc.Verse("1 John 400:1")
+	txt, err = svc.Verse(ctx, "1 John 400:1")
 	assert.Error(t, err)
 	assert.Empty(t, txt)
 
-	htxt, err = svc.VerseHTML("1 John 400:1")
+	htxt, err = svc.VerseHTML(ctx, "1 John 400:1")
 	assert.Error(t, err)
 	assert.Empty(t, htxt)
 
-	txt, err = svc.Verse("1 John 4:1; 5:1")
+	txt, err = svc.Verse(ctx, "1 John 4:1; 5:1")
 	assert.Error(t, err)
 	assert.Empty(t, txt)
 
-	htxt, err = svc.VerseHTML("1 John 4:1; 5:1")
+	htxt, err = svc.VerseHTML(ctx, "1 John 4:1; 5:1")
 	assert.Error(t, err)
 	assert.Empty(t, htxt)
 }

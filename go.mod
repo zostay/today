@@ -6,7 +6,7 @@ require (
 	github.com/bbrks/wrap v2.3.0+incompatible
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
-	github.com/zostay/go-esv-api v0.0.0-20201114154340-be89d3d9bb0c
+	github.com/zostay/go-esv-api v0.2.0
 	github.com/zostay/go-std v0.6.0
 	golang.org/x/text v0.14.0
 	gopkg.in/yaml.v3 v3.0.1

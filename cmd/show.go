@@ -34,10 +34,10 @@ func RunTodayShow(cmd *cobra.Command, args []string) {
 	var v string
 	if asHtml {
 		var vhtml template.HTML
-		vhtml, err = svc.VerseHTML(ref)
+		vhtml, err = svc.VerseHTML(cmd.Context(), ref)
 		v = string(vhtml)
 	} else {
-		v, err = svc.Verse(ref)
+		v, err = svc.VerseText(cmd.Context(), ref)
 	}
 	if err != nil {
 		panic(err)

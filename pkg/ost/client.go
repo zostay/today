@@ -67,7 +67,7 @@ func processOptions(opts []Option) *options {
 	return o
 }
 
-func (c *Client) TodayVerse(opts ...Option) (*Verse, error) {
+func (c *Client) TodayVerse(ctx context.Context, opts ...Option) (*text.Verse, error) {
 	ru, err := url.Parse(c.BaseURL)
 	if err != nil {
 		return nil, err
@@ -81,36 +81,43 @@ func (c *Client) TodayVerse(opts ...Option) (*Verse, error) {
 
 	ru.Path = path.Join(ru.Path, "verse.yaml")
 	verseYamlUrl := ru.String()
-	res, err := http.DefaultClient.Get(verseYamlUrl)
+
+	r, err := http.NewRequest("GET", verseYamlUrl, nil)
+	if err != nil {
+		return nil, err
+	}
+	r = r.WithContext(ctx)
+
+	res, err := http.DefaultClient.Do(r)
 	if err != nil {
 		return nil, err
 	}
 
-	var verse Verse
+	var verse text.Verse
 	dec := yaml.NewDecoder(res.Body)
 	err = dec.Decode(&verse)
 	return &verse, err
 }
 
-func (c *Client) Today(opts ...Option) (string, error) {
-	verse, err := c.TodayVerse(opts...)
+func (c *Client) Today(ctx context.Context, opts ...Option) (string, error) {
+	verse, err := c.TodayVerse(ctx, opts...)
 	if err != nil {
 		return "", err
 	}
 
-	return c.TextService.Verse(verse.Reference)
+	return c.TextService.VerseText(ctx, verse.Reference)
 }
 
-func (c *Client) TodayHTML(opts ...Option) (template.HTML, error) {
-	verse, err := c.TodayVerse(opts...)
+func (c *Client) TodayHTML(ctx context.Context, opts ...Option) (template.HTML, error) {
+	verse, err := c.TodayVerse(ctx, opts...)
 	if err != nil {
 		return "", err
 	}
 
-	return c.TextService.VerseHTML(verse.Reference)
+	return c.TextService.VerseHTML(ctx, verse.Reference)
 }
 
-func (c *Client) TodayPhoto(opts ...Option) (*photo.Info, error) {
+func (c *Client) TodayPhoto(ctx context.Context, opts ...Option) (*photo.Info, error) {
 	ru, err := url.Parse(c.BaseURL)
 	if err != nil {
 		return nil, err
@@ -124,7 +131,14 @@ func (c *Client) TodayPhoto(opts ...Option) (*photo.Info, error) {
 
 	ru.Path = path.Join(ru.Path, "photo.yaml")
 	photoYamlUrl := ru.String()
-	res, err := http.DefaultClient.Get(photoYamlUrl)
+
+	r, err := http.NewRequest("GET", photoYamlUrl, nil)
+	if err != nil {
+		return nil, err
+	}
+	r = r.WithContext(ctx)
+
+	res, err := http.DefaultClient.Do(r)
 	if err != nil {
 		return nil, err
 	}

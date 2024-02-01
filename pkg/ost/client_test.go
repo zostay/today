@@ -19,12 +19,16 @@ import (
 )
 
 var (
-	today = ost.Verse{
+	today = text.Verse{
 		Reference: "Luke 10:25",
-		Content:   "And behold, a lawyer stood up to put him to the test, saying, “Teacher, what shall I do to inherit eternal life?”",
-		Version: ost.Version{
+		Content: text.Content{
+			Text: "And behold, a lawyer stood up to put him to the test, saying, “Teacher, what shall I do to inherit eternal life?”",
+			HTML: "And behold, a lawyer stood up to put him to the test, saying, “Teacher, what shall I do to inherit eternal life?”",
+		},
+		Link: "https://www.esv.org/Luke+10:25",
+		Version: text.Version{
 			Name: "ESV",
-			Link: "https://www.esv.org/Luke+10:25",
+			Link: "https://www.esv.org/",
 		},
 	}
 	image = photo.Meta{
@@ -41,14 +45,23 @@ type testResolver struct {
 	lastRef *ref.Resolved
 }
 
-func (t *testResolver) Verse(ref *ref.Resolved) (string, error) {
-	t.lastRef = ref
-	return string(today.Content), nil
+func (t *testResolver) VersionInformation(_ context.Context) (*text.Version, error) {
+	return &today.Version, nil
 }
 
-func (t *testResolver) VerseHTML(ref *ref.Resolved) (template.HTML, error) {
+func (t *testResolver) Verse(_ context.Context, ref *ref.Resolved) (*text.Verse, error) {
 	t.lastRef = ref
-	return template.HTML(today.Content), nil //nolint:gosec // srsly?
+	return &today, nil
+}
+
+func (t *testResolver) VerseText(_ context.Context, ref *ref.Resolved) (string, error) {
+	t.lastRef = ref
+	return today.Content.Text, nil
+}
+
+func (t *testResolver) VerseHTML(_ context.Context, ref *ref.Resolved) (template.HTML, error) {
+	t.lastRef = ref
+	return today.Content.HTML, nil
 }
 
 var _ text.Resolver = (*testResolver)(nil)
@@ -110,33 +123,33 @@ func TestClient(t *testing.T) {
 		PhotoService: photo.NewService(&testSource{}),
 	}
 
-	v, err := c.TodayVerse()
+	v, err := c.TodayVerse(context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, &today, v)
 	assert.NoError(t, ri.err)
 	assert.Equal(t, "/verse.yaml", ri.path)
 
-	txt, err := c.Today()
+	txt, err := c.Today(context.Background())
 	assert.NoError(t, err)
-	assert.Equal(t, string(today.Content), txt)
+	assert.Equal(t, today.Content.Text, txt)
 	assert.NoError(t, ri.err)
 	assert.Equal(t, "/verse.yaml", ri.path)
 
-	htxt, err := c.TodayHTML()
+	htxt, err := c.TodayHTML(context.Background())
 	assert.NoError(t, err)
-	assert.Equal(t, template.HTML(today.Content), htxt) //nolint:gosec // srsly?
+	assert.Equal(t, today.Content.HTML, htxt)
 	assert.NoError(t, ri.err)
 	assert.Equal(t, "/verse.yaml", ri.path)
 
 	on := time.Date(2023, 12, 30, 0, 0, 0, 0, time.Local)
 
-	v, err = c.TodayVerse(ost.On(on))
+	v, err = c.TodayVerse(context.Background(), ost.On(on))
 	assert.NoError(t, err)
 	assert.Equal(t, &today, v)
 	assert.NoError(t, ri.err)
 	assert.Equal(t, "/verses/2023/12/30/verse.yaml", ri.path)
 
-	pi, err := c.TodayPhoto()
+	pi, err := c.TodayPhoto(context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, &photo.Info{
 		Key:  "test/https://example.com",
@@ -146,7 +159,7 @@ func TestClient(t *testing.T) {
 	assert.Equal(t, "/photo.yaml", ri.path)
 	assert.NoError(t, pi.Close())
 
-	pi, err = c.TodayPhoto(ost.On(on))
+	pi, err = c.TodayPhoto(context.Background(), ost.On(on))
 	assert.NoError(t, err)
 	assert.Equal(t, &photo.Info{
 		Key:  "test/https://example.com",
@@ -170,15 +183,15 @@ func TestClient_Sad(t *testing.T) {
 		PhotoService: photo.NewService(&testSource{}),
 	}
 
-	v, err := c.TodayVerse()
+	v, err := c.TodayVerse(context.Background())
 	assert.Error(t, err)
 	assert.Nil(t, v)
 
-	txt, err := c.Today()
+	txt, err := c.Today(context.Background())
 	assert.Error(t, err)
 	assert.Empty(t, txt)
 
-	htxt, err := c.TodayHTML()
+	htxt, err := c.TodayHTML(context.Background())
 	assert.Error(t, err)
 	assert.Empty(t, htxt)
 }

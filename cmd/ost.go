@@ -90,7 +90,7 @@ func RunOst(cmd *cobra.Command, args []string) {
 	var v string
 	switch {
 	case asYaml:
-		vv, err := client.TodayVerse(opts...)
+		vv, err := client.TodayVerse(cmd.Context(), opts...)
 		if err != nil {
 			panic(err)
 		}
@@ -102,7 +102,7 @@ func RunOst(cmd *cobra.Command, args []string) {
 		}
 		return
 	case asMeta:
-		vv, err := client.TodayVerse(opts...)
+		vv, err := client.TodayVerse(cmd.Context(), opts...)
 		if err != nil {
 			panic(err)
 		}
@@ -113,10 +113,10 @@ func RunOst(cmd *cobra.Command, args []string) {
 		return
 	case asHtml:
 		var vh template.HTML
-		vh, err = client.TodayHTML(opts...)
+		vh, err = client.TodayHTML(cmd.Context(), opts...)
 		v = string(vh)
 	default:
-		v, err = client.Today(opts...)
+		v, err = client.Today(cmd.Context(), opts...)
 	}
 	if err != nil {
 		panic(err)
@@ -136,7 +136,7 @@ func RunOstPhoto(cmd *cobra.Command, args []string) {
 		panic(err)
 	}
 
-	pi, err := client.TodayPhoto(opts...)
+	pi, err := client.TodayPhoto(cmd.Context(), opts...)
 	if err != nil {
 		panic(err)
 	}

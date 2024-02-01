@@ -1,8 +1,22 @@
 WIP  TBD
 
  * Breaking Change: The `ref.RandomPassage` ane `ref.RandomPassageFromRef` functions now take two additional integer arguments to select width of range returned.
+ * Breaking Change: The `ost.Verse` structure has been moved to `text.Verse`. It has also been restructured to include a `Link` field and the HTML `Content` field has been replaced with a structure that contains `Text` and `HTML` fields.
+ * Breaking Change: The `text.Service` has changed substantially: 
+   - Methods `Verse`, `VerseText`, `VerseHTML`, `RandomVerse`, `RandomVerseText`, and `RandomVerseHTML` now require a `context.Context` argument.
+   - The `Verse` method has been renamed to `VerseText` and a new `Verse` method that returns `text.Verse` has been added.
+   - The `RandomVerse` method has been renamed to `RandomVerseText` and a new `RandomVerse` method that returns `text.Verse` has been added.
+ * Breaking Change: The `text.Resolver` interface has changed substantially:
+   - Requires a `context.Context` argument for all methods.
+   - Requires a `VersionInformation` method.
+   - Renamed `Verse` to `VerseText` and a new `Verse` method that returns `text.Verse` has been added.
+ * Breaking Change: The `esv.Resolver` implements new `text.Resolver` changes.
+ * Breaking Change: The `ost.Version` structure has been moved to `text.Version`.
+ * Breaking Change: The `ost.Client` methods `Today`, `TodayVerse`, `TodayHTML`, and `TodayPhoto` now require a `context.Context` argument.
  * Added the `--minimum-verses` and `--maximum-verses` options to `today random` to allow control over how many verses are selected for the passage.
  * Added `ref.WithAtLeast()` and `ref.WithAtMost()` options to `ref.Random` to allow control over how many verses are selected for the passage.
+ * Added a field for loading and saving the preferred color of an image to `photo.Meta` and the `SetColor` method for converting `color.Color` to a CSS hex color code and `GetColor` to perform the same operation in reverse.
+ * When checking for dominant color in a photo, black and white are generally disqualified.
  * Fix: Fixed a bug where the `today random` output showed the passage reference twice.
  * Fix: Random passages should now be unbiased (previously, there was a slight bias towards picking passages at the end of a book or passage).
 

@@ -1,6 +1,7 @@
 package esv_test
 
 import (
+	"context"
 	"encoding/json"
 	"html/template"
 	"net/http"
@@ -37,7 +38,7 @@ func testServer() *httptest.Server {
 	return ts
 }
 
-func TestResolver_Verse(t *testing.T) {
+func TestResolver_VerseText(t *testing.T) {
 	t.Parallel()
 
 	ts := testServer()
@@ -60,7 +61,7 @@ func TestResolver_Verse(t *testing.T) {
 	ref, err := ref.Canonical.Resolve(p)
 	require.NoError(t, err)
 
-	txt, err := res.Verse(&ref[0])
+	txt, err := res.VerseText(context.Background(), &ref[0])
 	assert.NoError(t, err)
 	assert.Equal(t, jn11, txt)
 }
@@ -88,7 +89,18 @@ func TestResolver_VerseHTML(t *testing.T) {
 	ref, err := ref.Canonical.Resolve(p)
 	require.NoError(t, err)
 
-	txt, err := res.VerseHTML(&ref[0])
+	txt, err := res.VerseHTML(context.Background(), &ref[0])
 	assert.NoError(t, err)
 	assert.Equal(t, template.HTML(jn11), txt) //nolint:gosec // seriously, it's a mock, it's not even HTML
+}
+
+func TestResolver_VersionInformation(t *testing.T) {
+	t.Parallel()
+
+	res := &esv.Resolver{}
+
+	v, err := res.VersionInformation(context.Background())
+	assert.NoError(t, err)
+	assert.Equal(t, "ESV", v.Name)
+	assert.Equal(t, "https://www.esv.org/", v.Link)
 }

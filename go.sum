@@ -24,6 +24,7 @@ github.com/hablullah/go-juliandays v1.0.0/go.mod h1:0JOYq4oFOuDja+oospuc61YoX+uN
 github.com/hbagdi/go-unsplash v0.0.0-20230414214043-474fc02c9119 h1:Xqi5LlXRyF1GlNGXSb2NZJuOeTrXGzwGiQDwkwNXEc8=
 github.com/hbagdi/go-unsplash v0.0.0-20230414214043-474fc02c9119/go.mod h1:DEzhU5CxSdknL3hUXTco1n5AO2BZHs4KeJo5ADWU0Iw=
 github.com/iancoleman/strcase v0.1.2/go.mod h1:SK73tn/9oHe+/Y0h39VT4UCxmurVJkR5NA7kMEAOgSE=
+github.com/iancoleman/strcase v0.3.0/go.mod h1:iwCmte+B7n89clKwxIoIXy/HfoL7AsD47ZCWhYzw7ho=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/jalaali/go-jalaali v0.0.0-20210801064154-80525e88d958 h1:qxLoi6CAcXVzjfvu+KXIXJOAsQB62LXjsfbOaErsVzE=
@@ -49,8 +50,12 @@ github.com/spf13/cobra v1.8.0/go.mod h1:WXLWApfZ71AjXPya3WOlMsY9yMs7YeiHhFVlvLyh
 github.com/spf13/pflag v1.0.5 h1:iy+VFUOCP1a+8yFto/drg2CJ5u0yRoB7fZw3DKv/JXA=
 github.com/spf13/pflag v1.0.5/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An2Bg=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
+github.com/stretchr/objx v0.4.0/go.mod h1:YvHI0jy2hoMjB+UWwv71VJQ9isScKT/TqJzVSSt89Yw=
+github.com/stretchr/objx v0.5.0/go.mod h1:Yh+to48EsGEfYuaHDzXPcE3xhTkx73EhmCGUpEOglKo=
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
+github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
+github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO+kdMU+MU=
 github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcUk=
 github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
 github.com/tetratelabs/wazero v1.2.1 h1:J4X2hrGzJvt+wqltuvcSjHQ7ujQxA9gb6PeMs4qlUWs=
@@ -59,6 +64,8 @@ github.com/wasilibs/go-re2 v1.3.0 h1:LFhBNzoStM3wMie6rN2slD1cuYH2CGiHpvNL3UtcsMw
 github.com/wasilibs/go-re2 v1.3.0/go.mod h1:AafrCXVvGRJJOImMajgJ2M7rVmWyisVK7sFshbxnVrg=
 github.com/zostay/go-esv-api v0.0.0-20201114154340-be89d3d9bb0c h1:kJ8WMYYfkn4NlRn+rN4zxvrM4dq/N1GXVyzn7TQSZiE=
 github.com/zostay/go-esv-api v0.0.0-20201114154340-be89d3d9bb0c/go.mod h1:ZRsrJQJWB5YeM9wBJfay31e4ALJPH6UNVOqWXdvyB/I=
+github.com/zostay/go-esv-api v0.2.0 h1:rrMgJyIChia70W9WjLI4uGg/A6YRCxAVYBBQO0L3sAY=
+github.com/zostay/go-esv-api v0.2.0/go.mod h1:OLE3uYa+J1saBhMY/tycj9hxIWonbGA5uYw2c0pg15c=
 github.com/zostay/go-std v0.6.0 h1:rfkkeFaHPVBd6lzSvc3qFOz0XdJwUWcvzIv/tHpGSww=
 github.com/zostay/go-std v0.6.0/go.mod h1:zfgtTG41xevg3HwnHtqDMBafm6tuQ4FNNMf5CKHH7b4=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
