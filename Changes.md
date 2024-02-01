@@ -1,4 +1,4 @@
-WIP  TBD
+0.4.0  2024-02-01
 
  * Breaking Change: The `ref.RandomPassage` ane `ref.RandomPassageFromRef` functions now take two additional integer arguments to select width of range returned.
  * Breaking Change: The `ost.Verse` structure has been moved to `text.Verse`. It has also been restructured to include a `Link` field and the HTML `Content` field has been replaced with a structure that contains `Text` and `HTML` fields.
