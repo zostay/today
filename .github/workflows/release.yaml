@@ -38,7 +38,7 @@ jobs:
           fi
       - name: Release Notes Capture
         run: |
-          sed -n '/^[0-9]/,/^[0-9]/p' Changes.md | head -n-1 | tail -n+2 > release-notes.md
+          sed -n '/^[0-9]/{:loop n; /^[0-9]/q; p; b loop}' Changes.md > release-notes.md
           echo "Release Notes Will be..."
           echo "========================"
           cat release-notes.md
