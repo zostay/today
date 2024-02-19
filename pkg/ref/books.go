@@ -217,6 +217,23 @@ func (c *Canon) resolveAndFollowing(
 	}
 }
 
+func (b Book) LastVerseInChapter(
+	n int,
+) (int, error) {
+	if b.JustVerse {
+		return b.Verses[len(b.Verses)-1].(N).Number, nil
+	}
+
+	fv := CV{Chapter: n, Verse: 1}
+	lv, err := lastVerseInChapter(&b, fv)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return lv.(CV).Verse, nil
+}
+
 func lastVerseInChapter(
 	b *Book,
 	v Verse,
