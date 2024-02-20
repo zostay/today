@@ -334,3 +334,123 @@ func TestBook_LastVerseInChapter(t *testing.T) {
 	_, err = gen.LastVerseInChapter(60)
 	assert.Error(t, err)
 }
+
+func TestBookAbbreviations_BookName(t *testing.T) {
+	t.Parallel()
+
+	abbrs := ref.BookAbbreviations{
+		Abbreviations: []ref.BookAbbreviation{
+			{
+				Name:      "Jonah",
+				Preferred: "Jonah",
+				Accepts: []string{
+					"Jonah",
+					"Jnh",
+				},
+			},
+			{
+				Name:      "John",
+				Preferred: "John",
+				Accepts: []string{
+					"John",
+					"Jhn",
+					"Jn",
+				},
+			},
+		},
+	}
+
+	_, err := abbrs.BookName("J")
+	assert.Error(t, err)
+	assert.Equal(t, &ref.MultipleMatchError{
+		Input: "J",
+		Matches: []string{
+			"Jonah",
+			"John",
+		},
+	}, err)
+
+	name, err := abbrs.BookName("Jn")
+	assert.NoError(t, err)
+	assert.Equal(t, "John", name)
+
+	name, err = abbrs.BookName("Jnh")
+	assert.NoError(t, err)
+	assert.Equal(t, "Jonah", name)
+
+	name, err = abbrs.BookName("Jhn")
+	assert.NoError(t, err)
+	assert.Equal(t, "John", name)
+
+	name, err = abbrs.BookName("Joh")
+	assert.NoError(t, err)
+	assert.Equal(t, "John", name)
+
+	name, err = abbrs.BookName("John")
+	assert.NoError(t, err)
+	assert.Equal(t, "John", name)
+
+	name, err = abbrs.BookName("Jon")
+	assert.NoError(t, err)
+	assert.Equal(t, "Jonah", name)
+
+	name, err = abbrs.BookName("Jona")
+	assert.NoError(t, err)
+	assert.Equal(t, "Jonah", name)
+
+	name, err = abbrs.BookName("Jonah")
+	assert.NoError(t, err)
+	assert.Equal(t, "Jonah", name)
+
+	_, err = abbrs.BookName("Johna")
+	assert.ErrorIs(t, err, ref.ErrNotFound)
+}
+
+func TestBookAbbreviations_PreferredAbbreviation(t *testing.T) {
+	t.Parallel()
+
+	abbrs := ref.BookAbbreviations{
+		Abbreviations: []ref.BookAbbreviation{
+			{
+				Name:      "Genesis",
+				Preferred: "Gen.",
+				Accepts: []string{
+					"Genesis",
+					"Gn",
+				},
+			},
+			{
+				Name:      "Jonah",
+				Preferred: "Jonah",
+				Accepts: []string{
+					"Jonah",
+					"Jnh",
+				},
+			},
+			{
+				Name:      "John",
+				Preferred: "John",
+				Accepts: []string{
+					"John",
+					"Jhn",
+					"Jn",
+				},
+			},
+		},
+	}
+
+	abbr, err := abbrs.PreferredAbbreviation("Genesis")
+	assert.NoError(t, err)
+	assert.Equal(t, "Gen.", abbr)
+
+	abbr, err = abbrs.PreferredAbbreviation("Jonah")
+	assert.NoError(t, err)
+	assert.Equal(t, "Jonah", abbr)
+
+	abbr, err = abbrs.PreferredAbbreviation("John")
+	assert.NoError(t, err)
+	assert.Equal(t, "John", abbr)
+
+	_, err = abbrs.PreferredAbbreviation("Jn")
+	assert.ErrorIs(t, err, ref.ErrNotFound)
+}

@@ -1,6 +1,9 @@
 package ref
 
-import "unicode"
+import (
+	"strings"
+	"unicode"
+)
 
 type AbbrTree struct {
 	Children map[rune]*AbbrTree
@@ -39,6 +42,16 @@ func NewAbbrTree(abbrs *BookAbbreviations) *AbbrTree {
 	return &root
 }
 
+func cleanAbbreviation(abbr string) string {
+	var cleaned string
+	for _, c := range abbr {
+		if !isSkipped(c) {
+			cleaned += string(c)
+		}
+	}
+	return strings.ToLower(cleaned)
+}
+
 func (t *AbbrTree) Get(abbr string) map[string]*BookAbbreviation {
 	cur := t
 	for _, c := range abbr {
@@ -50,6 +63,30 @@ func (t *AbbrTree) Get(abbr string) map[string]*BookAbbreviation {
 
 		if cur == nil {
 			return nil
+		}
+	}
+
+	// If there are multiple answers, we will check to see if any of the answers
+	// a complete name. If they are, then all the ones tha tare complete names
+	// will be returned. If none are complete names, then all are returned. For
+	// example, if the input is "Jn" and the accepts list for "John" includes
+	// "Jn" and the accepts list for Jonah includes "Jnh", only "John" will be
+	// returned even though the initial match includes both.
+	if len(cur.Final) > 1 {
+		cleanAbbr := cleanAbbreviation(abbr)
+		completeNames := map[string]*BookAbbreviation{}
+		for name, finalAbbr := range cur.Final {
+			for _, acc := range finalAbbr.Accepts {
+				cleanAcc := cleanAbbreviation(acc)
+				if cleanAcc == cleanAbbr {
+					completeNames[name] = finalAbbr
+					break
+				}
+			}
+		}
+
+		if len(completeNames) > 0 {
+			return completeNames
 		}
 	}
 

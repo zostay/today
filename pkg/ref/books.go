@@ -14,6 +14,15 @@ var (
 	ErrWideRange = errors.New("last verse is after the end of the book")
 )
 
+type MultipleMatchError struct {
+	Input   string
+	Matches []string
+}
+
+func (m *MultipleMatchError) Error() string {
+	return fmt.Sprintf("input string %q has multiple matches: %v", m.Input, m.Matches)
+}
+
 // Book is a book of the Bible. We use this with a global map to do client-side
 // verification of book names, chapter, and verse references.
 type Book struct {
@@ -29,6 +38,25 @@ type Canon struct {
 	Categories map[string][]string
 }
 
+// BookAbbreviations is configuration for book names and abbreviations according
+// to a standardized scheme. This allows for configurable preferences for
+// abbreviations when citing references and for more flexible parsing of
+// references.
+type BookAbbreviations struct {
+	Abbreviations []BookAbbreviation
+	root          *AbbrTree
+}
+
+// BookAbbreviation is an individual configuration of a book name, selects a
+// standard abbreviation, and provides a place for recording accepted
+// abbreviations when parsing book names.
+type BookAbbreviation struct {
+	Name      string
+	Preferred string
+	Accepts   []string
+}
+
+// Book will return the Book with the given name or any
 func (c *Canon) Book(name string) (*Book, error) {
 	for i := range c.Books {
 		b := &c.Books[i]
@@ -338,4 +366,49 @@ func (b Book) Contains(v Verse) bool {
 		}
 	}
 	return false
+}
+
+// BookName returns the book name that matches the given string. This will apply as
+// liberal a match as possible against the abberviations in the configurations.
+// The word is checked against all possible abbreviations.
+//
+// If there are no matches, this will return ErrNotFound. If there are multiple
+// matches, this will return a MultipleMatchError, which can be interrogated to
+// determine all book names that matched.
+func (b *BookAbbreviations) BookName(in string) (string, error) {
+	if b.root == nil {
+		b.root = NewAbbrTree(b)
+	}
+
+	matches := b.root.Get(in)
+	if len(matches) == 1 {
+		for _, m := range matches {
+			return m.Name, nil
+		}
+	}
+
+	if len(matches) == 0 {
+		return "", fmt.Errorf("%w: %s", ErrNotFound, in)
+	}
+
+	matchNames := make([]string, 0, len(matches))
+	for _, m := range matches {
+		matchNames = append(matchNames, m.Name)
+	}
+
+	return "", &MultipleMatchError{
+		Input:   in,
+		Matches: matchNames,
+	}
+}
+
+// PreferredAbbreviation returns the preferred abbreviation for the given book
+// name.
+func (b *BookAbbreviations) PreferredAbbreviation(name string) (string, error) {
+	for _, abbr := range b.Abbreviations {
+		if abbr.Name == name {
+			return abbr.Preferred, nil
+		}
+	}
+	return "", fmt.Errorf("%w: %s", ErrNotFound, name)
 }

@@ -28,7 +28,7 @@ func TestAbbrTree(t *testing.T) {
 		},
 	}
 
-	tree := ref.NewAbbrTree(abbrs)
+	tree := ref.NewAbbrTree(&abbrs)
 
 	res := tree.Get("A")
 	assert.Equal(t, map[string]*ref.BookAbbreviation{
@@ -49,7 +49,6 @@ func TestAbbrTree(t *testing.T) {
 	res = tree.Get("Ac")
 	assert.Equal(t, map[string]*ref.BookAbbreviation{
 		"Abc": &abbrs.Abbreviations[0],
-		"Acd": &abbrs.Abbreviations[2],
 	}, res)
 
 	res = tree.Get("acd")
