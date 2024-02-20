@@ -1,4 +1,4 @@
-WIP  TBD
+0.5.0  2024-02-20
 
  * The `today show` command supports most common book abbreviations now.
  * The `text.Service` allows for the canon and the abbreviations used to be configured using the `text.WithCanon`, `text.WithAbbreviations`, and `text.WithoutAbbreviations` options. The service still uses `ref.Canonical` by default and now uses `ref.Abbreviations` by default.
