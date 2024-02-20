@@ -44,8 +44,13 @@ func (r *Resolver) Verse(ctx context.Context, ref *ref.Resolved) (*text.Verse, e
 		return nil, err
 	}
 
+	vr, err := ref.CompactRef()
+	if err != nil {
+		return nil, err
+	}
+
 	return &text.Verse{
-		Reference: ref.Ref(),
+		Reference: vr,
 		Content: text.Content{
 			Text: txt,
 			HTML: html,
