@@ -464,5 +464,4 @@ func TestResolved_CompactRef(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, "Genesis 12:4-13:1", cr)
-
 }

@@ -596,7 +596,7 @@ func (r *Resolved) CompactRef() (string, error) {
 	}
 
 	if r.First.Equal(r.Book.Verses[0]) && r.Last.Equal(r.Book.Verses[len(r.Book.Verses)-1]) {
-		return fmt.Sprintf("%s", r.Book.Name), nil
+		return r.Book.Name, nil
 	}
 
 	fcv, isFCV := r.First.(CV)
