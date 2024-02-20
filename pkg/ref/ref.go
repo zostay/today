@@ -590,6 +590,35 @@ func (r *Resolved) Verses() []Verse {
 	return verses
 }
 
+func (r *Resolved) CompactRef() (string, error) {
+	if r.First.Equal(r.Last) {
+		return fmt.Sprintf("%s %s", r.Book.Name, r.First.Ref()), nil
+	}
+
+	if r.First.Equal(r.Book.Verses[0]) && r.Last.Equal(r.Book.Verses[len(r.Book.Verses)-1]) {
+		return r.Book.Name, nil
+	}
+
+	fcv, isFCV := r.First.(CV)
+	lcv, isLCV := r.Last.(CV)
+	if isFCV && isLCV {
+		if fcv.Chapter == lcv.Chapter {
+			lvInC, err := r.Book.LastVerseInChapter(fcv.Chapter)
+			if err != nil {
+				return "", err
+			}
+
+			if fcv.Verse == 1 && lcv.Verse == lvInC {
+				return fmt.Sprintf("%s %d", r.Book.Name, fcv.Chapter), nil
+			}
+
+			return fmt.Sprintf("%s %d:%d-%d", r.Book.Name, fcv.Chapter, fcv.Verse, lcv.Verse), nil
+		}
+	}
+
+	return fmt.Sprintf("%s %s-%s", r.Book.Name, r.First.Ref(), r.Last.Ref()), nil
+}
+
 var _ Verse = CV{}
 var _ Verse = N{}
 var _ Relative = (*Single)(nil)

@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/zostay/today/pkg/ref"
 )
@@ -284,4 +285,52 @@ func TestCanon_Resolve_Multiple_Relative(t *testing.T) {
 			Last:  ref.CV{Chapter: 16, Verse: 12},
 		},
 	}, rs)
+}
+
+func TestBook_LastVerseInChapter(t *testing.T) {
+	t.Parallel()
+
+	for _, b := range ref.Canonical.Books {
+		var lastLv int
+		var prevV ref.Verse
+		for _, v := range b.Verses {
+			if b.JustVerse {
+				lv, err := b.LastVerseInChapter(v.(ref.N).Number)
+				assert.NoError(t, err)
+
+				assert.Equal(t, lv, b.Verses[len(b.Verses)-1].(ref.N).Number)
+
+				lastLv = lv
+			} else {
+				lv, err := b.LastVerseInChapter(v.(ref.CV).Chapter)
+				assert.NoError(t, err)
+
+				if v.(ref.CV).Verse == 1 {
+					if prevV != nil {
+						assert.Equal(t, lastLv, prevV.(ref.CV).Verse)
+					}
+
+					assert.Greater(t, lv, 1)
+					lastLv = lv
+				}
+
+				assert.Equal(t, lastLv, lv)
+				assert.GreaterOrEqual(t, lastLv, v.(ref.CV).Verse)
+			}
+
+			prevV = v
+		}
+
+		if b.JustVerse {
+			assert.Equal(t, lastLv, prevV.(ref.N).Number)
+		} else {
+			assert.Equal(t, lastLv, prevV.(ref.CV).Verse)
+		}
+	}
+
+	gen, err := ref.Canonical.Book("Genesis")
+	require.NoError(t, err)
+
+	_, err = gen.LastVerseInChapter(60)
+	assert.Error(t, err)
 }

@@ -412,3 +412,56 @@ func TestResolved(t *testing.T) {
 		ref.CV{Chapter: 12, Verse: 6},
 	}, r.Verses())
 }
+
+func TestResolved_CompactRef(t *testing.T) {
+	t.Parallel()
+
+	gen, err := ref.Canonical.Book("Genesis")
+	require.NotNil(t, gen)
+	require.NoError(t, err)
+
+	cr, err := (&ref.Resolved{
+		Book:  gen,
+		First: ref.CV{Chapter: 12, Verse: 4},
+		Last:  ref.CV{Chapter: 12, Verse: 6},
+	}).CompactRef()
+
+	assert.NoError(t, err)
+	assert.Equal(t, "Genesis 12:4-6", cr)
+
+	cr, err = (&ref.Resolved{
+		Book:  gen,
+		First: ref.CV{Chapter: 12, Verse: 4},
+		Last:  ref.CV{Chapter: 12, Verse: 4},
+	}).CompactRef()
+
+	assert.NoError(t, err)
+	assert.Equal(t, "Genesis 12:4", cr)
+
+	cr, err = (&ref.Resolved{
+		Book:  gen,
+		First: ref.CV{Chapter: 12, Verse: 1},
+		Last:  ref.CV{Chapter: 12, Verse: 20},
+	}).CompactRef()
+
+	assert.NoError(t, err)
+	assert.Equal(t, "Genesis 12", cr)
+
+	cr, err = (&ref.Resolved{
+		Book:  gen,
+		First: ref.CV{Chapter: 1, Verse: 1},
+		Last:  ref.CV{Chapter: 50, Verse: 26},
+	}).CompactRef()
+
+	assert.NoError(t, err)
+	assert.Equal(t, "Genesis", cr)
+
+	cr, err = (&ref.Resolved{
+		Book:  gen,
+		First: ref.CV{Chapter: 12, Verse: 4},
+		Last:  ref.CV{Chapter: 13, Verse: 1},
+	}).CompactRef()
+
+	assert.NoError(t, err)
+	assert.Equal(t, "Genesis 12:4-13:1", cr)
+}

@@ -1,3 +1,8 @@
+WIP  TBD
+
+ * Addeded a `CompactRef()` method to `ref.Resolved` to return a compact string representation of the reference. (For example, Genesis 12:4-12:6 would be Genesis 12:4-6 or Genesis 12:1-20 would be Genesis 12.)
+ * Addeda a `LastVerseInChapter()` method to `ref.Book` to return the last verse in a chapter (or in the case of a chapterless book like Obadiah or Philemon, the last verse in the book).
+
 0.4.0  2024-02-01
 
  * Breaking Change: The `ref.RandomPassage` ane `ref.RandomPassageFromRef` functions now take two additional integer arguments to select width of range returned.
