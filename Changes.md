@@ -1,3 +1,7 @@
+0.5.1  2024-02-20
+
+ * Fix: The ESV resolver returns cleaner verse references now.
+
 0.5.0  2024-02-20
 
  * The `today show` command supports most common book abbreviations now.
