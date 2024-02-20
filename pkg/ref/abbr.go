@@ -1,6 +1,6 @@
 package ref
 
-var Abbreviations = BookAbbreviations{
+var Abbreviations = &BookAbbreviations{
 	Abbreviations: []BookAbbreviation{
 		{
 			Name:      "Genesis",
@@ -8,6 +8,13 @@ var Abbreviations = BookAbbreviations{
 			Accepts: []string{
 				"Genesis",
 				"Gn",
+			},
+		},
+		{
+			Name:      "Exodus",
+			Preferred: "Ex.",
+			Accepts: []string{
+				"Exodus",
 			},
 		},
 		{
@@ -63,6 +70,7 @@ var Abbreviations = BookAbbreviations{
 		{
 			Name:      "1 Samuel",
 			Preferred: "1 Sam.",
+			Ordinal:   1,
 			Accepts: []string{
 				"1Samuel",
 				"FirstSamuel",
@@ -79,6 +87,7 @@ var Abbreviations = BookAbbreviations{
 		{
 			Name:      "2 Samuel",
 			Preferred: "2 Sam.",
+			Ordinal:   2,
 			Accepts: []string{
 				"2Samuel",
 				"SecondSamuel",
@@ -95,6 +104,7 @@ var Abbreviations = BookAbbreviations{
 		{
 			Name:      "1 Kings",
 			Preferred: "1 Kings",
+			Ordinal:   1,
 			Accepts: []string{
 				"1Kings",
 				"FirstKings",
@@ -111,6 +121,7 @@ var Abbreviations = BookAbbreviations{
 		{
 			Name:      "2 Kings",
 			Preferred: "2 Kings",
+			Ordinal:   2,
 			Accepts: []string{
 				"2Kings",
 				"SecondKings",
@@ -127,6 +138,7 @@ var Abbreviations = BookAbbreviations{
 		{
 			Name:      "1 Chronicles",
 			Preferred: "1 Chron.",
+			Ordinal:   1,
 			Accepts: []string{
 				"1Chronicles",
 				"FirstChronicles",
@@ -143,6 +155,7 @@ var Abbreviations = BookAbbreviations{
 		{
 			Name:      "2 Chronicles",
 			Preferred: "2 Chron.",
+			Ordinal:   2,
 			Accepts: []string{
 				"2Chronicles",
 				"SecondChronicles",
@@ -404,6 +417,7 @@ var Abbreviations = BookAbbreviations{
 		{
 			Name:      "1 Corinthians",
 			Preferred: "1 Cor.",
+			Ordinal:   1,
 			Accepts: []string{
 				"1Corinthians",
 				"FirstCorinthians",
@@ -415,6 +429,7 @@ var Abbreviations = BookAbbreviations{
 		{
 			Name:      "2 Corinthians",
 			Preferred: "2 Cor.",
+			Ordinal:   2,
 			Accepts: []string{
 				"2Corinthians",
 				"SecondCorinthians",
@@ -456,6 +471,7 @@ var Abbreviations = BookAbbreviations{
 		{
 			Name:      "1 Thessalonians",
 			Preferred: "1 Thess.",
+			Ordinal:   1,
 			Accepts: []string{
 				"1Thessalonians",
 				"FirstThessalonians",
@@ -467,6 +483,7 @@ var Abbreviations = BookAbbreviations{
 		{
 			Name:      "2 Thessalonians",
 			Preferred: "2 Thess.",
+			Ordinal:   2,
 			Accepts: []string{
 				"2Thessalonians",
 				"SecondThessalonians",
@@ -478,6 +495,7 @@ var Abbreviations = BookAbbreviations{
 		{
 			Name:      "1 Timothy",
 			Preferred: "1 Tim.",
+			Ordinal:   1,
 			Accepts: []string{
 				"1Timothy",
 				"FirstTimothy",
@@ -489,6 +507,7 @@ var Abbreviations = BookAbbreviations{
 		{
 			Name:      "2 Timothy",
 			Preferred: "2 Tim.",
+			Ordinal:   2,
 			Accepts: []string{
 				"2Timothy",
 				"SecondTimothy",
@@ -532,6 +551,7 @@ var Abbreviations = BookAbbreviations{
 		{
 			Name:      "1 Peter",
 			Preferred: "1 Pet.",
+			Ordinal:   1,
 			Accepts: []string{
 				"1Peter",
 				"FirstPeter",
@@ -548,6 +568,7 @@ var Abbreviations = BookAbbreviations{
 		{
 			Name:      "2 Peter",
 			Preferred: "2 Pet.",
+			Ordinal:   2,
 			Accepts: []string{
 				"2Peter",
 				"SecondPeter",
@@ -564,6 +585,7 @@ var Abbreviations = BookAbbreviations{
 		{
 			Name:      "1 John",
 			Preferred: "1 John",
+			Ordinal:   1,
 			Accepts: []string{
 				"1John",
 				"FirstJohn",
@@ -585,6 +607,7 @@ var Abbreviations = BookAbbreviations{
 		{
 			Name:      "2 John",
 			Preferred: "2 John",
+			Ordinal:   2,
 			Accepts: []string{
 				"2John",
 				"SecondJohn",
@@ -606,6 +629,7 @@ var Abbreviations = BookAbbreviations{
 		{
 			Name:      "3 John",
 			Preferred: "3 John",
+			Ordinal:   3,
 			Accepts: []string{
 				"3John",
 				"ThirdJohn",

@@ -75,8 +75,11 @@ func (t *AbbrTree) Get(abbr string) map[string]*BookAbbreviation {
 	if len(cur.Final) > 1 {
 		cleanAbbr := cleanAbbreviation(abbr)
 		completeNames := map[string]*BookAbbreviation{}
+		allOrdinals, someOrdinals := true, false
 		for name, finalAbbr := range cur.Final {
 			for _, acc := range finalAbbr.Accepts {
+				allOrdinals = allOrdinals && finalAbbr.Ordinal != 0
+				someOrdinals = someOrdinals || finalAbbr.Ordinal != 0
 				cleanAcc := cleanAbbreviation(acc)
 				if cleanAcc == cleanAbbr {
 					completeNames[name] = finalAbbr
@@ -86,6 +89,18 @@ func (t *AbbrTree) Get(abbr string) map[string]*BookAbbreviation {
 		}
 
 		if len(completeNames) > 0 {
+			return completeNames
+		}
+
+		// And then, there's this one weird trick we need to distinguish Isaiah
+		// from I Samuel...
+		if someOrdinals && !allOrdinals {
+			for name, finalAbbr := range cur.Final {
+				if finalAbbr.Ordinal == 0 {
+					completeNames[name] = finalAbbr
+				}
+			}
+
 			return completeNames
 		}
 	}

@@ -27,6 +27,10 @@ books:
     accept:
       - Genesis
       - Gn
+  - name: Exodus
+    standard: Ex.
+    accept:
+      - Exodus
   - name: Leviticus
     standard: Lev.
     accept:

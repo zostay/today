@@ -3,6 +3,7 @@ package ref
 import (
 	"errors"
 	"fmt"
+	"sort"
 )
 
 var (
@@ -53,11 +54,23 @@ type BookAbbreviations struct {
 type BookAbbreviation struct {
 	Name      string
 	Preferred string
+	Ordinal   int
 	Accepts   []string
 }
 
-// Book will return the Book with the given name or any
-func (c *Canon) Book(name string) (*Book, error) {
+// Book will return the Book with the exact given name.
+func (c *Canon) Book(in string, opt ...ResolveOption) (*Book, error) {
+	name := in
+
+	opts := makeResolveOpts(opt)
+	if opts.Abbreviations != nil {
+		var err error
+		name, err = opts.Abbreviations.BookName(in)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	for i := range c.Books {
 		b := &c.Books[i]
 		if b.Name == name {
@@ -85,37 +98,72 @@ func (c *Canon) Category(name string) ([]*Pericope, error) {
 	return nil, nil
 }
 
+type resolveOpts struct {
+	Abbreviations *BookAbbreviations
+}
+
+type ResolveOption func(*resolveOpts)
+
+func WithAbbreviations(abbrs *BookAbbreviations) ResolveOption {
+	return func(o *resolveOpts) {
+		o.Abbreviations = abbrs
+	}
+}
+
+func makeResolveOpts(opts []ResolveOption) *resolveOpts {
+	o := &resolveOpts{}
+	for i := range opts {
+		opts[i](o)
+	}
+	return o
+}
+
 // Resolve turns an absolute reference into a slice of Resolved references or
 // returns an error if the references do not match this Canon.
-func (c *Canon) Resolve(ref Absolute) ([]Resolved, error) {
+func (c *Canon) Resolve(ref Absolute, opt ...ResolveOption) ([]Resolved, error) {
 	if err := ref.Validate(); err != nil {
 		return nil, err
 	}
 
+	opts := makeResolveOpts(opt)
+
 	switch r := ref.(type) {
 	case *Multiple:
-		return c.resolveMultiple(r)
+		return c.resolveMultiple(r, opts)
 	case *Proper:
-		return c.resolveProper(r)
+		return c.resolveProper(r, opts)
 	case *Resolved:
 		return []Resolved{*r}, nil
 	}
 	return nil, fmt.Errorf("unknown reference type: %T", ref)
 }
 
-func (c *Canon) resolveMultiple(m *Multiple) ([]Resolved, error) {
+func (c *Canon) resolveBook(in string, opts *resolveOpts) (*Book, error) {
+	if opts.Abbreviations != nil {
+		name, err := opts.Abbreviations.BookName(in)
+		if err != nil {
+			return nil, err
+		}
+
+		return c.Book(name)
+	}
+
+	return c.Book(in)
+}
+
+func (c *Canon) resolveMultiple(m *Multiple, opts *resolveOpts) ([]Resolved, error) {
 	var rs []Resolved
 	var b *Book
 	for i := range m.Refs {
 		switch r := m.Refs[i].(type) {
 		case *Proper:
 			var err error
-			b, err = c.Book(r.Book)
+			b, err = c.resolveBook(r.Book, opts)
 			if err != nil {
 				return nil, err
 			}
 
-			thisRs, err := c.resolveProper(r)
+			thisRs, err := c.resolveProper(r, opts)
 			if err != nil {
 				return nil, err
 			}
@@ -144,8 +192,8 @@ func (c *Canon) resolveRelative(b *Book, r Relative) ([]Resolved, error) {
 	return nil, fmt.Errorf("unknown reference type: %T", r)
 }
 
-func (c *Canon) resolveProper(p *Proper) ([]Resolved, error) {
-	b, err := c.Book(p.Book)
+func (c *Canon) resolveProper(p *Proper, opts *resolveOpts) ([]Resolved, error) {
+	b, err := c.resolveBook(p.Book, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -347,7 +395,7 @@ func (c *Canon) resolveRelated(
 		thisRs, err := c.resolveProper(&Proper{
 			Book:  b.Name,
 			Verse: r.Refs[i],
-		})
+		}, &resolveOpts{})
 		if err != nil {
 			return nil, err
 		}
@@ -395,6 +443,8 @@ func (b *BookAbbreviations) BookName(in string) (string, error) {
 	for _, m := range matches {
 		matchNames = append(matchNames, m.Name)
 	}
+
+	sort.Strings(matchNames)
 
 	return "", &MultipleMatchError{
 		Input:   in,
