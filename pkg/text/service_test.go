@@ -75,7 +75,25 @@ func TestService(t *testing.T) {
 		Last:  ref.CV{Chapter: 4, Verse: 1},
 	}, tr.lastRef)
 
+	txt, err = svc.VerseText(ctx, "1jn 4:1")
+	assert.NoError(t, err)
+	assert.Equal(t, fjn41, txt)
+	assert.Equal(t, &ref.Resolved{
+		Book:  b,
+		First: ref.CV{Chapter: 4, Verse: 1},
+		Last:  ref.CV{Chapter: 4, Verse: 1},
+	}, tr.lastRef)
+
 	htxt, err := svc.VerseHTML(ctx, "1 John 4:1")
+	assert.NoError(t, err)
+	assert.Equal(t, template.HTML(fjn41), htxt) //nolint:gosec // srsly?
+	assert.Equal(t, &ref.Resolved{
+		Book:  b,
+		First: ref.CV{Chapter: 4, Verse: 1},
+		Last:  ref.CV{Chapter: 4, Verse: 1},
+	}, tr.lastRef)
+
+	htxt, err = svc.VerseHTML(ctx, "1stjo 4:1")
 	assert.NoError(t, err)
 	assert.Equal(t, template.HTML(fjn41), htxt) //nolint:gosec // srsly?
 	assert.Equal(t, &ref.Resolved{
@@ -128,6 +146,14 @@ func TestService_Sad(t *testing.T) {
 	assert.Empty(t, txt)
 
 	htxt, err = svc.VerseHTML(ctx, "1 John 4:1; 5:1")
+	assert.Error(t, err)
+	assert.Empty(t, htxt)
+
+	txt, err = svc.Verse(ctx, "1johnny 4:1")
+	assert.Error(t, err)
+	assert.Empty(t, txt)
+
+	htxt, err = svc.VerseHTML(ctx, "1Jojo 4:1")
 	assert.Error(t, err)
 	assert.Empty(t, htxt)
 }

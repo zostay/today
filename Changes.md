@@ -1,5 +1,7 @@
 WIP  TBD
 
+ * The `today show` command supports most common book abbreviations now.
+ * The `text.Service` allows for the canon and the abbreviations used to be configured using the `text.WithCanon`, `text.WithAbbreviations`, and `text.WithoutAbbreviations` options. The service still uses `ref.Canonical` by default and now uses `ref.Abbreviations` by default.
  * Addeded a `CompactRef()` method to `ref.Resolved` to return a compact string representation of the reference. (For example, Genesis 12:4-12:6 would be Genesis 12:4-6 or Genesis 12:1-20 would be Genesis 12.)
  * Addeda a `LastVerseInChapter()` method to `ref.Book` to return the last verse in a chapter (or in the case of a chapterless book like Obadiah or Philemon, the last verse in the book).
  * Added the `ref.BookAbbreviations` structure with associated components and the `PreferredAbbreviation()` and `BookName()` methods to assist with abbreviating and parsing abbreviated book names.
