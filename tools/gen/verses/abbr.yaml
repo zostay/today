@@ -1,0 +1,361 @@
+---
+ordinals:
+  - standard: 1
+    accept:
+      - 1
+      - First
+      - 1st
+      - I
+      - Ⅰ
+  - standard: 2
+    accept:
+      - 2
+      - Second
+      - 2nd
+      - II
+      - Ⅱ
+  - standard: 3
+    accept:
+      - 3
+      - Third
+      - 3rd
+      - III
+      - Ⅲ
+books:
+  - name: Genesis
+    standard: Gen.
+    accept:
+      - Genesis
+      - Gn
+  - name: Leviticus
+    standard: Lev.
+    accept:
+      - Leviticus
+      - Lv
+  - name: Numbers
+    standard: Num.
+    accept:
+      - Numbers
+      - Nm
+      - Nb
+  - name: Deuteronomy
+    standard: Deut.
+    accept:
+      - Deuteronomy
+      - Dt
+  - name: Joshua
+    standard: Josh.
+    accept:
+      - Joshua
+      - Jsh
+  - name: Judges
+    standard: Judg.
+    accept:
+      - Judges
+      - Jg
+      - Jdgs
+  - name: Ruth
+    standard: Ruth
+    accept:
+      - Ruth
+      - Rth
+  - name: 1 Samuel
+    standard: 1 Sam.
+    ordinal: 1
+    accept:
+      - Samuel
+      - Sm
+  - name: 2 Samuel
+    standard: 2 Sam.
+    ordinal: 2
+    accept:
+      - Samuel
+      - Sm
+  - name: 1 Kings
+    standard: 1 Kings
+    ordinal: 1
+    accept:
+      - Kings
+      - Kgs
+  - name: 2 Kings
+    standard: 2 Kings
+    ordinal: 2
+    accept:
+      - Kings
+      - Kgs
+  - name: 1 Chronicles
+    standard: 1 Chron.
+    ordinal: 1
+    accept:
+      - Chronicles
+      - Chr
+  - name: 2 Chronicles
+    standard: 2 Chron.
+    ordinal: 2
+    accept:
+      - Chronicles
+      - Chr
+  - name: Ezra
+    standard: Ezra
+    accept:
+      - Ezra
+  - name: Nehemiah
+    standard: Neh.
+    accept:
+      - Nehemiah
+  - name: Esther
+    standard: Est.
+    accept:
+      - Esther
+  - name: Job
+    standard: Job
+    accept:
+      - Job
+      - Jb
+  - name: Psalms
+    standard: Ps.
+    accept:
+      - Psalms
+      - Pslm
+      - Psm
+      - Pss
+  - name: Proverbs
+    standard: Prov.
+    accept:
+      - Proverbs
+      - Prv
+  - name: Ecclesiastes
+    standard: Eccles.
+    accept:
+      - Ecclesiastes
+      - Qoheleth
+  - name: Song of Solomon
+    standard: Song
+    accept:
+      - Song of Solomon
+      - Song of Songs
+      - SOS
+      - Canticle of Canticles
+      - Canticles
+  - name: Isaiah
+    standard: Isa.
+    accept:
+      - Isaiah
+  - name: Jeremiah
+    standard: Jer.
+    accept:
+      - Jeremiah
+      - Jr
+  - name: Lamentations
+    standard: Lam.
+    accept:
+      - Lamentations
+  - name: Ezekiel
+    standard: Ezek.
+    accept:
+      - Ezekiel
+      - Ezk
+  - name: Daniel
+    standard: Dan.
+    accept:
+      - Daniel
+      - Dn
+  - name: Hosea
+    standard: Hos.
+    accept:
+      - Hosea
+  - name: Joel
+    standard: Joel
+    accept:
+      - Joel
+      - Jl
+  - name: Amos
+    standard: Amos
+    accept:
+      - Amos
+  - name: Obadiah
+    standard: Obad.
+    accept:
+      - Obadiah
+  - name: Jonah
+    standard: Jonah
+    accept:
+      - Jonah
+      - Jnh
+  - name: Micah
+    standard: Mic.
+    accept:
+      - Micah
+      - Mc
+  - name: Nahum
+    standard: Nah.
+    accept:
+      - Nahum
+  - name: Habakkuk
+    standard: Hab.
+    accept:
+      - Habakkuk
+      - Hb
+  - name: Zephaniah
+    standard: Zeph.
+    accept:
+      - Zephaniah
+      - Zp
+  - name: Haggai
+    standard: Hag.
+    accept:
+      - Haggai
+      - Hg
+  - name: Zechariah
+    standard: Zech.
+    accept:
+      - Zechariah
+      - Zc
+  - name: Malachi
+    standard: Mal.
+    accept:
+      - Malachi
+      - Ml
+  - name: Matthew
+    standard: Matt.
+    accept:
+      - Matthew
+      - Mt
+  - name: Mark
+    standard: Mark
+    accept:
+      - Mark
+      - Mrk
+      - Mk
+  - name: Luke
+    standard: Luke
+    accept:
+      - Luke
+      - Lk
+  - name: John
+    standard: John
+    accept:
+      - John
+      - Jhn
+      - Jn
+  - name: Acts
+    standard: Acts
+    accept:
+      - Acts
+  - name: Romans
+    standard: Rom.
+    accept:
+      - Romans
+      - Rm
+  - name: 1 Corinthians
+    standard: 1 Cor.
+    ordinal: 1
+    accept:
+      - Corinthians
+  - name: 2 Corinthians
+    standard: 2 Cor.
+    ordinal: 2
+    accept:
+      - Corinthians
+  - name: Galatians
+    standard: Gal.
+    accept:
+      - Galatians
+  - name: Ephesians
+    standard: Eph.
+    accept:
+      - Ephesians
+  - name: Philippians
+    standard: Phil.
+    accept:
+      - Philippians
+      - Php
+      - Pp
+  - name: Colossians
+    standard: Col.
+    accept:
+      - Colossians
+  - name: 1 Thessalonians
+    standard: 1 Thess.
+    ordinal: 1
+    accept:
+      - Thessalonians
+  - name: 2 Thessalonians
+    standard: 2 Thess.
+    ordinal: 2
+    accept:
+      - Thessalonians
+  - name: 1 Timothy
+    standard: 1 Tim.
+    ordinal: 1
+    accept:
+      - Timothy
+  - name: 2 Timothy
+    standard: 2 Tim.
+    ordinal: 2
+    accept:
+      - Timothy
+  - name: Titus
+    standard: Titus
+    accept:
+      - Titus
+  - name: Philemon
+    standard: Philem.
+    accept:
+      - Philemon
+      - Phm
+      - Pm
+  - name: Hebrews
+    standard: Heb.
+    accept:
+      - Hebrews
+  - name: James
+    standard: James
+    accept:
+      - James
+      - Jas
+      - Jm
+  - name: 1 Peter
+    standard: 1 Pet.
+    ordinal: 1
+    accept:
+      - Peter
+      - Pt
+  - name: 2 Peter
+    standard: 2 Pet.
+    ordinal: 2
+    accept:
+      - Peter
+      - Pt
+  - name: 1 John
+    standard: 1 John
+    ordinal: 1
+    accept:
+      - John
+      - Jhn
+      - Jn
+  - name: 2 John
+    standard: 2 John
+    ordinal: 2
+    accept:
+      - John
+      - Jhn
+      - Jn
+  - name: 3 John
+    standard: 3 John
+    ordinal: 3
+    accept:
+      - John
+      - Jhn
+      - Jn
+  - name: Jude
+    standard: Jude
+    accept:
+      - Jude
+      - Jd
+  - name: Revelation
+    standard: Rev.
+    accept:
+      - Revelation
+      - Rv
+      - The Revelation

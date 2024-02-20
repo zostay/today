@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
 	"text/template"
@@ -12,10 +13,13 @@ import (
 //go:generate go run main.go
 
 const (
-	DatabaseFile = "esv.json"
-	CategoryFile = "categories.yaml"
-	TemplateFile = "verses.go.tmpl"
-	OutputFile   = "../../../pkg/ref/canonical.go"
+	DatabaseFile              = "esv.json"
+	CategoryFile              = "categories.yaml"
+	AbbreviationsFile         = "abbr.yaml"
+	VerseTemplateFile         = "verses.go.tmpl"
+	AbbreviationsTemplateFile = "abbrs.go.tmpl"
+	VerseOutputFile           = "../../../pkg/ref/canonical.go"
+	AbbreviationsOutputFile   = "../../../pkg/ref/abbr.go"
 )
 
 type BooksConfig struct {
@@ -29,6 +33,23 @@ type BookConfig struct {
 
 type CategoriesConfig struct {
 	Categories map[string][]string `yaml:"categories"`
+}
+
+type OrdinalConfig struct {
+	Standard string   `yaml:"standard"`
+	Accept   []string `yaml:"accept"`
+}
+
+type BookAbbrConfig struct {
+	Name     string   `yaml:"name"`
+	Standard string   `yaml:"standard"`
+	Ordinal  string   `yaml:"ordinal"`
+	Accept   []string `yaml:"accept"`
+}
+
+type AbbreviationsConfig struct {
+	Ordinals []OrdinalConfig   `yaml:"ordinals"`
+	Books    []*BookAbbrConfig `yaml:"books"`
 }
 
 func loadDatabase() (*BooksConfig, error) {
@@ -61,48 +82,135 @@ func loadCategories() (*CategoriesConfig, error) {
 	return &catConfig, nil
 }
 
-func main() {
+func loadAbbreviations() (*AbbreviationsConfig, error) {
+	abbrj, err := os.ReadFile(AbbreviationsFile)
+	if err != nil {
+		return nil, err
+	}
+
+	var abbrConfig AbbreviationsConfig
+	err = yaml.Unmarshal(abbrj, &abbrConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, abbr := range abbrConfig.Books {
+		if abbr.Ordinal != "" {
+			found := false
+			for _, ord := range abbrConfig.Ordinals {
+				if ord.Standard == abbr.Ordinal {
+					found = true
+
+					accept := make([]string, 0, len(ord.Accept)*len(abbr.Accept))
+					for _, acc := range abbr.Accept {
+						for _, ordAcc := range ord.Accept {
+							accept = append(accept, ordAcc+acc)
+						}
+					}
+
+					abbr.Accept = accept
+
+					break
+				}
+			}
+
+			if !found {
+				return nil, fmt.Errorf("book named %q has bad ordinal configuration", abbr.Name)
+			}
+		}
+	}
+
+	return &abbrConfig, nil
+}
+
+func templateVerses() error {
 	bookConfig, err := loadDatabase()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	catConfig, err := loadCategories()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	tmplBytes, err := os.ReadFile(TemplateFile)
+	return applyTemplate(
+		"verses",
+		VerseTemplateFile,
+		VerseOutputFile,
+		struct {
+			Books      []BookConfig
+			Categories map[string][]string
+		}{
+			Books:      bookConfig.Books,
+			Categories: catConfig.Categories,
+		},
+	)
+}
+
+func templateAbbreviations() error {
+	abbrConfig, err := loadAbbreviations()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	tmpl := template.New("verses")
+	return applyTemplate(
+		"abbrs",
+		AbbreviationsTemplateFile,
+		AbbreviationsOutputFile,
+		struct {
+			Abbreviations []*BookAbbrConfig
+		}{
+			Abbreviations: abbrConfig.Books,
+		},
+	)
+}
+
+func applyTemplate(
+	name string,
+	tmplFile string,
+	outFile string,
+	vars any,
+) error {
+	tmplBytes, err := os.ReadFile(tmplFile)
+	if err != nil {
+		return err
+	}
+
+	tmpl := template.New(name)
 	tmpl.Funcs(map[string]interface{}{
 		"Mod": func(a, b int) bool { return a%b == 0 },
 	})
 	_, err = tmpl.Parse(string(tmplBytes))
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	fh, err := os.Create(OutputFile)
+	fh, err := os.Create(outFile)
+	if err != nil {
+		return err
+	}
+
+	err = tmpl.Execute(fh, vars)
+	if err != nil {
+		return err
+	}
+
+	err = exec.Command("go", "fmt", outFile).Run()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func main() {
+	err := templateVerses()
 	if err != nil {
 		panic(err)
 	}
 
-	err = tmpl.Execute(fh, struct {
-		Books      []BookConfig
-		Categories map[string][]string
-	}{
-		Books:      bookConfig.Books,
-		Categories: catConfig.Categories,
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	err = exec.Command("go", "fmt", OutputFile).Run()
+	err = templateAbbreviations()
 	if err != nil {
 		panic(err)
 	}
