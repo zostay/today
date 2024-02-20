@@ -62,12 +62,12 @@ func (s *Service) parseToResolved(vr string) (*ref.Resolved, error) {
 		return nil, ErrMultiVerse
 	}
 
-	opts := []ref.ResolveOption{}
+	var opts []ref.ResolveOption
 	if s.Abbreviations != nil {
 		opts = append(opts, ref.WithAbbreviations(s.Abbreviations))
 	}
 
-	ref, err := s.Canon.Resolve(pr, ref.WithAbbreviations(ref.Abbreviations))
+	ref, err := s.Canon.Resolve(pr, opts...)
 	if err != nil {
 		return nil, err
 	}

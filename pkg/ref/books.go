@@ -110,8 +110,16 @@ func WithAbbreviations(abbrs *BookAbbreviations) ResolveOption {
 	}
 }
 
+func WithoutAbbreviations() ResolveOption {
+	return func(o *resolveOpts) {
+		o.Abbreviations = nil
+	}
+}
+
 func makeResolveOpts(opts []ResolveOption) *resolveOpts {
-	o := &resolveOpts{}
+	o := &resolveOpts{
+		Abbreviations: Abbreviations,
+	}
 	for i := range opts {
 		opts[i](o)
 	}

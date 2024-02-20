@@ -6,9 +6,10 @@ WIP  TBD
  * Addeda a `LastVerseInChapter()` method to `ref.Book` to return the last verse in a chapter (or in the case of a chapterless book like Obadiah or Philemon, the last verse in the book).
  * Added the `ref.BookAbbreviations` structure with associated components and the `PreferredAbbreviation()` and `BookName()` methods to assist with abbreviating and parsing abbreviated book names.
  * Added a standard set of abbreviations in `ref.Abbreviations`.
- * Added options to the `Resolve()` method of `ref.Canon`, the first (and only, for now) option is `ref.WithAbbreviations()` to allow for resolving references with abbreviated book names.
+ * Added options to the `Resolve()` method of `ref.Canon`, the first (and only, for now) option is `ref.WithAbbreviations()` to select another set of abbreviations (rather than using ref.Abbreviations as is the default) or to use no abbreviations at all via `ref.WithoutAbbreviations()`.
  * Added the resolve options to the `Book()` method of `ref.Canon` as well.
  * Added a low-level interface called `ref.AbbrTree` for quickly resolving abbreviated book names.
+ * Potentially Breaking Change: Implementations of `ref.Absolute` now must implement the `FullNameRef()` and `AbbreviatedRef()` methods.
 
 0.4.0  2024-02-01
 
