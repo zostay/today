@@ -1,6 +1,7 @@
 package ref
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"strconv"
@@ -97,6 +98,18 @@ type Absolute interface {
 
 	// Names returns the names of the books referenced.
 	Names() []string
+
+	// AbbreviatedRef returns the reference, but with the book name using a
+	// standard abbreviation. The WithAbbreviations option may be passed to
+	// control the abbreviations to be used. This method does not ensure that the
+	// verse can be resolved and represents a valid reference.
+	AbbreviatedRef(...ResolveOption) (string, error)
+
+	// FullNameRef returns the reference, but ensures abbreviations have been
+	// expanded to the full book name. The WithAbbreviations option may be passed
+	// to control the abbreviations to be used. This method does not ensure that
+	// the verse can be resolved and represents a valid reference.
+	FullNameRef(...ResolveOption) (string, error)
 
 	// IsSingleRange returns true if the reference is a single range of verses.
 	IsSingleRange() bool
@@ -416,6 +429,43 @@ func (p *Proper) Ref() string {
 	return fmt.Sprintf("%s %s", p.Book, p.Verse.Ref())
 }
 
+func (p *Proper) FullNameRef(opt ...ResolveOption) (string, error) {
+	o := makeResolveOpts(opt)
+	abbrs := o.Abbreviations
+
+	if abbrs == nil {
+		return p.Ref(), nil
+	}
+
+	fullName, err := abbrs.BookName(p.Book)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%s %s", fullName, p.Verse.Ref()), nil
+}
+
+func (p *Proper) AbbreviatedRef(opt ...ResolveOption) (string, error) {
+	o := makeResolveOpts(opt)
+	abbrs := o.Abbreviations
+
+	if abbrs == nil {
+		return p.Ref(), nil
+	}
+
+	fullName, err := abbrs.BookName(p.Book)
+	if err != nil {
+		return "", err
+	}
+
+	abbrName, err := abbrs.PreferredAbbreviation(fullName)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%s %s", abbrName, p.Verse.Ref()), nil
+}
+
 func (p *Proper) Validate() error {
 	if p.Book == "" {
 		return fmt.Errorf("book is required")
@@ -457,6 +507,52 @@ func (m *Multiple) Ref() string {
 		slices.Map(m.Refs, func(r Ref) string {
 			return r.Ref()
 		}), "; ")
+}
+
+func (m *Multiple) FullNameRef(opt ...ResolveOption) (string, error) {
+	out := &bytes.Buffer{}
+	needSemi := false
+	for _, ref := range m.Refs {
+		if needSemi {
+			fmt.Fprint(out, "; ")
+		}
+
+		if abs, isAbs := ref.(Absolute); isAbs {
+			ref, err := abs.FullNameRef(opt...)
+			if err != nil {
+				return "", err
+			}
+
+			fmt.Fprint(out, ref)
+			continue
+		}
+
+		fmt.Fprint(out, ref.Ref())
+	}
+	return out.String(), nil
+}
+
+func (m *Multiple) AbbreviatedRef(opt ...ResolveOption) (string, error) {
+	out := &bytes.Buffer{}
+	needSemi := false
+	for _, ref := range m.Refs {
+		if needSemi {
+			fmt.Fprint(out, "; ")
+		}
+
+		if abs, isAbs := ref.(Absolute); isAbs {
+			ref, err := abs.AbbreviatedRef(opt...)
+			if err != nil {
+				return "", err
+			}
+
+			fmt.Fprint(out, ref)
+			continue
+		}
+
+		fmt.Fprint(out, ref.Ref())
+	}
+	return out.String(), nil
 }
 
 func (m *Multiple) Validate() error {
@@ -590,13 +686,13 @@ func (r *Resolved) Verses() []Verse {
 	return verses
 }
 
-func (r *Resolved) CompactRef() (string, error) {
+func (r *Resolved) compactRef(name string) (string, error) {
 	if r.First.Equal(r.Last) {
-		return fmt.Sprintf("%s %s", r.Book.Name, r.First.Ref()), nil
+		return fmt.Sprintf("%s %s", name, r.First.Ref()), nil
 	}
 
 	if r.First.Equal(r.Book.Verses[0]) && r.Last.Equal(r.Book.Verses[len(r.Book.Verses)-1]) {
-		return r.Book.Name, nil
+		return name, nil
 	}
 
 	fcv, isFCV := r.First.(CV)
@@ -609,14 +705,50 @@ func (r *Resolved) CompactRef() (string, error) {
 			}
 
 			if fcv.Verse == 1 && lcv.Verse == lvInC {
-				return fmt.Sprintf("%s %d", r.Book.Name, fcv.Chapter), nil
+				return fmt.Sprintf("%s %d", name, fcv.Chapter), nil
 			}
 
-			return fmt.Sprintf("%s %d:%d-%d", r.Book.Name, fcv.Chapter, fcv.Verse, lcv.Verse), nil
+			return fmt.Sprintf("%s %d:%d-%d", name, fcv.Chapter, fcv.Verse, lcv.Verse), nil
 		}
 	}
 
-	return fmt.Sprintf("%s %s-%s", r.Book.Name, r.First.Ref(), r.Last.Ref()), nil
+	return fmt.Sprintf("%s %s-%s", name, r.First.Ref(), r.Last.Ref()), nil
+}
+
+// CompactRef returns a compact representation of the resolved reference. If the
+// reference is a single verse, only one verse is returned (e.g., Genesis 12:4).
+// If the reference is limited to a single chapter, the chapter is mentioned only
+// once (e.g., Genesis 12:4-6). If the reference is for an entire chapter, the
+// verse part is omitted (e.g., Genesis 12). If the reference is for an entire
+// book, only the book name is returned (e.g., Genesis).
+func (r *Resolved) CompactRef() (string, error) {
+	return r.compactRef(r.Book.Name)
+}
+
+// FullNameRef is a synonym for CompactRef.
+func (r *Resolved) FullNameRef(...ResolveOption) (string, error) {
+	return r.CompactRef()
+}
+
+// AbbreviatedRef returns a compact and abbreviated representation of the
+// resolved reference. This works the same as CompactRef, but with the book name
+// abbreviated using the Standard abbreviation for the book. You may use
+// ref.WithAbbreviations to select an alternate set of abbreviations. If this
+// option is not given, ref.Abbreviations will be used.
+func (r *Resolved) AbbreviatedRef(opt ...ResolveOption) (string, error) {
+	o := makeResolveOpts(opt)
+	abbrs := o.Abbreviations
+
+	if abbrs == nil {
+		return r.compactRef(r.Book.Name)
+	}
+
+	abbrName, err := abbrs.PreferredAbbreviation(r.Book.Name)
+	if err != nil {
+		return "", err
+	}
+
+	return r.compactRef(abbrName)
 }
 
 var _ Verse = CV{}

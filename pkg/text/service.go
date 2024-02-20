@@ -14,13 +14,45 @@ var (
 
 type Service struct {
 	Resolver
+	Abbreviations *ref.BookAbbreviations
+	Canon         *ref.Canon
 }
 
-func NewService(r Resolver) *Service {
-	return &Service{r}
+type ServiceOption func(*Service)
+
+func WithAbbreviations(abbr *ref.BookAbbreviations) ServiceOption {
+	return func(s *Service) {
+		s.Abbreviations = abbr
+	}
 }
 
-func parseToResolved(vr string) (*ref.Resolved, error) {
+func WithoutAbbreviations() ServiceOption {
+	return func(s *Service) {
+		s.Abbreviations = nil
+	}
+}
+
+func WithCanon(c *ref.Canon) ServiceOption {
+	return func(s *Service) {
+		s.Canon = c
+	}
+}
+
+func NewService(r Resolver, opt ...ServiceOption) *Service {
+	s := &Service{
+		Resolver:      r,
+		Abbreviations: ref.Abbreviations,
+		Canon:         ref.Canonical,
+	}
+
+	for _, o := range opt {
+		o(s)
+	}
+
+	return s
+}
+
+func (s *Service) parseToResolved(vr string) (*ref.Resolved, error) {
 	pr, err := ref.ParseProper(vr)
 	if err != nil {
 		return nil, err
@@ -30,7 +62,12 @@ func parseToResolved(vr string) (*ref.Resolved, error) {
 		return nil, ErrMultiVerse
 	}
 
-	ref, err := ref.Canonical.Resolve(pr)
+	var opts []ref.ResolveOption
+	if s.Abbreviations != nil {
+		opts = append(opts, ref.WithAbbreviations(s.Abbreviations))
+	}
+
+	ref, err := s.Canon.Resolve(pr, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -38,63 +75,63 @@ func parseToResolved(vr string) (*ref.Resolved, error) {
 	return &ref[0], nil
 }
 
-func (c *Service) VersionInformation(ctx context.Context) (*Version, error) {
-	return c.Resolver.VersionInformation(ctx)
+func (s *Service) VersionInformation(ctx context.Context) (*Version, error) {
+	return s.Resolver.VersionInformation(ctx)
 }
 
-func (c *Service) Verse(ctx context.Context, vr string) (*Verse, error) {
-	res, err := parseToResolved(vr)
+func (s *Service) Verse(ctx context.Context, vr string) (*Verse, error) {
+	res, err := s.parseToResolved(vr)
 	if err != nil {
 		return nil, err
 	}
 
-	return c.Resolver.Verse(ctx, res)
+	return s.Resolver.Verse(ctx, res)
 }
 
-func (c *Service) VerseText(ctx context.Context, vr string) (string, error) {
-	res, err := parseToResolved(vr)
+func (s *Service) VerseText(ctx context.Context, vr string) (string, error) {
+	res, err := s.parseToResolved(vr)
 	if err != nil {
 		return "", err
 	}
 
-	return c.Resolver.VerseText(ctx, res)
+	return s.Resolver.VerseText(ctx, res)
 }
 
-func (c *Service) VerseHTML(ctx context.Context, vr string) (template.HTML, error) {
-	res, err := parseToResolved(vr)
+func (s *Service) VerseHTML(ctx context.Context, vr string) (template.HTML, error) {
+	res, err := s.parseToResolved(vr)
 	if err != nil {
 		return "", err
 	}
 
-	return c.Resolver.VerseHTML(ctx, res)
+	return s.Resolver.VerseHTML(ctx, res)
 }
 
-func (c *Service) RandomVerse(ctx context.Context, opt ...ref.RandomReferenceOption) (*ref.Resolved, *Verse, error) {
+func (s *Service) RandomVerse(ctx context.Context, opt ...ref.RandomReferenceOption) (*ref.Resolved, *Verse, error) {
 	res, err := ref.Random(opt...)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	v, err := c.Resolver.Verse(ctx, res)
+	v, err := s.Resolver.Verse(ctx, res)
 	return res, v, err
 }
 
-func (c *Service) RandomVerseText(ctx context.Context, opt ...ref.RandomReferenceOption) (*ref.Resolved, string, error) {
+func (s *Service) RandomVerseText(ctx context.Context, opt ...ref.RandomReferenceOption) (*ref.Resolved, string, error) {
 	res, err := ref.Random(opt...)
 	if err != nil {
 		return nil, "", err
 	}
 
-	txt, err := c.Resolver.VerseText(ctx, res)
+	txt, err := s.Resolver.VerseText(ctx, res)
 	return res, txt, err
 }
 
-func (c *Service) RandomVerseHTML(ctx context.Context, opt ...ref.RandomReferenceOption) (*ref.Resolved, template.HTML, error) {
+func (s *Service) RandomVerseHTML(ctx context.Context, opt ...ref.RandomReferenceOption) (*ref.Resolved, template.HTML, error) {
 	res, err := ref.Random(opt...)
 	if err != nil {
 		return nil, "", err
 	}
 
-	txt, err := c.Resolver.VerseHTML(ctx, res)
+	txt, err := s.Resolver.VerseHTML(ctx, res)
 	return res, txt, err
 }

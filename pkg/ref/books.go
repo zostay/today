@@ -3,6 +3,7 @@ package ref
 import (
 	"errors"
 	"fmt"
+	"sort"
 )
 
 var (
@@ -13,6 +14,15 @@ var (
 	// found.
 	ErrWideRange = errors.New("last verse is after the end of the book")
 )
+
+type MultipleMatchError struct {
+	Input   string
+	Matches []string
+}
+
+func (m *MultipleMatchError) Error() string {
+	return fmt.Sprintf("input string %q has multiple matches: %v", m.Input, m.Matches)
+}
 
 // Book is a book of the Bible. We use this with a global map to do client-side
 // verification of book names, chapter, and verse references.
@@ -29,7 +39,38 @@ type Canon struct {
 	Categories map[string][]string
 }
 
-func (c *Canon) Book(name string) (*Book, error) {
+// BookAbbreviations is configuration for book names and abbreviations according
+// to a standardized scheme. This allows for configurable preferences for
+// abbreviations when citing references and for more flexible parsing of
+// references.
+type BookAbbreviations struct {
+	Abbreviations []BookAbbreviation
+	root          *AbbrTree
+}
+
+// BookAbbreviation is an individual configuration of a book name, selects a
+// standard abbreviation, and provides a place for recording accepted
+// abbreviations when parsing book names.
+type BookAbbreviation struct {
+	Name      string
+	Preferred string
+	Ordinal   int
+	Accepts   []string
+}
+
+// Book will return the Book with the exact given name.
+func (c *Canon) Book(in string, opt ...ResolveOption) (*Book, error) {
+	name := in
+
+	opts := makeResolveOpts(opt)
+	if opts.Abbreviations != nil {
+		var err error
+		name, err = opts.Abbreviations.BookName(in)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	for i := range c.Books {
 		b := &c.Books[i]
 		if b.Name == name {
@@ -57,37 +98,80 @@ func (c *Canon) Category(name string) ([]*Pericope, error) {
 	return nil, nil
 }
 
+type resolveOpts struct {
+	Abbreviations *BookAbbreviations
+}
+
+type ResolveOption func(*resolveOpts)
+
+func WithAbbreviations(abbrs *BookAbbreviations) ResolveOption {
+	return func(o *resolveOpts) {
+		o.Abbreviations = abbrs
+	}
+}
+
+func WithoutAbbreviations() ResolveOption {
+	return func(o *resolveOpts) {
+		o.Abbreviations = nil
+	}
+}
+
+func makeResolveOpts(opts []ResolveOption) *resolveOpts {
+	o := &resolveOpts{
+		Abbreviations: Abbreviations,
+	}
+	for i := range opts {
+		opts[i](o)
+	}
+	return o
+}
+
 // Resolve turns an absolute reference into a slice of Resolved references or
 // returns an error if the references do not match this Canon.
-func (c *Canon) Resolve(ref Absolute) ([]Resolved, error) {
+func (c *Canon) Resolve(ref Absolute, opt ...ResolveOption) ([]Resolved, error) {
 	if err := ref.Validate(); err != nil {
 		return nil, err
 	}
 
+	opts := makeResolveOpts(opt)
+
 	switch r := ref.(type) {
 	case *Multiple:
-		return c.resolveMultiple(r)
+		return c.resolveMultiple(r, opts)
 	case *Proper:
-		return c.resolveProper(r)
+		return c.resolveProper(r, opts)
 	case *Resolved:
 		return []Resolved{*r}, nil
 	}
 	return nil, fmt.Errorf("unknown reference type: %T", ref)
 }
 
-func (c *Canon) resolveMultiple(m *Multiple) ([]Resolved, error) {
+func (c *Canon) resolveBook(in string, opts *resolveOpts) (*Book, error) {
+	if opts.Abbreviations != nil {
+		name, err := opts.Abbreviations.BookName(in)
+		if err != nil {
+			return nil, err
+		}
+
+		return c.Book(name)
+	}
+
+	return c.Book(in)
+}
+
+func (c *Canon) resolveMultiple(m *Multiple, opts *resolveOpts) ([]Resolved, error) {
 	var rs []Resolved
 	var b *Book
 	for i := range m.Refs {
 		switch r := m.Refs[i].(type) {
 		case *Proper:
 			var err error
-			b, err = c.Book(r.Book)
+			b, err = c.resolveBook(r.Book, opts)
 			if err != nil {
 				return nil, err
 			}
 
-			thisRs, err := c.resolveProper(r)
+			thisRs, err := c.resolveProper(r, opts)
 			if err != nil {
 				return nil, err
 			}
@@ -116,8 +200,8 @@ func (c *Canon) resolveRelative(b *Book, r Relative) ([]Resolved, error) {
 	return nil, fmt.Errorf("unknown reference type: %T", r)
 }
 
-func (c *Canon) resolveProper(p *Proper) ([]Resolved, error) {
-	b, err := c.Book(p.Book)
+func (c *Canon) resolveProper(p *Proper, opts *resolveOpts) ([]Resolved, error) {
+	b, err := c.resolveBook(p.Book, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -319,7 +403,7 @@ func (c *Canon) resolveRelated(
 		thisRs, err := c.resolveProper(&Proper{
 			Book:  b.Name,
 			Verse: r.Refs[i],
-		})
+		}, &resolveOpts{})
 		if err != nil {
 			return nil, err
 		}
@@ -338,4 +422,51 @@ func (b Book) Contains(v Verse) bool {
 		}
 	}
 	return false
+}
+
+// BookName returns the book name that matches the given string. This will apply as
+// liberal a match as possible against the abberviations in the configurations.
+// The word is checked against all possible abbreviations.
+//
+// If there are no matches, this will return ErrNotFound. If there are multiple
+// matches, this will return a MultipleMatchError, which can be interrogated to
+// determine all book names that matched.
+func (b *BookAbbreviations) BookName(in string) (string, error) {
+	if b.root == nil {
+		b.root = NewAbbrTree(b)
+	}
+
+	matches := b.root.Get(in)
+	if len(matches) == 1 {
+		for _, m := range matches {
+			return m.Name, nil
+		}
+	}
+
+	if len(matches) == 0 {
+		return "", fmt.Errorf("%w: %s", ErrNotFound, in)
+	}
+
+	matchNames := make([]string, 0, len(matches))
+	for _, m := range matches {
+		matchNames = append(matchNames, m.Name)
+	}
+
+	sort.Strings(matchNames)
+
+	return "", &MultipleMatchError{
+		Input:   in,
+		Matches: matchNames,
+	}
+}
+
+// PreferredAbbreviation returns the preferred abbreviation for the given book
+// name.
+func (b *BookAbbreviations) PreferredAbbreviation(name string) (string, error) {
+	for _, abbr := range b.Abbreviations {
+		if abbr.Name == name {
+			return abbr.Preferred, nil
+		}
+	}
+	return "", fmt.Errorf("%w: %s", ErrNotFound, name)
 }

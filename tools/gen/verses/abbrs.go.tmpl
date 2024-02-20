@@ -1,0 +1,20 @@
+package ref
+
+var Abbreviations = &BookAbbreviations{
+    Abbreviations: []BookAbbreviation{
+{{- range .Abbreviations}}
+        {
+            Name: "{{.Name}}",
+            Preferred: "{{.Standard}}",
+{{- if .Ordinal}}
+            Ordinal: {{.Ordinal}},
+{{- end}}
+            Accepts: []string{
+{{- range .Accept}}
+                "{{.}}",
+{{- end}}
+            },
+        },
+{{- end}}
+    },
+}
