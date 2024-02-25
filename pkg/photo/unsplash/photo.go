@@ -40,20 +40,11 @@ func idFromUrl(s string) (string, error) {
 	return u.Path[len(u.Path)-11:], nil
 }
 
-// CacheKey returns the cache key for a given photo URL.
-func (u *Source) CacheKey(photoUrl string) (string, bool) {
-	id, err := idFromUrl(photoUrl)
-	if err != nil {
-		return "", false
-	}
-	return "unsplash/" + id, true
-}
-
 // Photo returns the photo info for a given photo URL.
 func (u *Source) Photo(
 	ctx context.Context,
 	photoUrl string,
-) (*photo.Info, error) {
+) (*photo.Descriptor, error) {
 	photoId, err := idFromUrl(photoUrl)
 	if err != nil {
 		return nil, err
@@ -64,57 +55,58 @@ func (u *Source) Photo(
 		return nil, err
 	}
 
-	photoKey, _ := u.CacheKey(photoUrl)
-	return &photo.Info{
-		Key: photoKey,
-		Meta: &photo.Meta{
-			Link: urlValueString(image.Links.HTML),
-			Type: "unsplash",
-			Creator: photo.Creator{
-				Name: stringValue(image.Photographer.Name),
-				Link: urlValueString(image.Photographer.Links.HTML),
-			},
+	d := &photo.Descriptor{
+		Link: urlValueString(image.Links.HTML),
+		Type: "unsplash",
+		Creator: photo.Creator{
+			Name: stringValue(image.Photographer.Name),
+			Link: urlValueString(image.Photographer.Links.HTML),
 		},
-	}, nil
-}
-
-// Download fetches the photo for the photo info.
-func (u *Source) Download(
-	ctx context.Context,
-	info *photo.Info,
-) error {
-	photoId, err := idFromUrl(info.Meta.Link)
-	if err != nil {
-		return err
 	}
 
-	f, err := os.CreateTemp("", "bg.*.jpg")
+	filename, err := idFromUrl(urlValueString(image.Links.Download))
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer os.Remove(f.Name())
 
 	dl, _, err := u.Client.Photos.DownloadLink(photoId)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	res, err := http.DefaultClient.Get(dl.String())
-	if err != nil {
-		return err
-	}
+	d.AddImage(photo.Original, &unsplashImage{
+		filename: filename,
+		link:     dl.String(),
+	})
 
-	_, err = io.Copy(f, res.Body)
-	if err != nil {
-		return err
-	}
-
-	_, err = f.Seek(0, 0)
-	if err != nil {
-		return err
-	}
-
-	info.File = f
-
-	return nil
+	return d, nil
 }
+
+type unsplashImage struct {
+	filename string
+	link     string
+}
+
+func (u *unsplashImage) Filename() string {
+	return u.filename
+}
+
+func (u *unsplashImage) Reader() (io.ReadCloser, error) {
+	f, err := os.CreateTemp("", "bg.*.jpg")
+	if err != nil {
+		return nil, err
+	}
+	defer os.Remove(f.Name())
+
+	res, err := http.DefaultClient.Get(u.link)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Body, err
+}
+
+var (
+	_ photo.Image       = (*unsplashImage)(nil)
+	_ photo.ImageReader = (*unsplashImage)(nil)
+)

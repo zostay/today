@@ -3,8 +3,7 @@ package photo_test
 import (
 	"context"
 	"fmt"
-	"image/jpeg"
-	"os"
+	"image"
 	"regexp"
 	"testing"
 
@@ -17,29 +16,21 @@ type testSource struct{}
 
 var nonAlnum = regexp.MustCompile(`[^a-zA-Z0-9]+`)
 
-func (t *testSource) CacheKey(url string) (string, bool) {
-	url = nonAlnum.ReplaceAllString(url, "-")
-	return "test/" + url, true
-}
-
-func (t *testSource) Photo(ctx context.Context, url string) (info *photo.Info, err error) {
-	key, _ := t.CacheKey(url)
-	return &photo.Info{
-		Key: key,
-		Meta: &photo.Meta{
-			Link:  url,
-			Title: "Test Meta",
-			Creator: photo.Creator{
-				Name: "Test Creator",
-				Link: "https://example.com",
-			},
+func (t *testSource) Photo(ctx context.Context, url string) (info *photo.Descriptor, err error) {
+	d := &photo.Descriptor{
+		Link:  url,
+		Title: "Test Meta",
+		Creator: photo.Creator{
+			Name: "Test Creator",
+			Link: "https://example.com",
 		},
-	}, nil
-}
+	}
 
-func (t *testSource) Download(ctx context.Context, info *photo.Info) (err error) {
-	info.File, err = os.Open("unsplash/testdata/waa.jpg")
-	return
+	d.AddImage(photo.Original, &photo.File{
+		Path: "unsplash/testdata/waa.jpg",
+	})
+
+	return d, nil
 }
 
 var _ photo.Source = (*testSource)(nil)
@@ -49,54 +40,46 @@ func TestService(t *testing.T) {
 
 	s := photo.NewService(&testSource{})
 
-	pi, err := s.Photo(context.Background(), "https://example.com")
+	d, err := s.Photo(context.Background(), "https://example.com")
 	assert.NoError(t, err)
-	assert.Equal(t, &photo.Info{
-		Key: "test/https-example-com",
-		Meta: &photo.Meta{
-			Link:  "https://example.com",
-			Title: "Test Meta",
-			Creator: photo.Creator{
-				Name: "Test Creator",
-				Link: "https://example.com",
-			},
-		},
-	}, pi)
+	assert.True(t,
+		assert.ObjectsExportedFieldsAreEqual(
+			&photo.Descriptor{
+				Link:  "https://example.com",
+				Title: "Test Meta",
+				Creator: photo.Creator{
+					Name: "Test Creator",
+					Link: "https://example.com",
+				},
+			}, d),
+	)
 
-	assert.False(t, pi.HasDownload())
+	assert.True(t, d.HasImage(photo.Original))
 
-	err = s.Download(context.Background(), pi)
+	img, format, err := d.GetImage(photo.Original).Image()
 	assert.NoError(t, err)
-	assert.True(t, pi.HasDownload())
-	assert.NotNil(t, pi.File)
+	assert.Equal(t, "jpeg", format)
+	assert.Equal(t, image.Rect(0, 0, 4128, 2322), img.Bounds())
 
-	assert.NoError(t, pi.Close())
-
-	resized, err := s.ResizedImage(
+	resizeKey, err := s.ResizedImage(
 		context.Background(),
-		pi,
+		d,
 		photo.MaxWidth(1000),
 		photo.MaxHeight(1000),
 	)
 	assert.NoError(t, err)
-	assert.NotNil(t, resized)
+	assert.NotEmpty(t, resizeKey)
 
-	img, err := jpeg.Decode(resized)
+	assert.True(t, d.HasImage(resizeKey))
+
+	resized, format, err := d.GetImage(resizeKey).Image()
 	assert.NoError(t, err)
-	assert.NotNil(t, img)
+	assert.Equal(t, "", format)
+	assert.Equal(t, image.Rect(0, 0, 1000, 563), resized.Bounds())
 
-	assert.Equal(t, img.Bounds().Max.X-img.Bounds().Min.X, 1000)
-	assert.Equal(t, img.Bounds().Max.Y-img.Bounds().Min.Y, 563)
-
-	assert.NoError(t, resized.Close())
-
-	assert.NoError(t, pi.Close())
-
-	c, err := s.DominantImageColor(context.Background(), pi)
+	c, err := photo.DominantImageColor(context.Background(), img)
 	assert.NoError(t, err)
 	r, g, b, a := c.RGBA()
 	bgc := fmt.Sprintf("#%02x%02x%02x", r*256/a, g*256/a, b*256/a)
 	assert.Equal(t, "#aeb0a7", bgc)
-
-	assert.NoError(t, pi.Close())
 }

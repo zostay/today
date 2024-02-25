@@ -3,68 +3,70 @@ package photo
 import (
 	"fmt"
 	"image/color"
-	"os"
 	"strconv"
 )
 
-// Info is the information about a photo. It combines the cache key, the
-// loaded photo metadata, and the file handle to the JPEG.
-type Info struct {
-	// Key is a special value that is usually set.
-	Key string
+const (
+	Original = "original"
+)
 
-	// Meta is the photo metadata.
-	*Meta
-
-	// File, if not nil, holds a reference to a file handle open for reading the
-	// image.
-	*os.File
-}
-
-// HasPhoto returns true if the photo info has a downloaded file to work with.
-func (pi *Info) HasDownload() bool {
-	return pi.File != nil
-}
-
-// Close ensures the file handle is closed, if present. Should always be called
-// when done with the photo info.
-func (pi *Info) Close() error {
-	if pi.File != nil {
-		f := pi.File
-		pi.File = nil
-		return f.Close()
-	}
-	return nil
-}
-
-// Meta contains the metadata about a photo.
-type Meta struct {
+// Descriptor provides metadata data about the image, which is stored in a
+// serialization format on openscripture.today, and also includes a reference to
+// the image file.
+type Descriptor struct {
 	Link  string `yaml:"link"`
 	Type  string `yaml:"type"`
 	Title string `yaml:"title,omitempty"`
 	Color string `yaml:"color,omitempty"`
 	Creator
+
+	images map[string]ImageComplete
+}
+
+// AddImage adds an image to the descriptor.
+func (d *Descriptor) AddImage(key string, img Image) {
+	if d.images == nil {
+		d.images = map[string]ImageComplete{}
+	}
+	d.images[key] = CompleteImage(img)
+}
+
+// RemoveImage removes an image from the descriptor.
+func (d *Descriptor) RemoveImage(key string) {
+	delete(d.images, key)
+}
+
+// HasImage returns true if the descriptor has an image with the given key.
+func (d *Descriptor) HasImage(key string) bool {
+	_, ok := d.images[key]
+	return ok
+}
+
+// GetImage returns an image from the descriptor.
+func (d *Descriptor) GetImage(key string) ImageComplete {
+	img := d.images[key]
+	return img
 }
 
 // SetColor sets the color as a CSS string from a color.Color.
-func (m *Meta) SetColor(c color.Color) {
+func (d *Descriptor) SetColor(c color.Color) {
 	r, g, b, a := c.RGBA()
-	m.Color = fmt.Sprintf("#%02x%02x%02x", r*256/a, g*256/a, b*256/a)
+	d.Color = fmt.Sprintf("#%02x%02x%02x", r*256/a, g*256/a, b*256/a)
 }
 
 // GetColor returns a color.Color after decoding the CSS string stored. Returns
 // nil and an error if the color cannot be decoded. Returns nil with no error if
 // the color is not set.
-func (m *Meta) GetColor() (color.Color, error) {
-	if m.Color == "" {
+func (d *Descriptor) GetColor() (color.Color, error) {
+	if d.Color == "" {
 		return nil, nil
 	}
 
-	if m.Color[0] != '#' || len(m.Color) != 7 {
+	if d.Color[0] != '#' || len(d.Color) != 7 {
 		return nil, fmt.Errorf("invalid color format")
 	}
 
-	r, g, b := m.Color[1:3], m.Color[3:5], m.Color[5:7]
+	r, g, b := d.Color[1:3], d.Color[3:5], d.Color[5:7]
 	ri, err := strconv.ParseInt(r, 16, 8)
 	if err != nil {
 		return nil, err
