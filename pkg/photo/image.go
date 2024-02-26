@@ -27,7 +27,7 @@ func (enc ImageEncoder) PreferredExt() string {
 }
 
 var registeredEncoders = map[string]ImageEncoder{
-	"jpeg": ImageEncoder{
+	"jpeg": {
 		Ext: []string{"jpg", "jpeg"},
 		Encoder: func(w io.Writer, img image.Image, opts any) error {
 			jpegOpts := opts.(*jpeg.Options)
@@ -206,7 +206,10 @@ func (i *Complete) Reader() (io.ReadCloser, error) {
 		}
 
 		buf := &bytes.Buffer{}
-		enc.Encoder(buf, img, nil)
+		err = enc.Encoder(buf, img, nil)
+		if err != nil {
+			return nil, fmt.Errorf("photo: error encoding image to %q: %w", format, err)
+		}
 
 		return io.NopCloser(bytes.NewReader(buf.Bytes())), nil
 	}

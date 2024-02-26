@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"image"
-	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,8 +12,6 @@ import (
 )
 
 type testSource struct{}
-
-var nonAlnum = regexp.MustCompile(`[^a-zA-Z0-9]+`)
 
 func (t *testSource) Photo(ctx context.Context, url string) (info *photo.Descriptor, err error) {
 	d := &photo.Descriptor{
