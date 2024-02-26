@@ -1,4 +1,4 @@
-WIP  TBD
+## WIP  TBD
 
  * :boom: Breaking Change :boom:: Significant changes have been made to the photos API. These changes include the following:
    - The `photo.Meta` and `photo.Info` structures have been removed/merged/refactored into `photo.Descriptor`.
@@ -21,11 +21,11 @@ WIP  TBD
    - Every `photo.Descriptor` should define an image for the `photo.Original` key, which should provide a full-size, original image.
    - The `photo.FromImage` option has been added for use with the `ResizeImage` method of `photo.Service`, which selects which `photo.Image` associated with a `photo.Descriptor` should be used as the source image for resizing.
 
-0.5.1  2024-02-20
+## 0.5.1  2024-02-20
 
  * :hammer: Fix: The ESV resolver returns cleaner verse references now.
 
-0.5.0  2024-02-20
+## 0.5.0  2024-02-20
 
  * :computer: The `today show` command supports most common book abbreviations now.
  * The `text.Service` allows for the canon and the abbreviations used to be configured using the `text.WithCanon`, `text.WithAbbreviations`, and `text.WithoutAbbreviations` options. The service still uses `ref.Canonical` by default and now uses `ref.Abbreviations` by default.
@@ -38,7 +38,7 @@ WIP  TBD
  * Added a low-level interface called `ref.AbbrTree` for quickly resolving abbreviated book names.
  * :question::boom: Potentially Breaking Change: Implementations of `ref.Absolute` now must implement the `FullNameRef()` and `AbbreviatedRef()` methods.
 
-0.4.0  2024-02-01
+## 0.4.0  2024-02-01
 
  * :boom: Breaking Change :boom:: The `ref.RandomPassage` ane `ref.RandomPassageFromRef` functions now take two additional integer arguments to select width of range returned.
  * :boom: Breaking Change :boom:: The `ost.Verse` structure has been moved to `text.Verse`. It has also been restructured to include a `Link` field and the HTML `Content` field has been replaced with a structure that contains `Text` and `HTML` fields.
@@ -60,26 +60,26 @@ WIP  TBD
  * :hammer: Fix: Fixed a bug where the `today random` output showed the passage reference twice.
  * :hammer: Fix: Random passages should now be unbiased (previously, there was a slight bias towards picking passages at the end of a book or passage).
 
-0.3.0  2024-01-22
+## 0.3.0  2024-01-22
 
  * :computer: Adding a `today openscripture photo` command with `--download`, `--on`, and `--yaml` flags for downloadinng and fetching metadata regarding the photo for the scripture of the day from [openscripture.today](https://openscripture.today).
  * Added the `TodayPhoto` command to the `ost` package for pulling photos from openscripture.today.
  * Added the `photo` and `unsplash` packages for working with photos, which are used to support the `ost` change and the CLI change, but also have future uses.
 
-0.2.0  2024-01-19
+## 0.2.0  2024-01-19
 
  * :computer: Renaming `openscripture.today` to `openscripture` and adding `today` as a subcommand. (Both the upper level and sub-command do the same thing as the previous `openscripture.today` command.)
  * :computer: Adding an `opensripture on` command to fetch previous scriptures of the day from [openscripture.today](https://openscripture.today).
  * When parsing ranges, allow various unicode hyphens, not just U+002D.
 
-0.1.0  2024-01-18
+## 0.1.0  2024-01-18
 
  * :computer: Added the `version` command to track which version is installed.
  * :computer: Added the `openscripture.today` (with `ost` alias) to allow for showing the scripture of the day from [openscripture.today](https://openscripture.today).
  * Added the API library in `pkg/ost` for working with the openscripture.today API.
  * :hammer: Fix: There was a bug were resolution did not properly check to ensure that the verse was in the canon.
 
-0.0.0  2024-01-17
+## 0.0.0  2024-01-17
 
  * Initial release.
  * Provides a library for working with Bible references in `pkg/ref`
