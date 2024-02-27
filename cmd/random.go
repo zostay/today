@@ -72,6 +72,11 @@ func RunTodayRandom(cmd *cobra.Command, args []string) error {
 		_, v, err = svc.RandomVerseText(cmd.Context(), opts...)
 	}
 	if err != nil {
+		var ucerr *ref.UnknownCategoryError
+		if errors.As(err, &ucerr) {
+			fmt.Fprintf(cmd.ErrOrStderr(), "Error: %v\n", ucerr)
+			return nil
+		}
 		panic(err)
 	}
 	fmt.Println(wrap.Wrap(v, 70))

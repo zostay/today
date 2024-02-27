@@ -3,6 +3,9 @@ package ref
 import (
 	"fmt"
 	"math/rand"
+	"strings"
+
+	"github.com/agnivade/levenshtein"
 )
 
 type randomOpts struct {
@@ -44,6 +47,23 @@ func WithAtMost(n uint) RandomReferenceOption {
 	}
 }
 
+type UnknownCategoryError struct {
+	Category      string
+	Possibilities []string
+}
+
+func (o *UnknownCategoryError) Error() string {
+	alternates := ""
+	if o.Possibilities != nil {
+		alternates = fmt.Sprintf(". Did you mean?\n\n - %s",
+			strings.Join(o.Possibilities, "\n - "))
+	}
+
+	return fmt.Sprintf("unknown category: %s%s",
+		o.Category,
+		alternates)
+}
+
 // Random pulls a random reference from the Bible and returns it. You can use the
 // options to help narrow down where the passages are selected from.
 func Random(opt ...RandomReferenceOption) (*Resolved, error) {
@@ -64,7 +84,17 @@ func Random(opt ...RandomReferenceOption) (*Resolved, error) {
 	if o.category != "" {
 		_, hasCategory := o.canon.Categories[o.category]
 		if !hasCategory {
-			return nil, fmt.Errorf("unknown category: %s", o.category)
+			var possibilities []string
+			for cat := range o.canon.Categories {
+				if levenshtein.ComputeDistance(o.category, cat) <= 4 {
+					possibilities = append(possibilities, cat)
+				}
+			}
+
+			return nil, &UnknownCategoryError{
+				Category:      o.category,
+				Possibilities: possibilities,
+			}
 		}
 
 		ps, err := o.canon.Category(o.category)
