@@ -13,6 +13,7 @@ require (
 )
 
 require (
+	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/elliotchance/pie/v2 v2.7.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect

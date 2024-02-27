@@ -117,7 +117,7 @@ func (c *Client) TodayHTML(ctx context.Context, opts ...Option) (template.HTML, 
 	return c.TextService.VerseHTML(ctx, verse.Reference)
 }
 
-func (c *Client) TodayPhoto(ctx context.Context, opts ...Option) (*photo.Info, error) {
+func (c *Client) TodayPhoto(ctx context.Context, opts ...Option) (*photo.Descriptor, error) {
 	ru, err := url.Parse(c.BaseURL)
 	if err != nil {
 		return nil, err
@@ -143,10 +143,9 @@ func (c *Client) TodayPhoto(ctx context.Context, opts ...Option) (*photo.Info, e
 		return nil, err
 	}
 
-	var photo photo.Info
+	var photo photo.Descriptor
 	dec := yaml.NewDecoder(res.Body)
-	err = dec.Decode(&photo.Meta)
+	err = dec.Decode(&photo)
 
-	photo.Key, _ = c.PhotoService.CacheKey(photo.Meta.Link)
 	return &photo, err
 }

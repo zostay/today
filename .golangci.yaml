@@ -44,6 +44,7 @@ linters-settings:
           - github.com/hbagdi/go-unsplash/unsplash
           - github.com/nfnt/resize
           - github.com/markusmobius/go-dateparser
+          - github.com/agnivade/levenshtein
 
       tests:
         files:

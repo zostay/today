@@ -2,10 +2,10 @@ package photo
 
 import (
 	"context"
+	"fmt"
+	"image"
 	"image/color"
-	"image/jpeg"
 	"net/http"
-	"os"
 
 	"github.com/nfnt/resize"
 )
@@ -32,26 +32,19 @@ func NewService(s Source) *Service {
 func (s *Service) Photo(
 	ctx context.Context,
 	photoUrl string,
-) (*Info, error) {
-	pi, err := s.Source.Photo(ctx, photoUrl)
+) (*Descriptor, error) {
+	d, err := s.Source.Photo(ctx, photoUrl)
 	if err != nil {
 		return nil, err
 	}
 
-	return pi, nil
-}
-
-// Download fetches file.
-func (s *Service) Download(
-	ctx context.Context,
-	info *Info,
-) error {
-	return s.Source.Download(ctx, info)
+	return d, nil
 }
 
 type options struct {
 	maxWidth  uint
 	maxHeight uint
+	image     string
 }
 
 type Option func(*options)
@@ -68,10 +61,17 @@ func MaxHeight(h uint) Option {
 	}
 }
 
+func FromImage(img string) Option {
+	return func(o *options) {
+		o.image = img
+	}
+}
+
 func processOptions(opts []Option) *options {
 	o := &options{
 		maxWidth:  DefaultMaxWidth,
 		maxHeight: DefaultMaxHeight,
+		image:     Original,
 	}
 	for _, opt := range opts {
 		opt(o)
@@ -84,26 +84,20 @@ func processOptions(opts []Option) *options {
 // the maximum width and height I have set.
 func (s *Service) ResizedImage(
 	ctx context.Context,
-	info *Info,
+	d *Descriptor,
 	opts ...Option,
-) (*os.File, error) {
+) (string, error) {
 	o := processOptions(opts)
 
-	if !info.HasDownload() {
-		err := s.Source.Download(ctx, info)
-		if err != nil {
-			return nil, err
-		}
+	if !d.HasImage(o.image) {
+		return "", fmt.Errorf("the %s image is not found", o.image)
 	}
 
-	img, err := jpeg.Decode(info.File)
-	if err != nil {
-		return nil, err
-	}
+	item := d.GetImage(o.image)
 
-	_, err = info.File.Seek(0, 0)
+	img, format, err := item.Image()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	rect := img.Bounds()
@@ -111,7 +105,9 @@ func (s *Service) ResizedImage(
 	h := uint(rect.Max.Y - rect.Min.Y)
 
 	var (
-		resizeWidth, resizeHeight uint = 0, 0
+		key               = fmt.Sprintf("resize:%dx%d", w, h)
+		resizeWidth  uint = 0
+		resizeHeight uint = 0
 	)
 	switch {
 	case w > o.maxWidth:
@@ -119,53 +115,36 @@ func (s *Service) ResizedImage(
 	case h > o.maxHeight:
 		resizeHeight = o.maxHeight
 	default:
-		return info.File, nil
+		d.AddImage(key,
+			NewMemory(
+				FilenameWithoutFormat(format, item.Filename()),
+				"",
+				img,
+			),
+		)
+		return key, nil
 	}
 
 	rImg := resize.Resize(resizeWidth, resizeHeight, img, resize.Bicubic)
 
-	tmpJr, err := os.CreateTemp("", "bg.*.jpg")
-	if err != nil {
-		return nil, err
-	}
-	defer os.Remove(tmpJr.Name())
-
-	err = jpeg.Encode(tmpJr, rImg, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = tmpJr.Seek(0, 0)
-	if err != nil {
-		return nil, err
-	}
-
-	return tmpJr, nil
+	d.AddImage(key,
+		NewMemory(
+			FilenameWithoutFormat(format, item.Filename()),
+			"",
+			rImg,
+		),
+	)
+	return key, nil
 }
 
-// DominantImageColor returns a resized version of the photo if it is larger than
-// the maximum width and height I have set.
-func (s *Service) DominantImageColor(
+// DominantImageColor returns the dominant color of the image. This is calculated
+// by creating a histogram of all image pixels, then selecting the color that is
+// used the most after excluding pure black and white (unless they are the only
+// possible choices).
+func DominantImageColor(
 	ctx context.Context,
-	photo *Info,
+	img image.Image,
 ) (color.Color, error) {
-	if !photo.HasDownload() {
-		err := s.Source.Download(ctx, photo)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	img, err := jpeg.Decode(photo.File)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = photo.File.Seek(0, 0)
-	if err != nil {
-		return nil, err
-	}
-
 	hist := make(map[color.RGBA]uint32)
 
 	rect := img.Bounds()

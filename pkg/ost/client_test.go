@@ -31,7 +31,7 @@ var (
 			Link: "https://www.esv.org/",
 		},
 	}
-	image = photo.Meta{
+	desc = photo.Descriptor{
 		Link:  "https://example.com",
 		Title: "",
 		Creator: photo.Creator{
@@ -40,6 +40,10 @@ var (
 		},
 	}
 )
+
+func init() {
+	desc.AddImage(photo.Original, photo.NewFile("unsplash/testadata/waa.jpg"))
+}
 
 type testResolver struct {
 	lastRef *ref.Resolved
@@ -68,16 +72,8 @@ var _ text.Resolver = (*testResolver)(nil)
 
 type testSource struct{}
 
-func (t *testSource) CacheKey(url string) (string, bool) {
-	return "test/" + url, true
-}
-
-func (t *testSource) Photo(ctx context.Context, url string) (info *photo.Info, err error) {
-	panic("implement me")
-}
-
-func (t *testSource) Download(ctx context.Context, info *photo.Info) error {
-	panic("implement me")
+func (t *testSource) Photo(ctx context.Context, url string) (*photo.Descriptor, error) {
+	return &desc, nil
 }
 
 var _ photo.Source = (*testSource)(nil)
@@ -100,7 +96,7 @@ func testServer() (*httptest.Server, *requestInfo) {
 			case strings.HasSuffix(r.URL.Path, "/photo.yaml"):
 				ri.path = r.URL.Path
 				enc := yaml.NewEncoder(w)
-				err := enc.Encode(image)
+				err := enc.Encode(desc)
 				ri.err = err
 			default:
 				w.WriteHeader(404)
@@ -118,7 +114,7 @@ func TestClient(t *testing.T) {
 
 	c := &ost.Client{
 		BaseURL:      ts.URL,
-		Client:       http.DefaultClient,
+		Client:       ts.Client(),
 		TextService:  text.NewService(&testResolver{}),
 		PhotoService: photo.NewService(&testSource{}),
 	}
@@ -151,23 +147,17 @@ func TestClient(t *testing.T) {
 
 	pi, err := c.TodayPhoto(context.Background())
 	assert.NoError(t, err)
-	assert.Equal(t, &photo.Info{
-		Key:  "test/https://example.com",
-		Meta: &image,
-	}, pi)
+	assert.True(t,
+		assert.ObjectsExportedFieldsAreEqual(&desc, pi))
 	assert.NoError(t, ri.err)
 	assert.Equal(t, "/photo.yaml", ri.path)
-	assert.NoError(t, pi.Close())
 
 	pi, err = c.TodayPhoto(context.Background(), ost.On(on))
 	assert.NoError(t, err)
-	assert.Equal(t, &photo.Info{
-		Key:  "test/https://example.com",
-		Meta: &image,
-	}, pi)
+	assert.True(t,
+		assert.ObjectsExportedFieldsAreEqual(&desc, pi))
 	assert.NoError(t, ri.err)
 	assert.Equal(t, "/verses/2023/12/30/photo.yaml", ri.path)
-	assert.NoError(t, pi.Close())
 }
 
 func TestClient_Sad(t *testing.T) {

@@ -3,6 +3,7 @@ package unsplash_test
 import (
 	"context"
 	"encoding/json"
+	"image"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -87,14 +88,14 @@ func TestSource(t *testing.T) { //nolint:paralleltest // unsplash client has glo
 	// A global variable for this? Srsly?
 	unsp.SetupBaseUrl(u.String() + "/")
 	src := &unsplash.Source{
-		Client: unsp.New(http.DefaultClient),
+		Client: unsp.New(ts.Client()),
 	}
 
-	pi, err := src.Photo(context.Background(), "https://unsplash.com/photos/a-test-photo-with-title-that-does-not-matter-abc123-_XYZ")
+	d, err := src.Photo(context.Background(), "https://unsplash.com/photos/a-test-photo-with-title-that-does-not-matter-abc123-_XYZ")
 	assert.NoError(t, err)
-	assert.Equal(t, &photo.Info{
-		Key: "unsplash/abc123-_XYZ",
-		Meta: &photo.Meta{
+
+	assert.True(t, assert.ObjectsExportedFieldsAreEqual(
+		&photo.Descriptor{
 			Link:  u.String() + "/photos/a-test-photo-with-title-that-does-not-matter-abc123-_XYZ",
 			Type:  "unsplash",
 			Title: "",
@@ -102,15 +103,14 @@ func TestSource(t *testing.T) { //nolint:paralleltest // unsplash client has glo
 				Name: "Test User",
 				Link: u.String() + "/testuser",
 			},
-		},
-	}, pi)
+		}, d),
+	)
 
-	assert.False(t, pi.HasDownload())
+	item := d.GetImage(photo.Original)
+	assert.NotNil(t, item)
 
-	err = src.Download(context.Background(), pi)
+	img, format, err := item.Image()
 	assert.NoError(t, err)
-	assert.True(t, pi.HasDownload())
-	assert.NotNil(t, pi.File)
-
-	assert.NoError(t, pi.Close())
+	assert.Equal(t, "jpeg", format)
+	assert.Equal(t, image.Rect(0, 0, 4128, 2322), img.Bounds())
 }

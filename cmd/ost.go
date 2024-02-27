@@ -13,6 +13,7 @@ import (
 
 	"github.com/zostay/today/cmd/flag"
 	"github.com/zostay/today/pkg/ost"
+	"github.com/zostay/today/pkg/photo"
 )
 
 var (
@@ -154,7 +155,16 @@ func RunOstPhoto(cmd *cobra.Command, args []string) {
 	}
 
 	if download != "" {
-		err = client.PhotoService.Download(cmd.Context(), pi)
+		if !pi.HasImage(photo.Original) {
+			panic("No image available to download")
+		}
+
+		item := pi.GetImage(photo.Original)
+		if err != nil {
+			panic(err)
+		}
+
+		r, err := item.Reader()
 		if err != nil {
 			panic(err)
 		}
@@ -165,7 +175,7 @@ func RunOstPhoto(cmd *cobra.Command, args []string) {
 		}
 		defer f.Close()
 
-		_, err = io.Copy(f, pi.File)
+		_, err = io.Copy(f, r)
 		if err != nil {
 			panic(err)
 		}
