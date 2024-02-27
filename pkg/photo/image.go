@@ -9,39 +9,44 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
+	"sync/atomic"
 )
 
 const DefaultFormat = "jpeg"
 
-type ImageEncoder struct {
-	// Ext must be lowercase. The first Ext is the preferred extension for the
-	// format.
-	Ext []string
-
-	// Encoder is a formatter for the image format.
+type EncoderFunc func(w io.Writer, img image.Image, opts any) error
+type imageEncoder struct {
+	Name    string
+	Ext     []string
 	Encoder func(w io.Writer, img image.Image, opts any) error
 }
 
-func (enc ImageEncoder) PreferredExt() string {
-	return enc.Ext[0]
-}
+var (
+	formatLock         sync.Mutex
+	registeredEncoders atomic.Value
+)
 
-var registeredEncoders = map[string]ImageEncoder{
-	"jpeg": {
-		Ext: []string{"jpg", "jpeg"},
-		Encoder: func(w io.Writer, img image.Image, opts any) error {
-			jpegOpts := opts.(*jpeg.Options)
+func init() {
+	RegisterEncoder(
+		"jpeg",
+		[]string{".jpg", ".jpeg"},
+		func(w io.Writer, img image.Image, opts any) error {
+			var jpegOpts *jpeg.Options
+			if opts != nil && opts.(*jpeg.Options) != nil {
+				jpegOpts = opts.(*jpeg.Options)
+			}
 			return jpeg.Encode(w, img, jpegOpts)
 		},
-	},
+	)
 }
 
-func RegisterEncoder(format string, ext []string, enc ImageEncoder) {
+func RegisterEncoder(format string, ext []string, enc EncoderFunc) {
 	if format == "" {
 		panic("photo: cannot register an encoder with an empty format")
 	}
 
-	if enc.Encoder == nil {
+	if enc == nil {
 		panic("photo: cannot register an encoder with a nil encoder")
 	}
 
@@ -49,7 +54,36 @@ func RegisterEncoder(format string, ext []string, enc ImageEncoder) {
 		panic("photo: cannot register an encoder with no extensions")
 	}
 
-	registeredEncoders[format] = enc
+	formatLock.Lock()
+	defer formatLock.Unlock()
+	formats, _ := registeredEncoders.Load().([]imageEncoder)
+	registeredEncoders.Store(append(formats, imageEncoder{
+		Name:    format,
+		Ext:     ext,
+		Encoder: enc,
+	}))
+}
+
+func getEncoder(format string) (imageEncoder, bool) {
+	formatLock.Lock()
+	defer formatLock.Unlock()
+	formats, _ := registeredEncoders.Load().([]imageEncoder)
+	for i := len(formats) - 1; i >= 0; i-- {
+		if formats[i].Name == format {
+			return formats[i], true
+		}
+	}
+
+	return imageEncoder{}, false
+}
+
+func PreferredExt(format string) string {
+	enc, hasEnc := getEncoder(format)
+	if !hasEnc {
+		return ""
+	}
+
+	return enc.Ext[0]
 }
 
 // Image is the interface for a photo image. Every Image must also implemented
@@ -60,7 +94,7 @@ type Image interface {
 	Filename() string
 }
 
-// FilenameWithoutFOrmat returns a filename with the format extension removed.
+// FilenameWithoutFormat returns a filename with the format extension removed.
 func FilenameWithoutFormat(format, path string) string {
 	pathExt := strings.ToLower(filepath.Ext(path))
 	if pathExt == "" {
@@ -71,7 +105,7 @@ func FilenameWithoutFormat(format, path string) string {
 		format = DefaultFormat
 	}
 
-	enc, hasEnc := registeredEncoders[format]
+	enc, hasEnc := getEncoder(format)
 	if !hasEnc {
 		return path
 	}
@@ -85,7 +119,7 @@ func FilenameWithoutFormat(format, path string) string {
 	return path
 }
 
-// FilanemeForFormat returns a filename for the given format. If the path already
+// FilenameForFormat returns a filename for the given format. If the path already
 // has an extension for the format, the path is returned as is. Otherwise, the
 // path is returned with the extension for the format appended. If the format is
 // empty, the default format is assumed. If the format is not registered, an
@@ -95,7 +129,7 @@ func FilenameForFormat(format, path string) (string, error) {
 		format = DefaultFormat
 	}
 
-	enc, hasEnc := registeredEncoders[format]
+	enc, hasEnc := getEncoder(format)
 	if !hasEnc {
 		return "", fmt.Errorf("photo: no encoder registered for format %q", format)
 	}
@@ -107,18 +141,18 @@ func FilenameForFormat(format, path string) (string, error) {
 		}
 	}
 
-	return path + "." + enc.PreferredExt(), nil
+	return path + enc.Ext[0], nil
 }
 
 // Encode encodes the image to the given format and writes it to the writer. If
 // the format is empty, the default format is assumed. If the format is not
 // registered, an error is returned.
-func Encode(format string, img image.Image, w io.Writer, opts any) error {
+func Encode(format string, w io.Writer, img image.Image, opts any) error {
 	if format == "" {
 		format = DefaultFormat
 	}
 
-	enc, hasEnc := registeredEncoders[format]
+	enc, hasEnc := getEncoder(format)
 	if !hasEnc {
 		return fmt.Errorf("photo: no encoder registered for format %q", format)
 	}
@@ -170,7 +204,7 @@ func (i *Complete) Filename() string {
 	return i.image.Filename()
 }
 
-func (i *Complete) Image() (img image.Image, format string, err error) {
+func (i *Complete) Image() (image.Image, string, error) {
 	switch it := i.image.(type) {
 	case ImageDecoded:
 		return it.Image()
@@ -200,7 +234,7 @@ func (i *Complete) Reader() (io.ReadCloser, error) {
 			format = DefaultFormat
 		}
 
-		enc, hasEnc := registeredEncoders[format]
+		enc, hasEnc := getEncoder(format)
 		if !hasEnc {
 			return nil, fmt.Errorf("photo: no encoder registered for format %q", format)
 		}
