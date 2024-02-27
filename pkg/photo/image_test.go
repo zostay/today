@@ -325,12 +325,12 @@ func TestCompleteImage_ImageDecoded_Sad(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 
-	origImg.Encoding = "foo"
+	origImg.Encoding = "bad"
 
 	_, err = cImg.Reader()
 	assert.Error(t, err)
 
-	photo.RegisterEncoder("foo", []string{".foo"}, EncoderError)
+	photo.RegisterEncoder("bad", []string{".bad"}, EncoderError)
 	_, err = cImg.Reader()
 	assert.ErrorIs(t, err, assert.AnError)
 }
