@@ -14,10 +14,10 @@ const (
 // serialization format on openscripture.today, and also includes a reference to
 // the image file.
 type Descriptor struct {
-	Link  string `yaml:"link"`
-	Type  string `yaml:"type"`
-	Title string `yaml:"title,omitempty"`
-	Color string `yaml:"color,omitempty"`
+	Link  string `yaml:"link" json:"link"`
+	Type  string `yaml:"type" json:"type"`
+	Title string `yaml:"title,omitempty" json:"title,omitempty"`
+	Color string `yaml:"color,omitempty" json:"color,omitempty"`
 	Creator
 
 	images map[string]ImageComplete
@@ -88,6 +88,6 @@ func (d *Descriptor) GetColor() (color.Color, error) {
 
 // Creator contains the metadata about the creator of a photo.
 type Creator struct {
-	Name string `yaml:"name"`
-	Link string `yaml:"link"`
+	Name string `yaml:"name" json:"name"`
+	Link string `yaml:"link" json:"link"`
 }

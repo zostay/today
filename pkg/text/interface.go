@@ -25,20 +25,20 @@ type Resolver interface {
 
 // Verse is the metadata and content for a verse of the day.
 type Verse struct {
-	Reference string  `yaml:"reference"`
-	Content   Content `yaml:"content"`
-	Link      string  `yaml:"link,omitempty"`
+	Reference string  `yaml:"reference" json:"reference"`
+	Content   Content `yaml:"content" json:"content"`
+	Link      string  `yaml:"link,omitempty" json:"link,omitempty"`
 	Version
 }
 
 // Content holds the content of a scripture of the day.
 type Content struct {
-	Text string        `yaml:"text,omitempty"`
-	HTML template.HTML `yaml:"html,omitempty"`
+	Text string        `yaml:"text,omitempty" json:"text,omitempty"`
+	HTML template.HTML `yaml:"html,omitempty" json:"html,omitempty"`
 }
 
 // Version is the metadata for the version of the Bible used for the verse.
 type Version struct {
-	Name string `yaml:"name"`
-	Link string `yaml:"link"`
+	Name string `yaml:"name" json:"name"`
+	Link string `yaml:"link" json:"link"`
 }
