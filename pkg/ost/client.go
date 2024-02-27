@@ -8,8 +8,6 @@ import (
 	"path"
 	"time"
 
-	"gopkg.in/yaml.v3"
-
 	"github.com/zostay/today/pkg/photo"
 	"github.com/zostay/today/pkg/photo/unsplash"
 	"github.com/zostay/today/pkg/text"
@@ -67,7 +65,7 @@ func processOptions(opts []Option) *options {
 	return o
 }
 
-func (c *Client) TodayVerse(ctx context.Context, opts ...Option) (*text.Verse, error) {
+func (c *Client) TodayVerse(ctx context.Context, opts ...Option) (*Verse, error) {
 	ru, err := url.Parse(c.BaseURL)
 	if err != nil {
 		return nil, err
@@ -93,10 +91,13 @@ func (c *Client) TodayVerse(ctx context.Context, opts ...Option) (*text.Verse, e
 		return nil, err
 	}
 
-	var verse text.Verse
-	dec := yaml.NewDecoder(res.Body)
-	err = dec.Decode(&verse)
-	return &verse, err
+	var verse Verse
+	err = LoadVerseYaml(res.Body, &verse)
+	if err != nil {
+		return nil, err
+	}
+
+	return &verse, nil
 }
 
 func (c *Client) Today(ctx context.Context, opts ...Option) (string, error) {
@@ -117,7 +118,7 @@ func (c *Client) TodayHTML(ctx context.Context, opts ...Option) (template.HTML, 
 	return c.TextService.VerseHTML(ctx, verse.Reference)
 }
 
-func (c *Client) TodayPhoto(ctx context.Context, opts ...Option) (*photo.Descriptor, error) {
+func (c *Client) TodayPhoto(ctx context.Context, opts ...Option) (*Photo, error) {
 	ru, err := url.Parse(c.BaseURL)
 	if err != nil {
 		return nil, err
@@ -143,9 +144,19 @@ func (c *Client) TodayPhoto(ctx context.Context, opts ...Option) (*photo.Descrip
 		return nil, err
 	}
 
-	var photo photo.Descriptor
-	dec := yaml.NewDecoder(res.Body)
-	err = dec.Decode(&photo)
+	var ph Photo
+	err = LoadPhotoYaml(res.Body, &ph)
+	if err != nil {
+		return nil, err
+	}
 
-	return &photo, err
+	// TODO Pull the photo from OST instead when Pruned = false
+	uph, err := c.PhotoService.Photo(ctx, ph.Link)
+	if err != nil {
+		return nil, err
+	}
+
+	ph.AddImage(photo.Original, uph.GetImage(photo.Original))
+
+	return &ph, err
 }

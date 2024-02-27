@@ -19,24 +19,34 @@ import (
 )
 
 var (
-	today = text.Verse{
-		Reference: "Luke 10:25",
-		Content: text.Content{
-			Text: "And behold, a lawyer stood up to put him to the test, saying, “Teacher, what shall I do to inherit eternal life?”",
-			HTML: "And behold, a lawyer stood up to put him to the test, saying, “Teacher, what shall I do to inherit eternal life?”",
+	today = ost.Verse{
+		Metadata: ost.Metadata{
+			Version: 2,
 		},
-		Link: "https://www.esv.org/Luke+10:25",
-		Version: text.Version{
-			Name: "ESV",
-			Link: "https://www.esv.org/",
+		Verse: text.Verse{
+			Reference: "Luke 10:25",
+			Content: text.Content{
+				Text: "And behold, a lawyer stood up to put him to the test, saying, “Teacher, what shall I do to inherit eternal life?”",
+				HTML: "And behold, a lawyer stood up to put him to the test, saying, “Teacher, what shall I do to inherit eternal life?”",
+			},
+			Link: "https://www.esv.org/Luke+10:25",
+			Version: text.Version{
+				Name: "ESV",
+				Link: "https://www.esv.org/",
+			},
 		},
 	}
-	desc = photo.Descriptor{
-		Link:  "https://example.com",
-		Title: "",
-		Creator: photo.Creator{
-			Name: "Test Photographer",
-			Link: "https://example.com/testuser",
+	desc = ost.Photo{
+		Metadata: ost.Metadata{
+			Version: 3,
+		},
+		Descriptor: photo.Descriptor{
+			Link:  "https://example.com",
+			Title: "",
+			Creator: photo.Creator{
+				Name: "Test Photographer",
+				Link: "https://example.com/testuser",
+			},
 		},
 	}
 )
@@ -55,7 +65,7 @@ func (t *testResolver) VersionInformation(_ context.Context) (*text.Version, err
 
 func (t *testResolver) Verse(_ context.Context, ref *ref.Resolved) (*text.Verse, error) {
 	t.lastRef = ref
-	return &today, nil
+	return &today.Verse, nil
 }
 
 func (t *testResolver) VerseText(_ context.Context, ref *ref.Resolved) (string, error) {
@@ -73,7 +83,7 @@ var _ text.Resolver = (*testResolver)(nil)
 type testSource struct{}
 
 func (t *testSource) Photo(ctx context.Context, url string) (*photo.Descriptor, error) {
-	return &desc, nil
+	return &desc.Descriptor, nil
 }
 
 var _ photo.Source = (*testSource)(nil)
