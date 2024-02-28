@@ -66,6 +66,7 @@ func (r *Resolver) VerseText(ctx context.Context, ref *ref.Resolved) (string, er
 		esv.WithIncludeVerseNumbers(false),
 		esv.WithIncludeHeadings(false),
 		esv.WithIncludeFootnotes(false),
+		esv.WithIncludePassageReferences(false),
 	)
 	if err != nil {
 		return "", err
