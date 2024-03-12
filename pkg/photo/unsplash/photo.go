@@ -30,8 +30,8 @@ func urlValueString(u *unsplash.URL) string {
 	return u.String()
 }
 
-// idFromUrl extracts the photo ID from a URL.
-func idFromUrl(s string) (string, error) {
+// IDFromURL extracts the photo ID from a URL.
+func IDFromURL(s string) (string, error) {
 	u, err := url.Parse(s)
 	if err != nil {
 		return "", err
@@ -45,7 +45,7 @@ func (u *Source) Photo(
 	ctx context.Context,
 	photoUrl string,
 ) (*photo.Descriptor, error) {
-	photoId, err := idFromUrl(photoUrl)
+	photoId, err := IDFromURL(photoUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func (u *Source) Photo(
 		},
 	}
 
-	filename, err := idFromUrl(urlValueString(image.Links.Download))
+	filename, err := IDFromURL(urlValueString(image.Links.Download))
 	if err != nil {
 		return nil, err
 	}

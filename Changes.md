@@ -22,6 +22,7 @@
    - A general purpose implementation of `photo.Image`/`photo.ImageReader` is provided in `photo.File`.
    - Every `photo.Descriptor` should define an image for the `photo.Original` key, which should provide a full-size, original image.
    - The `photo.FromImage` option has been added for use with the `ResizeImage` method of `photo.Service`, which selects which `photo.Image` associated with a `photo.Descriptor` should be used as the source image for resizing.
+ * New utility function `unsplash.IDFromURL()` added which will give you the photo ID from an Unsplash photo URL.
 
 ## 0.5.1  2024-02-20
 
