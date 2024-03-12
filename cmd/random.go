@@ -64,12 +64,28 @@ func RunTodayRandom(cmd *cobra.Command, args []string) error {
 	var (
 		v string
 	)
+
 	if asHtml {
-		var vh template.HTML
-		_, vh, err = svc.RandomVerseHTML(cmd.Context(), opts...)
+		var (
+			vr *ref.Resolved
+			vh template.HTML
+		)
+
+		vr, vh, err = svc.RandomVerseHTML(cmd.Context(), opts...)
 		v = string(vh)
+		sref, err := vr.CompactRef()
+		if err != nil {
+			panic(err)
+		}
+		v = "<h1>" + sref + "</h1>\n" + v
 	} else {
-		_, v, err = svc.RandomVerseText(cmd.Context(), opts...)
+		var vr *ref.Resolved
+		vr, v, err = svc.RandomVerseText(cmd.Context(), opts...)
+		sref, err := vr.CompactRef()
+		if err != nil {
+			panic(err)
+		}
+		v = sref + "\n\n" + v
 	}
 	if err != nil {
 		var ucerr *ref.UnknownCategoryError
