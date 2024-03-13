@@ -12,7 +12,7 @@ import (
 
 type Metadata struct {
 	Version         int  `yaml:"version" json:"version"`
-	OriginalVersion int  `yaml:"original_version,omitempty" json:"original_version,omitempty"`
+	OriginalVersion int  `yaml:"original_version" json:"original_version"`
 	Pruned          bool `yaml:"pruned,omitempty" json:"pruned,omitempty"`
 }
 
