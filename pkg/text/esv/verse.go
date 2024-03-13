@@ -73,8 +73,8 @@ func (r *Resolver) VerseText(ctx context.Context, ref *ref.Resolved) (string, er
 		return "", err
 	}
 
-	if len(tr.Passages[0]) != 1 {
-		return "", fmt.Errorf("expected a single passage returned but ESV API returned %d: %v", len(tr.Passages[0]), tr)
+	if len(tr.Passages) != 1 {
+		return "", fmt.Errorf("expected a single passage returned but ESV API returned %d: %v", len(tr.Passages), tr)
 	}
 
 	return tr.Passages[0], nil
@@ -96,8 +96,8 @@ func (r *Resolver) VerseHTML(ctx context.Context, ref *ref.Resolved) (template.H
 		return "", err
 	}
 
-	if len(tr.Passages[0]) != 1 {
-		return "", fmt.Errorf("expected a single passage returned but ESV API returned %d: %v", len(tr.Passages[0]), tr)
+	if len(tr.Passages) != 1 {
+		return "", fmt.Errorf("expected a single passage returned but ESV API returned %d: %v", len(tr.Passages), tr)
 	}
 
 	return template.HTML(tr.Passages[0]), nil //nolint:gosec // we trust the ESV API
