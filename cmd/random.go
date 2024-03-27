@@ -62,30 +62,16 @@ func RunTodayRandom(cmd *cobra.Command, args []string) error {
 	svc := text.NewService(ec)
 
 	var (
-		v string
+		v  string
+		vr *ref.Resolved
 	)
 
 	if asHtml {
-		var (
-			vr *ref.Resolved
-			vh template.HTML
-		)
-
+		var vh template.HTML
 		vr, vh, err = svc.RandomVerseHTML(cmd.Context(), opts...)
 		v = string(vh)
-		sref, err := vr.CompactRef()
-		if err != nil {
-			panic(err)
-		}
-		v = "<h1>" + sref + "</h1>\n" + v
 	} else {
-		var vr *ref.Resolved
 		vr, v, err = svc.RandomVerseText(cmd.Context(), opts...)
-		sref, err := vr.CompactRef()
-		if err != nil {
-			panic(err)
-		}
-		v = sref + "\n\n" + v
 	}
 	if err != nil {
 		var ucerr *ref.UnknownCategoryError
@@ -95,6 +81,21 @@ func RunTodayRandom(cmd *cobra.Command, args []string) error {
 		}
 		panic(err)
 	}
+
+	if asHtml {
+		sref, err := vr.CompactRef()
+		if err != nil {
+			panic(err)
+		}
+		v = "<h1>" + sref + "</h1>\n" + v
+	} else {
+		sref, err := vr.CompactRef()
+		if err != nil {
+			panic(err)
+		}
+		v = sref + "\n\n" + v
+	}
+
 	fmt.Println(wrap.Wrap(v, 70))
 
 	return nil
