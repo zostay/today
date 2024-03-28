@@ -43,6 +43,7 @@ type OrdinalConfig struct {
 type BookAbbrConfig struct {
 	Name     string   `yaml:"name"`
 	Standard string   `yaml:"standard"`
+	Singular string   `yaml:"singular"`
 	Ordinal  string   `yaml:"ordinal"`
 	Accept   []string `yaml:"accept"`
 }
