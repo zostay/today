@@ -420,6 +420,10 @@ func TestResolved_CompactRef(t *testing.T) {
 	require.NotNil(t, gen)
 	require.NoError(t, err)
 
+	psa, err := ref.Canonical.Book("Psalms")
+	require.NotNil(t, psa)
+	require.NoError(t, err)
+
 	cr, err := (&ref.Resolved{
 		Book:  gen,
 		First: ref.CV{Chapter: 12, Verse: 4},
@@ -464,4 +468,22 @@ func TestResolved_CompactRef(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, "Genesis 12:4-13:1", cr)
+
+	cr, err = (&ref.Resolved{
+		Book:  psa,
+		First: ref.CV{Chapter: 12, Verse: 1},
+		Last:  ref.CV{Chapter: 12, Verse: 8},
+	}).CompactRef()
+
+	assert.NoError(t, err)
+	assert.Equal(t, "Psalm 12", cr)
+
+	cr, err = (&ref.Resolved{
+		Book:  psa,
+		First: ref.CV{Chapter: 12, Verse: 1},
+		Last:  ref.CV{Chapter: 13, Verse: 6},
+	}).CompactRef()
+
+	assert.NoError(t, err)
+	assert.Equal(t, "Psalms 12-13", cr)
 }

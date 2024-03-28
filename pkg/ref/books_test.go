@@ -665,6 +665,21 @@ func TestBookAbbreviations_BookName(t *testing.T) {
 	assert.ErrorIs(t, err, ref.ErrNotFound)
 }
 
+func TestBookAbbreviations_SingularName(t *testing.T) {
+	t.Parallel()
+
+	sname, err := ref.Abbreviations.SingularName("John")
+	assert.NoError(t, err)
+	assert.Equal(t, "John", sname)
+
+	sname, err = ref.Abbreviations.SingularName("Psalms")
+	assert.NoError(t, err)
+	assert.Equal(t, "Psalm", sname)
+
+	_, err = ref.Abbreviations.SingularName("Psalm")
+	assert.ErrorIs(t, err, ref.ErrNotFound)
+}
+
 func TestBookAbbreviations_PreferredAbbreviation(t *testing.T) {
 	t.Parallel()
 

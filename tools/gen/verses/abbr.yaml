@@ -118,6 +118,7 @@ books:
       - Jb
   - name: Psalms
     standard: Ps.
+    singular: Psalm
     accept:
       - Psalms
       - Pslm

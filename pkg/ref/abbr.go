@@ -201,6 +201,7 @@ var Abbreviations = &BookAbbreviations{
 		{
 			Name:      "Psalms",
 			Preferred: "Ps.",
+			Singular:  "Psalm",
 			Accepts: []string{
 				"Psalms",
 				"Pslm",

@@ -442,6 +442,13 @@ func (p *Proper) FullNameRef(opt ...ResolveOption) (string, error) {
 		return "", err
 	}
 
+	if o.Singular {
+		fullName, err = abbrs.SingularName(fullName)
+		if err != nil {
+			return "", err
+		}
+	}
+
 	return fmt.Sprintf("%s %s", fullName, p.Verse.Ref()), nil
 }
 
@@ -709,6 +716,15 @@ func (r *Resolved) compactRef(name string) (string, error) {
 			}
 
 			return fmt.Sprintf("%s %d:%d-%d", name, fcv.Chapter, fcv.Verse, lcv.Verse), nil
+		} else {
+			lvInC, err := r.Book.LastVerseInChapter(lcv.Chapter)
+			if err != nil {
+				return "", err
+			}
+
+			if fcv.Verse == 1 && lcv.Verse == lvInC {
+				return fmt.Sprintf("%s %d-%d", name, fcv.Chapter, lcv.Chapter), nil
+			}
 		}
 	}
 
@@ -721,13 +737,44 @@ func (r *Resolved) compactRef(name string) (string, error) {
 // once (e.g., Genesis 12:4-6). If the reference is for an entire chapter, the
 // verse part is omitted (e.g., Genesis 12). If the reference is for an entire
 // book, only the book name is returned (e.g., Genesis).
-func (r *Resolved) CompactRef() (string, error) {
-	return r.compactRef(r.Book.Name)
+//
+// This will ignore the AsSingleChapter option as a resoled reference inherently
+// knows if it is a single chapter via IsSingleChapter.
+func (r *Resolved) CompactRef(opt ...ResolveOption) (string, error) {
+	o := makeResolveOpts(opt)
+	name := r.Book.Name
+	if o.Abbreviations != nil && r.IsSingleChapter() {
+		var err error
+		name, err = o.Abbreviations.SingularName(name)
+		if err != nil {
+			return "", err
+		}
+	}
+	return r.compactRef(name)
 }
 
 // FullNameRef is a synonym for CompactRef.
-func (r *Resolved) FullNameRef(...ResolveOption) (string, error) {
-	return r.CompactRef()
+//
+// This will ignore the AsSingleChapter option as a resoled reference inherently
+// knows if it is a single chapter via IsSingleChapter.
+func (r *Resolved) FullNameRef(opt ...ResolveOption) (string, error) {
+	return r.CompactRef(opt...)
+}
+
+// IsSingleChapter returns true if the reference is for a single chapter. This is
+// decided by considering the kind of book this is and comparing First to Last.
+func (r *Resolved) IsSingleChapter() bool {
+	if r.Book.JustVerse {
+		return true
+	}
+
+	fcv, isFCV := r.First.(CV)
+	lcv, isLCV := r.Last.(CV)
+	if isFCV && isLCV {
+		return fcv.Chapter == lcv.Chapter
+	}
+
+	return false
 }
 
 // AbbreviatedRef returns a compact and abbreviated representation of the
