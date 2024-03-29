@@ -6,6 +6,9 @@ var Abbreviations = &BookAbbreviations{
         {
             Name: "{{.Name}}",
             Preferred: "{{.Standard}}",
+{{- if .Singular}}
+            Singular: "{{.Singular}}",
+{{- end }}
 {{- if .Ordinal}}
             Ordinal: {{.Ordinal}},
 {{- end}}

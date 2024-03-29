@@ -54,6 +54,7 @@ type BookAbbreviations struct {
 type BookAbbreviation struct {
 	Name      string
 	Preferred string
+	Singular  string
 	Ordinal   int
 	Accepts   []string
 }
@@ -100,19 +101,33 @@ func (c *Canon) Category(name string) ([]*Pericope, error) {
 
 type resolveOpts struct {
 	Abbreviations *BookAbbreviations
+	Singular      bool
 }
 
 type ResolveOption func(*resolveOpts)
 
+// WithAbbrevations will allow *Ref methods to use the given BookAbbreviations to
+// resolve book names.
 func WithAbbreviations(abbrs *BookAbbreviations) ResolveOption {
 	return func(o *resolveOpts) {
 		o.Abbreviations = abbrs
 	}
 }
 
+// WithoutAbbrevations will allow *Ref methods to use no abbreviations object
+// during name/abbreviation resolution. (Othrwise, these methods will default to
+// ref.Abbreviations.)
 func WithoutAbbreviations() ResolveOption {
 	return func(o *resolveOpts) {
 		o.Abbreviations = nil
+	}
+}
+
+// AsSingleChapter will prefer the singular form of the book name when resolving
+// references. (This is special casing for Psalms.)
+func AsSingleChapter() ResolveOption {
+	return func(o *resolveOpts) {
+		o.Singular = true
 	}
 }
 
@@ -458,6 +473,27 @@ func (b *BookAbbreviations) BookName(in string) (string, error) {
 		Input:   in,
 		Matches: matchNames,
 	}
+}
+
+// SingularName returns the name to use for the singular form of the book name.
+// This is basically special casing for Psalms, which are quoted as Psalms 12-14
+// when multiple chapters are cited, but as Psalm 12 when a single chapter is
+// cited. The given name should be the full name of the book as resolved via the
+// BookName method.
+//
+// If the given book is not found in the abbreviations, this will return
+// ErrNotFound.
+func (b *BookAbbreviations) SingularName(name string) (string, error) {
+	for _, abbr := range b.Abbreviations {
+		if abbr.Name == name {
+			if abbr.Singular != "" {
+				return abbr.Singular, nil
+			}
+			return abbr.Name, nil
+		}
+	}
+
+	return "", fmt.Errorf("%w: %s", ErrNotFound, name)
 }
 
 // PreferredAbbreviation returns the preferred abbreviation for the given book
