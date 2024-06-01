@@ -2,9 +2,9 @@ package ost_test
 
 import (
 	"context"
-	"html/template"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 	"time"
@@ -26,8 +26,8 @@ var (
 		Verse: text.Verse{
 			Reference: "Luke 10:25",
 			Content: text.Content{
-				Text: "And behold, a lawyer stood up to put him to the test, saying, “Teacher, what shall I do to inherit eternal life?”",
-				HTML: "And behold, a lawyer stood up to put him to the test, saying, “Teacher, what shall I do to inherit eternal life?”",
+				"text": "And behold, a lawyer stood up to put him to the test, saying, “Teacher, what shall I do to inherit eternal life?”",
+				"html": "And behold, a lawyer stood up to put him to the test, saying, “Teacher, what shall I do to inherit eternal life?”",
 			},
 			Link: "https://www.esv.org/Luke+10:25",
 			Version: text.Version{
@@ -68,14 +68,54 @@ func (t *testResolver) Verse(_ context.Context, ref *ref.Resolved) (*text.Verse,
 	return &today.Verse, nil
 }
 
-func (t *testResolver) VerseText(_ context.Context, ref *ref.Resolved) (string, error) {
+func (t *testResolver) VerseAs(_ context.Context, ref *ref.Resolved, ofmt string) (string, error) {
 	t.lastRef = ref
-	return today.Content.Text, nil
+	return today.Content[ofmt], nil
 }
 
-func (t *testResolver) VerseHTML(_ context.Context, ref *ref.Resolved) (template.HTML, error) {
+func (t *testResolver) AsFormats() []string {
+	return []string{"text", "html"}
+}
+
+type testVF struct {
+	name        string
+	description string
+	ext         string
+}
+
+func (t testVF) Name() string {
+	return t.name
+}
+
+func (t testVF) Description() string {
+	return t.description
+}
+
+func (t testVF) Ext() string {
+	return t.ext
+}
+
+func (t *testResolver) DescribeFormat(ofmt string) text.VerseFormat {
+	switch ofmt {
+	case "text":
+		return testVF{
+			name:        "text",
+			description: "Plain text",
+			ext:         "txt",
+		}
+	case "html":
+		return testVF{
+			name:        "html",
+			description: "HTML",
+			ext:         "html",
+		}
+	}
+	return nil
+}
+
+func (t *testResolver) VerseURI(_ context.Context, ref *ref.Resolved) (string, error) {
 	t.lastRef = ref
-	return today.Content.HTML, nil
+	return "bible://" + url.PathEscape(ref.Book.Name) + "/" + url.PathEscape(ref.First.Ref()) + "-" + url.PathEscape(ref.Last.Ref()), nil
 }
 
 var _ text.Resolver = (*testResolver)(nil)

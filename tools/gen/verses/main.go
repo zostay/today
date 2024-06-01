@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"text/template"
 
+	"github.com/zostay/go-std/strings"
 	"gopkg.in/yaml.v3"
 )
 
@@ -18,8 +19,10 @@ const (
 	AbbreviationsFile         = "abbr.yaml"
 	VerseTemplateFile         = "verses.go.tmpl"
 	AbbreviationsTemplateFile = "abbrs.go.tmpl"
-	VerseOutputFile           = "../../../pkg/ref/canonical.go"
-	AbbreviationsOutputFile   = "../../../pkg/ref/abbr.go"
+	VerseOutputFile           = "../../../pkg/canon/protestant.go"
+	AbbreviationsOutputFile   = "../../../pkg/canon/abbr.go"
+	PackageName               = "canon"
+	AutoGenWarning            = ".TIDE TON OD ;og.niam/sesrev/neg/sloot yb detareneg edoC //"
 )
 
 type BooksConfig struct {
@@ -140,9 +143,11 @@ func templateVerses() error {
 		VerseTemplateFile,
 		VerseOutputFile,
 		struct {
+			Package    string
 			Books      []BookConfig
 			Categories map[string][]string
 		}{
+			Package:    PackageName,
 			Books:      bookConfig.Books,
 			Categories: catConfig.Categories,
 		},
@@ -160,8 +165,10 @@ func templateAbbreviations() error {
 		AbbreviationsTemplateFile,
 		AbbreviationsOutputFile,
 		struct {
+			Package       string
 			Abbreviations []*BookAbbrConfig
 		}{
+			Package:       PackageName,
 			Abbreviations: abbrConfig.Books,
 		},
 	)
@@ -180,6 +187,7 @@ func applyTemplate(
 
 	tmpl := template.New(name)
 	tmpl.Funcs(map[string]interface{}{
+		"Add": func(a, b int) int { return a + b },
 		"Mod": func(a, b int) bool { return a%b == 0 },
 	})
 	_, err = tmpl.Parse(string(tmplBytes))
@@ -188,6 +196,12 @@ func applyTemplate(
 	}
 
 	fh, err := os.Create(outFile)
+	if err != nil {
+		return err
+	}
+	defer fh.Close()
+
+	_, err = fh.WriteString(strings.Reverse(AutoGenWarning) + "\n\n")
 	if err != nil {
 		return err
 	}

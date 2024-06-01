@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/zostay/today/pkg/bible"
 	"github.com/zostay/today/pkg/ref"
 )
 
@@ -14,11 +15,11 @@ import (
 func TestPericope(t *testing.T) {
 	t.Parallel()
 
-	p, err := ref.Lookup(ref.Canonical, "James 1:12-14", "Testing")
+	p, err := ref.Lookup(bible.Protestant, "James 1:12-14", "Testing")
 	assert.NotNil(t, p)
 	assert.NoError(t, err)
 
-	b, err := ref.Canonical.Book("James")
+	b, err := bible.Protestant.Book("James")
 	require.NotNil(t, b)
 	require.NoError(t, err)
 
@@ -28,7 +29,7 @@ func TestPericope(t *testing.T) {
 			First: ref.CV{Chapter: 1, Verse: 12},
 			Last:  ref.CV{Chapter: 1, Verse: 14},
 		},
-		Canon: ref.Canonical,
+		Canon: bible.Protestant,
 		Title: "Testing",
 	}, p)
 

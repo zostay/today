@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/zostay/today/pkg/bible"
 	"github.com/zostay/today/pkg/ref"
 	"github.com/zostay/today/pkg/text"
 )
@@ -31,8 +32,8 @@ func (t *testResolver) Verse(_ context.Context, ref *ref.Resolved) (*text.Verse,
 	return &text.Verse{
 		Reference: ref.Ref(),
 		Content: text.Content{
-			Text: fjn41,
-			HTML: template.HTML(fjn41), //nolint:gosec // this is a test
+			"text": fjn41,
+			"html": fjn41,
 		},
 		Link: "https://www.esv.org/" + url.PathEscape(ref.Ref()),
 		Version: text.Version{
@@ -42,14 +43,55 @@ func (t *testResolver) Verse(_ context.Context, ref *ref.Resolved) (*text.Verse,
 	}, nil
 }
 
-func (t *testResolver) VerseText(_ context.Context, ref *ref.Resolved) (string, error) {
+func (t *testResolver) AsFormats() []string {
+	return []string{"text", "html"}
+}
+
+type testVF struct {
+	name        string
+	description string
+	ext         string
+}
+
+func (t testVF) Name() string {
+	return t.name
+}
+
+func (t testVF) Description() string {
+	return t.description
+}
+
+func (t testVF) Ext() string {
+	return t.ext
+}
+
+func (t *testResolver) DescribeFormat(ofmt string) text.VerseFormat {
+	switch ofmt {
+	case "text":
+		return testVF{
+			name:        "text",
+			description: "Plain text",
+			ext:         "txt",
+		}
+	case "html":
+		return testVF{
+			name:        "html",
+			description: "HTML",
+			ext:         "html",
+		}
+	default:
+		return nil
+	}
+}
+
+func (t *testResolver) VerseAs(_ context.Context, ref *ref.Resolved, ofmt string) (string, error) {
 	t.lastRef = ref
 	return fjn41, nil
 }
 
-func (t *testResolver) VerseHTML(_ context.Context, ref *ref.Resolved) (template.HTML, error) {
+func (t *testResolver) VerseURI(_ context.Context, ref *ref.Resolved) (string, error) {
 	t.lastRef = ref
-	return fjn41, nil
+	return "bible://" + url.PathEscape(ref.Book.Name) + "/" + url.PathEscape(ref.First.Ref()) + "-" + url.PathEscape(ref.Last.Ref()), nil
 }
 
 var _ text.Resolver = (*testResolver)(nil)
@@ -61,7 +103,7 @@ func TestService(t *testing.T) {
 	svc := text.NewService(tr)
 	assert.NotNil(t, svc)
 
-	b, err := ref.Canonical.Book("1 John")
+	b, err := bible.Protestant.Book("1 John")
 	require.NoError(t, err)
 	require.NotNil(t, b)
 
@@ -120,7 +162,7 @@ func TestService_Sad(t *testing.T) {
 	svc := text.NewService(tr)
 	assert.NotNil(t, svc)
 
-	b, err := ref.Canonical.Book("1 John")
+	b, err := bible.Protestant.Book("1 John")
 	require.NoError(t, err)
 	require.NotNil(t, b)
 

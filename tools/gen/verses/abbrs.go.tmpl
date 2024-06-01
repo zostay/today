@@ -1,7 +1,9 @@
-package ref
+package {{.Package}}
 
-var Abbreviations = &BookAbbreviations{
-    Abbreviations: []BookAbbreviation{
+import "github.com/zostay/today/pkg/bible"
+
+var Abbreviations = &bible.BookAbbreviations{
+    Abbreviations: []bible.BookAbbreviation{
 {{- range .Abbreviations}}
         {
             Name: "{{.Name}}",

@@ -1,10 +1,9 @@
 package text
 
 import (
-	"context"
 	"errors"
-	"html/template"
 
+	"github.com/zostay/today/pkg/bible"
 	"github.com/zostay/today/pkg/ref"
 )
 
@@ -41,8 +40,8 @@ func WithCanon(c *ref.Canon) ServiceOption {
 func NewService(r Resolver, opt ...ServiceOption) *Service {
 	s := &Service{
 		Resolver:      r,
-		Abbreviations: ref.Abbreviations,
-		Canon:         ref.Canonical,
+		Abbreviations: bible.Abbreviations,
+		Canon:         bible.Protestant,
 	}
 
 	for _, o := range opt {
@@ -73,65 +72,4 @@ func (s *Service) parseToResolved(vr string) (*ref.Resolved, error) {
 	}
 
 	return &ref[0], nil
-}
-
-func (s *Service) VersionInformation(ctx context.Context) (*Version, error) {
-	return s.Resolver.VersionInformation(ctx)
-}
-
-func (s *Service) Verse(ctx context.Context, vr string) (*Verse, error) {
-	res, err := s.parseToResolved(vr)
-	if err != nil {
-		return nil, err
-	}
-
-	return s.Resolver.Verse(ctx, res)
-}
-
-func (s *Service) VerseText(ctx context.Context, vr string) (string, error) {
-	res, err := s.parseToResolved(vr)
-	if err != nil {
-		return "", err
-	}
-
-	return s.Resolver.VerseText(ctx, res)
-}
-
-func (s *Service) VerseHTML(ctx context.Context, vr string) (template.HTML, error) {
-	res, err := s.parseToResolved(vr)
-	if err != nil {
-		return "", err
-	}
-
-	return s.Resolver.VerseHTML(ctx, res)
-}
-
-func (s *Service) RandomVerse(ctx context.Context, opt ...ref.RandomReferenceOption) (*ref.Resolved, *Verse, error) {
-	res, err := ref.Random(opt...)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	v, err := s.Resolver.Verse(ctx, res)
-	return res, v, err
-}
-
-func (s *Service) RandomVerseText(ctx context.Context, opt ...ref.RandomReferenceOption) (*ref.Resolved, string, error) {
-	res, err := ref.Random(opt...)
-	if err != nil {
-		return nil, "", err
-	}
-
-	txt, err := s.Resolver.VerseText(ctx, res)
-	return res, txt, err
-}
-
-func (s *Service) RandomVerseHTML(ctx context.Context, opt ...ref.RandomReferenceOption) (*ref.Resolved, template.HTML, error) {
-	res, err := ref.Random(opt...)
-	if err != nil {
-		return nil, "", err
-	}
-
-	txt, err := s.Resolver.VerseHTML(ctx, res)
-	return res, txt, err
 }

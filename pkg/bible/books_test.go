@@ -1,4 +1,4 @@
-package ref_test
+package bible_test
 
 import (
 	"testing"
@@ -6,13 +6,14 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/zostay/today/pkg/bible"
 	"github.com/zostay/today/pkg/ref"
 )
 
 func TestCanon_Resolve_Proper(t *testing.T) {
 	t.Parallel()
 
-	rs, err := ref.Canonical.Resolve(
+	rs, err := bible.Protestant.Resolve(
 		&ref.Proper{
 			Book: "Genesis",
 			Verse: &ref.Range{
@@ -30,7 +31,7 @@ func TestCanon_Resolve_Proper(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, []ref.Resolved{
 		{
-			Book:  &ref.Canonical.Books[0],
+			Book:  &bible.Protestant.Books[0],
 			First: ref.CV{Chapter: 1, Verse: 1},
 			Last:  ref.CV{Chapter: 1, Verse: 31},
 		},
@@ -40,7 +41,7 @@ func TestCanon_Resolve_Proper(t *testing.T) {
 func TestCanon_Resolve_Proper_Abbr(t *testing.T) {
 	t.Parallel()
 
-	rs, err := ref.Canonical.Resolve(
+	rs, err := bible.Protestant.Resolve(
 		&ref.Proper{
 			Book: "Gn.",
 			Verse: &ref.Range{
@@ -54,12 +55,12 @@ func TestCanon_Resolve_Proper_Abbr(t *testing.T) {
 				},
 			},
 		},
-		ref.WithAbbreviations(ref.Abbreviations),
+		ref.WithAbbreviations(bible.Abbreviations),
 	)
 	assert.NoError(t, err)
 	assert.Equal(t, []ref.Resolved{
 		{
-			Book:  &ref.Canonical.Books[0],
+			Book:  &bible.Protestant.Books[0],
 			First: ref.CV{Chapter: 1, Verse: 1},
 			Last:  ref.CV{Chapter: 1, Verse: 31},
 		},
@@ -69,7 +70,7 @@ func TestCanon_Resolve_Proper_Abbr(t *testing.T) {
 func TestCanon_Resolve_Single_WholeChapter(t *testing.T) {
 	t.Parallel()
 
-	rs, err := ref.Canonical.Resolve(
+	rs, err := bible.Protestant.Resolve(
 		&ref.Proper{
 			Book:  "Isaiah",
 			Verse: &ref.Single{Verse: ref.N{Number: 33}},
@@ -78,7 +79,7 @@ func TestCanon_Resolve_Single_WholeChapter(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, []ref.Resolved{
 		{
-			Book:  &ref.Canonical.Books[22],
+			Book:  &bible.Protestant.Books[22],
 			First: ref.CV{Chapter: 33, Verse: 1},
 			Last:  ref.CV{Chapter: 33, Verse: 24},
 		},
@@ -88,17 +89,17 @@ func TestCanon_Resolve_Single_WholeChapter(t *testing.T) {
 func TestCanon_Resolve_Single_WholeChapter_Abbr(t *testing.T) {
 	t.Parallel()
 
-	rs, err := ref.Canonical.Resolve(
+	rs, err := bible.Protestant.Resolve(
 		&ref.Proper{
 			Book:  "Is.",
 			Verse: &ref.Single{Verse: ref.N{Number: 33}},
 		},
-		ref.WithAbbreviations(ref.Abbreviations),
+		ref.WithAbbreviations(bible.Abbreviations),
 	)
 	assert.NoError(t, err)
 	assert.Equal(t, []ref.Resolved{
 		{
-			Book:  &ref.Canonical.Books[22],
+			Book:  &bible.Protestant.Books[22],
 			First: ref.CV{Chapter: 33, Verse: 1},
 			Last:  ref.CV{Chapter: 33, Verse: 24},
 		},
@@ -108,7 +109,7 @@ func TestCanon_Resolve_Single_WholeChapter_Abbr(t *testing.T) {
 func TestCanon_Resolve_AndFollowingChapter(t *testing.T) {
 	t.Parallel()
 
-	rs, err := ref.Canonical.Resolve(
+	rs, err := bible.Protestant.Resolve(
 		&ref.Proper{
 			Book: "Isaiah",
 			Verse: &ref.AndFollowing{
@@ -120,7 +121,7 @@ func TestCanon_Resolve_AndFollowingChapter(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, []ref.Resolved{
 		{
-			Book:  &ref.Canonical.Books[22],
+			Book:  &bible.Protestant.Books[22],
 			First: ref.CV{Chapter: 33, Verse: 1},
 			Last:  ref.CV{Chapter: 33, Verse: 24},
 		},
@@ -130,7 +131,7 @@ func TestCanon_Resolve_AndFollowingChapter(t *testing.T) {
 func TestCanon_Resolve_AndFollowingChapter_Abbr(t *testing.T) {
 	t.Parallel()
 
-	rs, err := ref.Canonical.Resolve(
+	rs, err := bible.Protestant.Resolve(
 		&ref.Proper{
 			Book: "Isa.",
 			Verse: &ref.AndFollowing{
@@ -138,12 +139,12 @@ func TestCanon_Resolve_AndFollowingChapter_Abbr(t *testing.T) {
 				Following: ref.FollowingRemainingChapter,
 			},
 		},
-		ref.WithAbbreviations(ref.Abbreviations),
+		ref.WithAbbreviations(bible.Abbreviations),
 	)
 	assert.NoError(t, err)
 	assert.Equal(t, []ref.Resolved{
 		{
-			Book:  &ref.Canonical.Books[22],
+			Book:  &bible.Protestant.Books[22],
 			First: ref.CV{Chapter: 33, Verse: 1},
 			Last:  ref.CV{Chapter: 33, Verse: 24},
 		},
@@ -153,7 +154,7 @@ func TestCanon_Resolve_AndFollowingChapter_Abbr(t *testing.T) {
 func TestCanon_Resolve_AndFollowingBook(t *testing.T) {
 	t.Parallel()
 
-	rs, err := ref.Canonical.Resolve(
+	rs, err := bible.Protestant.Resolve(
 		&ref.Proper{
 			Book: "Isaiah",
 			Verse: &ref.AndFollowing{
@@ -165,7 +166,7 @@ func TestCanon_Resolve_AndFollowingBook(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, []ref.Resolved{
 		{
-			Book:  &ref.Canonical.Books[22],
+			Book:  &bible.Protestant.Books[22],
 			First: ref.CV{Chapter: 33, Verse: 1},
 			Last:  ref.CV{Chapter: 66, Verse: 24},
 		},
@@ -175,7 +176,7 @@ func TestCanon_Resolve_AndFollowingBook(t *testing.T) {
 func TestCanon_Resolve_AndFollowingBook_Abbr(t *testing.T) {
 	t.Parallel()
 
-	rs, err := ref.Canonical.Resolve(
+	rs, err := bible.Protestant.Resolve(
 		&ref.Proper{
 			Book: "Isai",
 			Verse: &ref.AndFollowing{
@@ -183,12 +184,12 @@ func TestCanon_Resolve_AndFollowingBook_Abbr(t *testing.T) {
 				Following: ref.FollowingRemainingBook,
 			},
 		},
-		ref.WithAbbreviations(ref.Abbreviations),
+		ref.WithAbbreviations(bible.Abbreviations),
 	)
 	assert.NoError(t, err)
 	assert.Equal(t, []ref.Resolved{
 		{
-			Book:  &ref.Canonical.Books[22],
+			Book:  &bible.Protestant.Books[22],
 			First: ref.CV{Chapter: 33, Verse: 1},
 			Last:  ref.CV{Chapter: 66, Verse: 24},
 		},
@@ -198,7 +199,7 @@ func TestCanon_Resolve_AndFollowingBook_Abbr(t *testing.T) {
 func TestCanon_Resolve_Range_WholeChapter(t *testing.T) {
 	t.Parallel()
 
-	rs, err := ref.Canonical.Resolve(
+	rs, err := bible.Protestant.Resolve(
 		&ref.Proper{
 			Book: "Isaiah",
 			Verse: &ref.Range{
@@ -210,7 +211,7 @@ func TestCanon_Resolve_Range_WholeChapter(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, []ref.Resolved{
 		{
-			Book:  &ref.Canonical.Books[22],
+			Book:  &bible.Protestant.Books[22],
 			First: ref.CV{Chapter: 24, Verse: 1},
 			Last:  ref.CV{Chapter: 27, Verse: 13},
 		},
@@ -220,7 +221,7 @@ func TestCanon_Resolve_Range_WholeChapter(t *testing.T) {
 func TestCanon_Resolve_Range_WholeChapter_Abbr(t *testing.T) {
 	t.Parallel()
 
-	rs, err := ref.Canonical.Resolve(
+	rs, err := bible.Protestant.Resolve(
 		&ref.Proper{
 			Book: "Isaia",
 			Verse: &ref.Range{
@@ -228,12 +229,12 @@ func TestCanon_Resolve_Range_WholeChapter_Abbr(t *testing.T) {
 				Last:  ref.N{Number: 27},
 			},
 		},
-		ref.WithAbbreviations(ref.Abbreviations),
+		ref.WithAbbreviations(bible.Abbreviations),
 	)
 	assert.NoError(t, err)
 	assert.Equal(t, []ref.Resolved{
 		{
-			Book:  &ref.Canonical.Books[22],
+			Book:  &bible.Protestant.Books[22],
 			First: ref.CV{Chapter: 24, Verse: 1},
 			Last:  ref.CV{Chapter: 27, Verse: 13},
 		},
@@ -243,7 +244,7 @@ func TestCanon_Resolve_Range_WholeChapter_Abbr(t *testing.T) {
 func TestCanon_Resolve_Multiple_Simple(t *testing.T) {
 	t.Parallel()
 
-	rs, err := ref.Canonical.Resolve(
+	rs, err := bible.Protestant.Resolve(
 		&ref.Multiple{
 			Refs: []ref.Ref{
 				&ref.Proper{
@@ -278,12 +279,12 @@ func TestCanon_Resolve_Multiple_Simple(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, []ref.Resolved{
 		{
-			Book:  &ref.Canonical.Books[0],
+			Book:  &bible.Protestant.Books[0],
 			First: ref.CV{Chapter: 1, Verse: 1},
 			Last:  ref.CV{Chapter: 1, Verse: 31},
 		},
 		{
-			Book:  &ref.Canonical.Books[1],
+			Book:  &bible.Protestant.Books[1],
 			First: ref.CV{Chapter: 1, Verse: 1},
 			Last:  ref.CV{Chapter: 1, Verse: 7},
 		},
@@ -293,7 +294,7 @@ func TestCanon_Resolve_Multiple_Simple(t *testing.T) {
 func TestCanon_Resolve_Multiple_Simple_Abbr(t *testing.T) {
 	t.Parallel()
 
-	rs, err := ref.Canonical.Resolve(
+	rs, err := bible.Protestant.Resolve(
 		&ref.Multiple{
 			Refs: []ref.Ref{
 				&ref.Proper{
@@ -324,17 +325,17 @@ func TestCanon_Resolve_Multiple_Simple_Abbr(t *testing.T) {
 				},
 			},
 		},
-		ref.WithAbbreviations(ref.Abbreviations),
+		ref.WithAbbreviations(bible.Abbreviations),
 	)
 	assert.NoError(t, err)
 	assert.Equal(t, []ref.Resolved{
 		{
-			Book:  &ref.Canonical.Books[0],
+			Book:  &bible.Protestant.Books[0],
 			First: ref.CV{Chapter: 1, Verse: 1},
 			Last:  ref.CV{Chapter: 1, Verse: 31},
 		},
 		{
-			Book:  &ref.Canonical.Books[1],
+			Book:  &bible.Protestant.Books[1],
 			First: ref.CV{Chapter: 1, Verse: 1},
 			Last:  ref.CV{Chapter: 1, Verse: 7},
 		},
@@ -344,9 +345,9 @@ func TestCanon_Resolve_Multiple_Simple_Abbr(t *testing.T) {
 func TestCanon_Resolve_Resolved(t *testing.T) {
 	t.Parallel()
 
-	rs, err := ref.Canonical.Resolve(
+	rs, err := bible.Protestant.Resolve(
 		&ref.Resolved{
-			Book: &ref.Canonical.Books[0],
+			Book: &bible.Protestant.Books[0],
 			First: ref.CV{
 				Chapter: 1,
 				Verse:   1,
@@ -360,7 +361,7 @@ func TestCanon_Resolve_Resolved(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, []ref.Resolved{
 		{
-			Book:  &ref.Canonical.Books[0],
+			Book:  &bible.Protestant.Books[0],
 			First: ref.CV{Chapter: 1, Verse: 1},
 			Last:  ref.CV{Chapter: 1, Verse: 31},
 		},
@@ -370,7 +371,7 @@ func TestCanon_Resolve_Resolved(t *testing.T) {
 func TestCanon_Resolve_Multiple_Relative(t *testing.T) {
 	t.Parallel()
 
-	rs, err := ref.Canonical.Resolve(
+	rs, err := bible.Protestant.Resolve(
 		&ref.Multiple{
 			Refs: []ref.Ref{
 				&ref.Proper{
@@ -429,27 +430,27 @@ func TestCanon_Resolve_Multiple_Relative(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, []ref.Resolved{
 		{
-			Book:  &ref.Canonical.Books[0],
+			Book:  &bible.Protestant.Books[0],
 			First: ref.CV{Chapter: 1, Verse: 1},
 			Last:  ref.CV{Chapter: 1, Verse: 31},
 		},
 		{
-			Book:  &ref.Canonical.Books[0],
+			Book:  &bible.Protestant.Books[0],
 			First: ref.CV{Chapter: 10, Verse: 21},
 			Last:  ref.CV{Chapter: 10, Verse: 32},
 		},
 		{
-			Book:  &ref.Canonical.Books[0],
+			Book:  &bible.Protestant.Books[0],
 			First: ref.CV{Chapter: 12, Verse: 10},
 			Last:  ref.CV{Chapter: 12, Verse: 16},
 		},
 		{
-			Book:  &ref.Canonical.Books[0],
+			Book:  &bible.Protestant.Books[0],
 			First: ref.CV{Chapter: 15, Verse: 1},
 			Last:  ref.CV{Chapter: 15, Verse: 1},
 		},
 		{
-			Book:  &ref.Canonical.Books[0],
+			Book:  &bible.Protestant.Books[0],
 			First: ref.CV{Chapter: 16, Verse: 11},
 			Last:  ref.CV{Chapter: 16, Verse: 12},
 		},
@@ -459,7 +460,7 @@ func TestCanon_Resolve_Multiple_Relative(t *testing.T) {
 func TestCanon_Resolve_Multiple_Relative_Abbr(t *testing.T) {
 	t.Parallel()
 
-	rs, err := ref.Canonical.Resolve(
+	rs, err := bible.Protestant.Resolve(
 		&ref.Multiple{
 			Refs: []ref.Ref{
 				&ref.Proper{
@@ -514,32 +515,32 @@ func TestCanon_Resolve_Multiple_Relative_Abbr(t *testing.T) {
 				},
 			},
 		},
-		ref.WithAbbreviations(ref.Abbreviations),
+		ref.WithAbbreviations(bible.Abbreviations),
 	)
 	assert.NoError(t, err)
 	assert.Equal(t, []ref.Resolved{
 		{
-			Book:  &ref.Canonical.Books[0],
+			Book:  &bible.Protestant.Books[0],
 			First: ref.CV{Chapter: 1, Verse: 1},
 			Last:  ref.CV{Chapter: 1, Verse: 31},
 		},
 		{
-			Book:  &ref.Canonical.Books[0],
+			Book:  &bible.Protestant.Books[0],
 			First: ref.CV{Chapter: 10, Verse: 21},
 			Last:  ref.CV{Chapter: 10, Verse: 32},
 		},
 		{
-			Book:  &ref.Canonical.Books[0],
+			Book:  &bible.Protestant.Books[0],
 			First: ref.CV{Chapter: 12, Verse: 10},
 			Last:  ref.CV{Chapter: 12, Verse: 16},
 		},
 		{
-			Book:  &ref.Canonical.Books[0],
+			Book:  &bible.Protestant.Books[0],
 			First: ref.CV{Chapter: 15, Verse: 1},
 			Last:  ref.CV{Chapter: 15, Verse: 1},
 		},
 		{
-			Book:  &ref.Canonical.Books[0],
+			Book:  &bible.Protestant.Books[0],
 			First: ref.CV{Chapter: 16, Verse: 11},
 			Last:  ref.CV{Chapter: 16, Verse: 12},
 		},
@@ -549,7 +550,7 @@ func TestCanon_Resolve_Multiple_Relative_Abbr(t *testing.T) {
 func TestBook_LastVerseInChapter(t *testing.T) {
 	t.Parallel()
 
-	for _, b := range ref.Canonical.Books {
+	for _, b := range bible.Protestant.Books {
 		var lastLv int
 		var prevV ref.Verse
 		for _, v := range b.Verses {
@@ -587,7 +588,7 @@ func TestBook_LastVerseInChapter(t *testing.T) {
 		}
 	}
 
-	gen, err := ref.Canonical.Book("Genesis")
+	gen, err := bible.Protestant.Book("Genesis")
 	require.NoError(t, err)
 
 	_, err = gen.LastVerseInChapter(60)
@@ -668,15 +669,15 @@ func TestBookAbbreviations_BookName(t *testing.T) {
 func TestBookAbbreviations_SingularName(t *testing.T) {
 	t.Parallel()
 
-	sname, err := ref.Abbreviations.SingularName("John")
+	sname, err := bible.Abbreviations.SingularName("John")
 	assert.NoError(t, err)
 	assert.Equal(t, "John", sname)
 
-	sname, err = ref.Abbreviations.SingularName("Psalms")
+	sname, err = bible.Abbreviations.SingularName("Psalms")
 	assert.NoError(t, err)
 	assert.Equal(t, "Psalm", sname)
 
-	_, err = ref.Abbreviations.SingularName("Psalm")
+	_, err = bible.Abbreviations.SingularName("Psalm")
 	assert.ErrorIs(t, err, ref.ErrNotFound)
 }
 

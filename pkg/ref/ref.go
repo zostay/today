@@ -8,6 +8,10 @@ import (
 	"strings"
 
 	"github.com/zostay/go-std/slices"
+
+	"github.com/zostay/today/internal/options"
+	"github.com/zostay/today/pkg/bible"
+	"github.com/zostay/today/pkg/canon"
 )
 
 const (
@@ -23,97 +27,17 @@ const (
 	FollowingRemainingBook
 )
 
-type ValidationError struct {
-	Cause error
-}
-
-func (e *ValidationError) Error() string {
-	return fmt.Sprintf("validation error: %v", e.Cause)
-}
-
-func (e *ValidationError) Unwrap() error {
-	return e.Cause
-}
-
-func invalid(msg string, args ...any) error {
-	err := fmt.Errorf(msg, args...)
-	return &ValidationError{Cause: err}
-}
-
-func unravelInvalid(err error) error {
-	if err == nil {
-		return nil
-	}
-	if verr, isInvalid := err.(*ValidationError); isInvalid { //nolint:errorlint // I want to unwrap only the topmost here...
-		return verr.Cause
-	}
-	return err
-}
-
 func ValidFollowing(n Following) bool {
 	return n == FollowingRemainingChapter ||
 		n == FollowingRemainingBook
 }
 
-// Ref is any kind of Bible reference.
-type Ref interface {
-	// Ref returns the string representation of the reference.
-	Ref() string
-
-	// Validate returns whether the reference is valid.
-	Validate() error
-}
-
-// Relative is any kind of reference that does not specify a Book.
-type Relative interface {
-	Ref
-
-	// InBook turns this relative reference into a proper reference for the
-	// given book.
-	InBook(string) *Proper
-}
-
-// Verse is a reference to a verse of the Bible relative to a book.
-type Verse interface {
-	Relative
-
-	// Before returns true if this verse is before the given verse. If the given
-	// verse is not the same type as this verse, it must be converted to this
-	// type using RelativeTo first.
-	Before(Verse) bool
-
-	// Equal returns true if this verse is equal to the given verse. If the given
-	// verse is not the same type as this verse, it must be converted to this
-	// type using RelativeTo first.
-	Equal(Verse) bool
-
-	// RelativeTo returns the given verse converted to this type of verse using
-	// this verse as context.
-	RelativeTo(Verse) Verse
-}
-
-// Absolute is any kind of reference that specifies a Book.
-type Absolute interface {
-	Ref
-
-	// Names returns the names of the books referenced.
-	Names() []string
-
-	// AbbreviatedRef returns the reference, but with the book name using a
-	// standard abbreviation. The WithAbbreviations option may be passed to
-	// control the abbreviations to be used. This method does not ensure that the
-	// verse can be resolved and represents a valid reference.
-	AbbreviatedRef(...ResolveOption) (string, error)
-
-	// FullNameRef returns the reference, but ensures abbreviations have been
-	// expanded to the full book name. The WithAbbreviations option may be passed
-	// to control the abbreviations to be used. This method does not ensure that
-	// the verse can be resolved and represents a valid reference.
-	FullNameRef(...ResolveOption) (string, error)
-
-	// IsSingleRange returns true if the reference is a single range of verses.
-	IsSingleRange() bool
-}
+type (
+	Ref      = canon.Ref
+	Verse    = canon.Verse
+	Absolute = canon.Absolute
+	Relative = canon.Relative
+)
 
 // CV is a reference to a specific chapter and verse for books with
 // both chapters and Verses.
@@ -127,20 +51,9 @@ func (v CV) Ref() string {
 	return strconv.Itoa(v.Chapter) + ":" + strconv.Itoa(v.Verse)
 }
 
-// Validate returns true iff the chapter and verse are both positive.
-func (v CV) Validate() error {
-	if v.Chapter <= 0 {
-		return invalid("chapter must be positive")
-	}
-	if v.Verse <= 0 {
-		return invalid("verse must be positive")
-	}
-	return nil
-}
-
-// InBook turns this relative reference into a proper reference for the given
+// InBook turns this relative reference into an absolute reference for the given
 // book.
-func (v CV) InBook(b string) *Proper {
+func (v CV) InBook(b string) Absolute {
 	return NewProper(b, &Single{Verse: v})
 }
 
@@ -201,9 +114,9 @@ func (n N) Validate() error {
 	return nil
 }
 
-// InBook turns this relative reference into a proper reference for the given
+// InBook turns this relative reference into an absolute reference for the given
 // book.
-func (n N) InBook(b string) *Proper {
+func (n N) InBook(b string) Absolute {
 	return NewProper(b, &Single{Verse: n})
 }
 
@@ -251,7 +164,9 @@ func (v *Single) Validate() error {
 	return v.Verse.Validate()
 }
 
-func (v *Single) InBook(b string) *Proper {
+// InBook turns this relative reference into an absolute reference for the given
+// book.
+func (v *Single) InBook(b string) Absolute {
 	return NewProper(b, v)
 }
 
@@ -294,7 +209,7 @@ func (v *AndFollowing) Validate() error {
 
 // InBook turns this relative reference into a proper reference for the given
 // book.
-func (v *AndFollowing) InBook(b string) *Proper {
+func (v *AndFollowing) InBook(b string) Absolute {
 	return NewProper(b, v)
 }
 
@@ -348,7 +263,7 @@ func (r *Range) Validate() error {
 
 // InBook turns this relative reference into a proper reference for the given
 // book.
-func (r *Range) InBook(b string) *Proper {
+func (r *Range) InBook(b string) Absolute {
 	return NewProper(b, r)
 }
 
@@ -405,9 +320,9 @@ func (r *Related) Validate() error {
 	return nil
 }
 
-// InBook turns this relative reference into a proper reference for the given
+// InBook turns this relative reference into an absolute reference for the given
 // book.
-func (r *Related) InBook(b string) *Proper {
+func (r *Related) InBook(b string) Absolute {
 	return NewProper(b, r)
 }
 
@@ -430,7 +345,7 @@ func (p *Proper) Ref() string {
 }
 
 func (p *Proper) FullNameRef(opt ...ResolveOption) (string, error) {
-	o := makeResolveOpts(opt)
+	o := options.MakeResolveOpts(opt)
 	abbrs := o.Abbreviations
 
 	if abbrs == nil {
@@ -453,7 +368,7 @@ func (p *Proper) FullNameRef(opt ...ResolveOption) (string, error) {
 }
 
 func (p *Proper) AbbreviatedRef(opt ...ResolveOption) (string, error) {
-	o := makeResolveOpts(opt)
+	o := options.MakeResolveOpts(opt)
 	abbrs := o.Abbreviations
 
 	if abbrs == nil {
@@ -493,6 +408,10 @@ func (p *Proper) IsSingleRange() bool {
 	_, isRange := p.Verse.(*Range)
 	_, isAndFollowing := p.Verse.(*AndFollowing)
 	return isSingle || isRange || isAndFollowing
+}
+
+func (p *Proper) InCanon(c *bible.Canon, opts *bible.Resolve) ([]bible.CanonicalRef, error) {
+	b, err := Book(c, p.Book, opts)
 }
 
 // Multiple is a list of references to verses relative to a Book of the Bible. These
@@ -612,190 +531,29 @@ func (m *Multiple) IsSingleRange() bool {
 	return false
 }
 
-// Resolved is a normalized reference to a single range of verses in a single
-// book, which may have a length of one. Both Verse references are inclusive and
-// must match the verse type of the book. (I.e., if the book has chapters, then
-// both First and Last must be ref.CV references.)
-type Resolved struct {
-	Book  *Book
-	First Verse
-	Last  Verse
-}
-
-func (r *Resolved) Ref() string {
-	if r.First.Equal(r.Last) {
-		return fmt.Sprintf("%s %s", r.Book.Name, r.First.Ref())
-	}
-	return fmt.Sprintf("%s %s-%s", r.Book.Name, r.First.Ref(), r.Last.Ref())
-}
-
-func (r *Resolved) Validate() error {
-	if r.Book == nil {
-		return fmt.Errorf("book is required")
-	}
-	if r.First == nil {
-		return fmt.Errorf("first reference is required")
-	}
-	if r.Last == nil {
-		return fmt.Errorf("last reference is required")
-	}
-
-	if err := r.First.Validate(); err != nil {
-		return invalid("first reference is invalid: %w", unravelInvalid(err))
-	}
-	if err := r.Last.Validate(); err != nil {
-		return invalid("last reference is invalid: %w", unravelInvalid(err))
-	}
-
-	if _, isCV := r.First.(CV); r.Book.JustVerse && isCV {
-		return invalid("book has no chapters, but first reference is a chapter and verse reference")
-	}
-	if _, isCV := r.Last.(CV); r.Book.JustVerse && isCV {
-		return invalid("book has no chapters, but last reference is a chapter and verse reference")
-	}
-	if _, isCV := r.First.(CV); !r.Book.JustVerse && !isCV {
-		return invalid("book has chapters, but first reference is not a chapter and verse reference")
-	}
-	if _, isCV := r.Last.(CV); !r.Book.JustVerse && !isCV {
-		return invalid("book has chapters, but last reference is not a chapter and verse reference")
-	}
-
-	if r.Last.RelativeTo(r.First).Before(r.First) {
-		return fmt.Errorf("first reference must be before or equal to last reference")
-	}
-
-	return nil
-}
-
-func (r *Resolved) Names() []string {
-	return []string{r.Book.Name}
-}
-
-func (r *Resolved) IsSingleRange() bool {
-	return true
-}
-
-func (r *Resolved) Verses() []Verse {
-	verses := make([]Verse, 0, len(r.Book.Verses))
-	started := false
-	for _, verse := range r.Book.Verses {
-		if verse.Equal(r.First) {
-			started = true
-		}
-		if started {
-			verses = append(verses, verse)
-		}
-		if verse.Equal(r.Last) {
-			break
-		}
-	}
-
-	return verses
-}
-
-func (r *Resolved) compactRef(name string) (string, error) {
-	if r.First.Equal(r.Last) {
-		return fmt.Sprintf("%s %s", name, r.First.Ref()), nil
-	}
-
-	if r.First.Equal(r.Book.Verses[0]) && r.Last.Equal(r.Book.Verses[len(r.Book.Verses)-1]) {
-		return name, nil
-	}
-
-	fcv, isFCV := r.First.(CV)
-	lcv, isLCV := r.Last.(CV)
-	if isFCV && isLCV {
-		if fcv.Chapter == lcv.Chapter {
-			lvInC, err := r.Book.LastVerseInChapter(fcv.Chapter)
+func (m *Multiple) InCanon(c *bible.Canon, opts *bible.Resolve) ([]bible.CanonicalRef, error) {
+	var rs []bible.CanonicalRef
+	var b *bible.Book
+	for i := range m.Refs {
+		switch r := m.Refs[i].(type) {
+		case Absolute:
+			refs, err := r.InCanon(c, opts)
 			if err != nil {
-				return "", err
+				return nil, err
 			}
 
-			if fcv.Verse == 1 && lcv.Verse == lvInC {
-				return fmt.Sprintf("%s %d", name, fcv.Chapter), nil
-			}
-
-			return fmt.Sprintf("%s %d:%d-%d", name, fcv.Chapter, fcv.Verse, lcv.Verse), nil
-		} else {
-			lvInC, err := r.Book.LastVerseInChapter(lcv.Chapter)
+			rs = append(rs, refs...)
+		default:
+			thisRs, err := r.InBook(b.Name).InCanon(c, opts)
 			if err != nil {
-				return "", err
+				return nil, err
 			}
 
-			if fcv.Verse == 1 && lcv.Verse == lvInC {
-				return fmt.Sprintf("%s %d-%d", name, fcv.Chapter, lcv.Chapter), nil
-			}
+			rs = append(rs, thisRs...)
 		}
 	}
 
-	return fmt.Sprintf("%s %s-%s", name, r.First.Ref(), r.Last.Ref()), nil
-}
-
-// CompactRef returns a compact representation of the resolved reference. If the
-// reference is a single verse, only one verse is returned (e.g., Genesis 12:4).
-// If the reference is limited to a single chapter, the chapter is mentioned only
-// once (e.g., Genesis 12:4-6). If the reference is for an entire chapter, the
-// verse part is omitted (e.g., Genesis 12). If the reference is for an entire
-// book, only the book name is returned (e.g., Genesis).
-//
-// This will ignore the AsSingleChapter option as a resoled reference inherently
-// knows if it is a single chapter via IsSingleChapter.
-func (r *Resolved) CompactRef(opt ...ResolveOption) (string, error) {
-	o := makeResolveOpts(opt)
-	name := r.Book.Name
-	if o.Abbreviations != nil && r.IsSingleChapter() {
-		var err error
-		name, err = o.Abbreviations.SingularName(name)
-		if err != nil {
-			return "", err
-		}
-	}
-	return r.compactRef(name)
-}
-
-// FullNameRef is a synonym for CompactRef.
-//
-// This will ignore the AsSingleChapter option as a resoled reference inherently
-// knows if it is a single chapter via IsSingleChapter.
-func (r *Resolved) FullNameRef(opt ...ResolveOption) (string, error) {
-	return r.CompactRef(opt...)
-}
-
-// IsSingleChapter returns true if the reference is for a single chapter. This is
-// decided by considering the kind of book this is and comparing First to Last.
-func (r *Resolved) IsSingleChapter() bool {
-	if r.Book.JustVerse {
-		return true
-	}
-
-	fcv, isFCV := r.First.(CV)
-	lcv, isLCV := r.Last.(CV)
-	if isFCV && isLCV {
-		return fcv.Chapter == lcv.Chapter
-	}
-
-	return false
-}
-
-// AbbreviatedRef returns a compact and abbreviated representation of the
-// resolved reference. This works the same as CompactRef, but with the book name
-// abbreviated using the Standard abbreviation for the book. You may use
-// ref.WithAbbreviations to select an alternate set of abbreviations. If this
-// option is not given, ref.Abbreviations will be used.
-func (r *Resolved) AbbreviatedRef(opt ...ResolveOption) (string, error) {
-	o := makeResolveOpts(opt)
-	abbrs := o.Abbreviations
-
-	if abbrs == nil {
-		return r.compactRef(r.Book.Name)
-	}
-
-	abbrName, err := abbrs.PreferredAbbreviation(r.Book.Name)
-	if err != nil {
-		return "", err
-	}
-
-	return r.compactRef(abbrName)
+	return rs, nil
 }
 
 var _ Verse = CV{}

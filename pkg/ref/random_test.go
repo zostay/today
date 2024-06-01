@@ -6,18 +6,19 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/zostay/today/pkg/bible"
 	"github.com/zostay/today/pkg/ref"
 )
 
 func TestRandomCanonical(t *testing.T) {
 	t.Parallel()
 
-	b := ref.RandomCanonical(ref.Canonical)
+	b := ref.RandomCanonical(bible.Protestant)
 	assert.NotNil(t, b)
 
 	found := false
-	for i := range ref.Canonical.Books {
-		if b == &ref.Canonical.Books[i] {
+	for i := range bible.Protestant.Books {
+		if b == &bible.Protestant.Books[i] {
 			found = true
 			break
 		}
@@ -29,8 +30,8 @@ func TestRandomCanonical(t *testing.T) {
 func TestRandomPassage(t *testing.T) {
 	t.Parallel()
 
-	for i := range ref.Canonical.Books {
-		b := &ref.Canonical.Books[i]
+	for i := range bible.Protestant.Books {
+		b := &bible.Protestant.Books[i]
 
 		p := ref.RandomPassage(b, 1, 30)
 		assert.NotNil(t, p)
@@ -45,8 +46,8 @@ func TestRandomPassage(t *testing.T) {
 func TestRandomPassageFromRef(t *testing.T) {
 	t.Parallel()
 
-	for i := range ref.Canonical.Books {
-		b := &ref.Canonical.Books[i]
+	for i := range bible.Protestant.Books {
+		b := &bible.Protestant.Books[i]
 
 		p := ref.RandomPassage(b, 1, 30)
 		require.NotNil(t, p)

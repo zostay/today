@@ -3,7 +3,6 @@ package esv_test
 import (
 	"context"
 	"encoding/json"
-	"html/template"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -13,6 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 	esvc "github.com/zostay/go-esv-api/pkg/esv"
 
+	"github.com/zostay/today/pkg/bible"
 	"github.com/zostay/today/pkg/ref"
 	"github.com/zostay/today/pkg/text/esv"
 )
@@ -58,10 +58,10 @@ func TestResolver_VerseText(t *testing.T) {
 	p, err := ref.ParseProper("John 1:1")
 	require.NoError(t, err)
 
-	ref, err := ref.Canonical.Resolve(p)
+	ref, err := bible.Protestant.Resolve(p)
 	require.NoError(t, err)
 
-	txt, err := res.VerseText(context.Background(), &ref[0])
+	txt, err := res.VerseAs(context.Background(), &ref[0], "text")
 	assert.NoError(t, err)
 	assert.Equal(t, jn11, txt)
 }
@@ -86,12 +86,12 @@ func TestResolver_VerseHTML(t *testing.T) {
 	p, err := ref.ParseProper("John 1:1")
 	require.NoError(t, err)
 
-	ref, err := ref.Canonical.Resolve(p)
+	ref, err := bible.Protestant.Resolve(p)
 	require.NoError(t, err)
 
-	txt, err := res.VerseHTML(context.Background(), &ref[0])
+	txt, err := res.VerseAs(context.Background(), &ref[0], "html")
 	assert.NoError(t, err)
-	assert.Equal(t, template.HTML(jn11), txt) //nolint:gosec // seriously, it's a mock, it's not even HTML
+	assert.Equal(t, jn11, txt)
 }
 
 func TestResolver_VersionInformation(t *testing.T) {

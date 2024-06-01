@@ -1,13 +1,18 @@
 package cmd
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"html/template"
+	"strings"
 
 	"github.com/bbrks/wrap"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 
+	"github.com/zostay/today/cmd/flag"
+	"github.com/zostay/today/cmd/output"
 	"github.com/zostay/today/pkg/ref"
 	"github.com/zostay/today/pkg/text"
 	"github.com/zostay/today/pkg/text/esv"
@@ -26,6 +31,7 @@ var (
 
 func init() {
 	randomCmd.Flags().BoolVarP(&asHtml, "html", "H", false, "Output as HTML")
+	randomCmd.Flags().VarP(&outputFormat, "output", "o", fmt.Sprintf("Output format (%s)", flag.ListOutputFormats()))
 	randomCmd.Flags().StringVarP(&fromCategory, "category", "c", "", "Pick a random verse from a category")
 	randomCmd.Flags().StringVarP(&fromBook, "book", "b", "", "Pick a random verse from a book")
 	randomCmd.Flags().UintVarP(&minimumVerses, "minimum-verses", "m", 1, "Minimum number of verses to include in the random selection")
@@ -64,15 +70,27 @@ func RunTodayRandom(cmd *cobra.Command, args []string) error {
 	var (
 		v  string
 		vr *ref.Resolved
+		vs *text.Verse
 	)
 
-	if asHtml {
+	ofmt := collectOutputFormat().Name
+	switch ofmt {
+	case output.JPEGFormat:
+		panic("JPEG output not implemented")
+	case output.YAMLFormat, output.JSONFormat, output.MetaFormat:
+		vrropts := make([]text.VerseRandomReferenceOption, len(opts))
+		for i, o := range opts {
+			vrropts[i] = o
+		}
+		vr, vs, err = svc.RandomVerse(cmd.Context(), vrropts...)
+	case output.HTMLFormat:
 		var vh template.HTML
 		vr, vh, err = svc.RandomVerseHTML(cmd.Context(), opts...)
 		v = string(vh)
-	} else {
+	case output.TextFormat:
 		vr, v, err = svc.RandomVerseText(cmd.Context(), opts...)
 	}
+
 	if err != nil {
 		var ucerr *ref.UnknownCategoryError
 		if errors.As(err, &ucerr) {
@@ -82,13 +100,39 @@ func RunTodayRandom(cmd *cobra.Command, args []string) error {
 		panic(err)
 	}
 
-	if asHtml {
+	switch ofmt {
+	case output.YAMLFormat:
+		enc := yaml.NewEncoder(cmd.OutOrStdout())
+		err = enc.Encode(vs)
+		if err != nil {
+			panic(err)
+		}
+		return nil
+	case output.JSONFormat:
+		enc := json.NewEncoder(cmd.OutOrStdout())
+		err = enc.Encode(vs)
+		if err != nil {
+			panic(err)
+		}
+		return nil
+	case output.MetaFormat:
+		w := strings.Builder{}
+		sref, err := vr.CompactRef()
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Fprintf(&w, "Reference: %s\n", sref)
+		fmt.Fprintf(&w, "Version:   %s\n", vs.Version.Name)
+		fmt.Fprintf(&w, "Link:      %s\n", vs.Version.Link)
+		v = w.String()
+	case output.HTMLFormat:
 		sref, err := vr.CompactRef()
 		if err != nil {
 			panic(err)
 		}
 		v = "<h1>" + sref + "</h1>\n" + v
-	} else {
+	case output.TextFormat:
 		sref, err := vr.CompactRef()
 		if err != nil {
 			panic(err)

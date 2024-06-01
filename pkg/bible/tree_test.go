@@ -1,18 +1,18 @@
-package ref_test
+package bible_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/zostay/today/pkg/ref"
+	"github.com/zostay/today/pkg/canon"
 )
 
 func TestAbbrTree(t *testing.T) {
 	t.Parallel()
 
-	abbrs := ref.BookAbbreviations{
-		Abbreviations: []ref.BookAbbreviation{
+	abbrs := canon.BookAbbreviations{
+		Abbreviations: []canon.BookAbbreviation{
 			{
 				Name:    "Abc",
 				Accepts: []string{"Abc", "Ac"},
@@ -28,36 +28,36 @@ func TestAbbrTree(t *testing.T) {
 		},
 	}
 
-	tree := ref.NewAbbrTree(&abbrs)
+	tree := canon.NewAbbrTree(&abbrs)
 
 	res := tree.Get("A")
-	assert.Equal(t, map[string]*ref.BookAbbreviation{
+	assert.Equal(t, map[string]*canon.BookAbbreviation{
 		"Abc": &abbrs.Abbreviations[0],
 		"Acd": &abbrs.Abbreviations[2],
 	}, res)
 
 	res = tree.Get("Ab")
-	assert.Equal(t, map[string]*ref.BookAbbreviation{
+	assert.Equal(t, map[string]*canon.BookAbbreviation{
 		"Abc": &abbrs.Abbreviations[0],
 	}, res)
 
 	res = tree.Get("Abc")
-	assert.Equal(t, map[string]*ref.BookAbbreviation{
+	assert.Equal(t, map[string]*canon.BookAbbreviation{
 		"Abc": &abbrs.Abbreviations[0],
 	}, res)
 
 	res = tree.Get("Ac")
-	assert.Equal(t, map[string]*ref.BookAbbreviation{
+	assert.Equal(t, map[string]*canon.BookAbbreviation{
 		"Abc": &abbrs.Abbreviations[0],
 	}, res)
 
 	res = tree.Get("acd")
-	assert.Equal(t, map[string]*ref.BookAbbreviation{
+	assert.Equal(t, map[string]*canon.BookAbbreviation{
 		"Acd": &abbrs.Abbreviations[2],
 	}, res)
 
 	res = tree.Get(".ad")
-	assert.Equal(t, map[string]*ref.BookAbbreviation{
+	assert.Equal(t, map[string]*canon.BookAbbreviation{
 		"Acd": &abbrs.Abbreviations[2],
 	}, res)
 
@@ -65,17 +65,17 @@ func TestAbbrTree(t *testing.T) {
 	assert.Nil(t, res)
 
 	res = tree.Get("D")
-	assert.Equal(t, map[string]*ref.BookAbbreviation{
+	assert.Equal(t, map[string]*canon.BookAbbreviation{
 		"Def": &abbrs.Abbreviations[1],
 	}, res)
 
 	res = tree.Get("DE")
-	assert.Equal(t, map[string]*ref.BookAbbreviation{
+	assert.Equal(t, map[string]*canon.BookAbbreviation{
 		"Def": &abbrs.Abbreviations[1],
 	}, res)
 
 	res = tree.Get("D E F.")
-	assert.Equal(t, map[string]*ref.BookAbbreviation{
+	assert.Equal(t, map[string]*canon.BookAbbreviation{
 		"Def": &abbrs.Abbreviations[1],
 	}, res)
 

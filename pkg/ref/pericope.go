@@ -1,15 +1,37 @@
 package ref
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/zostay/today/pkg/canon"
+)
 
 // Pericope represents a resolved extract from a canon.
 type Pericope struct {
-	Ref   *Resolved
-	Canon *Canon
+	Ref   *canon.Resolved
+	Canon *canon.Canon
 	Title string
 }
 
-func Lookup(c *Canon, ref, title string) (*Pericope, error) {
+// Category returns a list of Pericopes associated with that Category or nil if
+// no such category is defined. Returns nil and error if there's a problem with
+// the category definition.
+func PericopeFromCanonCategory(c *canon.Canon, name string) ([]*Pericope, error) {
+	if refs, hasCategory := c.Categories[name]; hasCategory {
+		var ps []*Pericope
+		for i := range refs {
+			p, err := Lookup(c, refs[i], "")
+			if err != nil {
+				return nil, err
+			}
+			ps = append(ps, p)
+		}
+		return ps, nil
+	}
+	return nil, nil
+}
+
+func Lookup(c *canon.Canon, ref, title string) (*Pericope, error) {
 	p, err := ParseProper(ref)
 	if err != nil {
 		return nil, err

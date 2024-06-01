@@ -1,27 +1,8 @@
 package text
 
 import (
-	"context"
 	"html/template"
-
-	"github.com/zostay/today/pkg/ref"
 )
-
-// Resolver is the interface used to retrieve text for a scripture passage.
-type Resolver interface {
-	// Verse fetches a verse an associated metadata for the given reference..
-	Verse(ctx context.Context, ref *ref.Resolved) (*Verse, error)
-
-	// VerseText turns a reference into a string of text.
-	VerseText(ctx context.Context, ref *ref.Resolved) (string, error)
-
-	// VerseHTML turns a reference into a string of HTML.
-	VerseHTML(ctx context.Context, ref *ref.Resolved) (template.HTML, error)
-
-	// VersionInformation returns the metadata for the version of the Bible
-	// used for the verse.
-	VersionInformation(ctx context.Context) (*Version, error)
-}
 
 // Verse is the metadata and content for a verse of the day.
 type Verse struct {
@@ -32,9 +13,16 @@ type Verse struct {
 }
 
 // Content holds the content of a scripture of the day.
-type Content struct {
-	Text string        `yaml:"text,omitempty" json:"text,omitempty"`
-	HTML template.HTML `yaml:"html,omitempty" json:"html,omitempty"`
+type Content map[string]string
+
+// Text returns the plain text rendering of the scripture.
+func (c Content) Text() string {
+	return c["text"]
+}
+
+// HTML returns the HTML rendering of the scripture.
+func (c Content) HTML() template.HTML {
+	return template.HTML(c["html"])
 }
 
 // Version is the metadata for the version of the Bible used for the verse.

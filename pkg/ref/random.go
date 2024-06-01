@@ -6,46 +6,10 @@ import (
 	"strings"
 
 	"github.com/agnivade/levenshtein"
+
+	"github.com/zostay/today/internal/options"
+	"github.com/zostay/today/pkg/bible"
 )
-
-type randomOpts struct {
-	category string
-	book     string
-	canon    *Canon
-	min, max int
-}
-
-type RandomReferenceOption func(*randomOpts)
-
-func FromCanon(canon *Canon) RandomReferenceOption {
-	return func(o *randomOpts) {
-		o.canon = canon
-	}
-}
-
-func FromBook(name string) RandomReferenceOption {
-	return func(o *randomOpts) {
-		o.book = name
-	}
-}
-
-func FromCategory(name string) RandomReferenceOption {
-	return func(o *randomOpts) {
-		o.category = name
-	}
-}
-
-func WithAtLeast(n uint) RandomReferenceOption {
-	return func(o *randomOpts) {
-		o.min = int(n)
-	}
-}
-
-func WithAtMost(n uint) RandomReferenceOption {
-	return func(o *randomOpts) {
-		o.max = int(n)
-	}
-}
 
 type UnknownCategoryError struct {
 	Category      string
@@ -64,40 +28,52 @@ func (o *UnknownCategoryError) Error() string {
 		alternates)
 }
 
+type RandomReferenceOption = options.RandomReferenceOption
+
+var (
+	// FromCanon limits the random selection to a specific canon of the Bible.
+	FromCanon = options.FromCanon
+
+	// FromBook limits the random selection to a specific book of the Bible.
+	FromBook = options.FromBook
+
+	// FromCategory limits the random selection to a specific category of books.
+	FromCategory = options.FromCategory
+
+	// WithAtLeast ensures the random selection has at least the given number of verses.
+	WithAtLeast = options.WithAtLeast
+
+	// WithAtMost ensures the random selection has at most the given number of verses.
+	WithAtMost = options.WithAtMost
+)
+
 // Random pulls a random reference from the Bible and returns it. You can use the
 // options to help narrow down where the passages are selected from.
 func Random(opt ...RandomReferenceOption) (*Resolved, error) {
-	o := &randomOpts{
-		canon: Canonical,
-		min:   1,
-		max:   30,
-	}
-	for _, f := range opt {
-		f(o)
-	}
+	o := options.MakeRandomReferenceOpts(opt)
 
 	var (
 		b  *Book
 		vs []Verse
 	)
 
-	if o.category != "" {
-		_, hasCategory := o.canon.Categories[o.category]
+	if o.Category != "" {
+		_, hasCategory := o.Canon.Categories[o.Category]
 		if !hasCategory {
 			var possibilities []string
-			for cat := range o.canon.Categories {
-				if levenshtein.ComputeDistance(o.category, cat) <= 4 {
+			for cat := range o.Canon.Categories {
+				if levenshtein.ComputeDistance(o.Category, cat) <= 4 {
 					possibilities = append(possibilities, cat)
 				}
 			}
 
 			return nil, &UnknownCategoryError{
-				Category:      o.category,
+				Category:      o.Category,
 				Possibilities: possibilities,
 			}
 		}
 
-		ps, err := o.canon.Category(o.category)
+		ps, err := o.Canon.Category(o.Category)
 		if err != nil {
 			return nil, err
 		}
@@ -112,20 +88,20 @@ func Random(opt ...RandomReferenceOption) (*Resolved, error) {
 
 		be := bag[rand.Int()%len(bag)] //nolint:gosec // weak random is fine here
 		b = be.Ref.Book
-		vs = RandomPassageFromRef(be.Ref, o.min, o.max)
+		vs = RandomPassageFromRef(be.Ref, o.Min, o.Max)
 	} else {
-		if o.book != "" {
-			ex, err := Lookup(Canonical, o.book+" 1:1ffb", "")
+		if o.Book != "" {
+			ex, err := Lookup(bible.Protestant, o.Book+" 1:1ffb", "")
 			if err != nil {
 				return nil, err
 			}
 
 			b = ex.Ref.Book
 		} else {
-			b = RandomCanonical(o.canon)
+			b = RandomCanonical(o.Canon)
 		}
 
-		vs = RandomPassage(b, o.min, o.max)
+		vs = RandomPassage(b, o.Min, o.Max)
 	}
 
 	v1, v2 := vs[0], vs[len(vs)-1]

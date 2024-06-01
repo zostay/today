@@ -1,4 +1,4 @@
-package ref
+package bible
 
 import (
 	"errors"
@@ -24,12 +24,64 @@ func (m *MultipleMatchError) Error() string {
 	return fmt.Sprintf("input string %q has multiple matches: %v", m.Input, m.Matches)
 }
 
+// V is a highly simplified version of a verse. If the book is a JustVerse book,
+// then this will be a single verse number in V. Otherwise, this will be a
+// chapter and verse number in (C, V).
+type V struct {
+	C int
+	V int
+}
+
+// Equal returns true if the two verses are the same.
+func (v V) Equal(o V) bool {
+	return v.C == o.C && v.V == o.V
+}
+
+// Ref returns a string representation of the verse.
+func (v V) Ref() string {
+	if v.C == 0 {
+		return fmt.Sprintf("%d", v.V)
+	}
+	return fmt.Sprintf("%d:%d", v.C, v.V)
+}
+
+// Validate returns true iff the chapter and verse are both positive.
+func (v V) Validate(justVerse bool) error {
+	if !justVerse && v.C <= 0 {
+		return invalid("chapter must be positive")
+	}
+	if v.V <= 0 {
+		return invalid("verse must be positive")
+	}
+	return nil
+}
+
+// RelativeTo returns a new verse that is relative to the given verse. This is
+// used to calculate the last verse in a range.
+func (v V) RelativeTo(o V) V {
+	if v.C == 0 {
+		return V{
+			C: o.C,
+			V: v.V,
+		}
+	}
+	return v
+}
+
+// Before returns true if the verse is before the other verse.
+func (v V) Before(o V) bool {
+	if v.C == o.C {
+		return v.V < o.V
+	}
+	return v.C < o.C
+}
+
 // Book is a book of the Bible. We use this with a global map to do client-side
 // verification of book names, chapter, and verse references.
 type Book struct {
 	Name      string
 	JustVerse bool
-	Verses    []Verse
+	Verses    []V
 }
 
 // Canon is primarily a collection of books, but may include other metadata.
@@ -59,123 +111,29 @@ type BookAbbreviation struct {
 	Accepts   []string
 }
 
-// Book will return the Book with the exact given name.
-func (c *Canon) Book(in string, opt ...ResolveOption) (*Book, error) {
-	name := in
-
-	opts := makeResolveOpts(opt)
-	if opts.Abbreviations != nil {
-		var err error
-		name, err = opts.Abbreviations.BookName(in)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	for i := range c.Books {
-		b := &c.Books[i]
-		if b.Name == name {
-			return b, nil
-		}
-	}
-	return nil, fmt.Errorf("%w: %s", ErrNotFound, name)
-}
-
-// Category returns a list of Pericopes associated with that Category or nil if
-// no such category is defined. Returns nil and error if there's a problem with
-// the category definition.
-func (c *Canon) Category(name string) ([]*Pericope, error) {
-	if refs, hasCategory := c.Categories[name]; hasCategory {
-		var ps []*Pericope
-		for i := range refs {
-			p, err := Lookup(c, refs[i], "")
-			if err != nil {
-				return nil, err
-			}
-			ps = append(ps, p)
-		}
-		return ps, nil
-	}
-	return nil, nil
-}
-
-type resolveOpts struct {
-	Abbreviations *BookAbbreviations
-	Singular      bool
-}
-
-type ResolveOption func(*resolveOpts)
-
-// WithAbbrevations will allow *Ref methods to use the given BookAbbreviations to
-// resolve book names.
-func WithAbbreviations(abbrs *BookAbbreviations) ResolveOption {
-	return func(o *resolveOpts) {
-		o.Abbreviations = abbrs
-	}
-}
-
-// WithoutAbbrevations will allow *Ref methods to use no abbreviations object
-// during name/abbreviation resolution. (Othrwise, these methods will default to
-// ref.Abbreviations.)
-func WithoutAbbreviations() ResolveOption {
-	return func(o *resolveOpts) {
-		o.Abbreviations = nil
-	}
-}
-
-// AsSingleChapter will prefer the singular form of the book name when resolving
-// references. (This is special casing for Psalms.)
-func AsSingleChapter() ResolveOption {
-	return func(o *resolveOpts) {
-		o.Singular = true
-	}
-}
-
-func makeResolveOpts(opts []ResolveOption) *resolveOpts {
-	o := &resolveOpts{
-		Abbreviations: Abbreviations,
-	}
-	for i := range opts {
-		opts[i](o)
-	}
-	return o
-}
-
 // Resolve turns an absolute reference into a slice of Resolved references or
 // returns an error if the references do not match this Canon.
-func (c *Canon) Resolve(ref Absolute, opt ...ResolveOption) ([]Resolved, error) {
-	if err := ref.Validate(); err != nil {
+func (c *Canon) Resolve(r AbsoluteRef, opt ...ResolveOption) ([]CanonicalRef, error) {
+	if err := r.Validate(); err != nil {
 		return nil, err
 	}
 
 	opts := makeResolveOpts(opt)
 
-	switch r := ref.(type) {
+	switch r := r.(type) {
 	case *Multiple:
 		return c.resolveMultiple(r, opts)
 	case *Proper:
 		return c.resolveProper(r, opts)
-	case *Resolved:
-		return []Resolved{*r}, nil
+	case *CanonicalRef:
+		return []CanonicalRef{*r}, nil
 	}
-	return nil, fmt.Errorf("unknown reference type: %T", ref)
+	return nil, fmt.Errorf("unknown reference type: %T", r)
 }
 
-func (c *Canon) resolveBook(in string, opts *resolveOpts) (*Book, error) {
-	if opts.Abbreviations != nil {
-		name, err := opts.Abbreviations.BookName(in)
-		if err != nil {
-			return nil, err
-		}
 
-		return c.Book(name)
-	}
-
-	return c.Book(in)
-}
-
-func (c *Canon) resolveMultiple(m *Multiple, opts *resolveOpts) ([]Resolved, error) {
-	var rs []Resolved
+func (c *Canon) resolveMultiple(m *Multiple, opts *ResolveOptions) ([]CanonicalRef, error) {
+	var rs []CanonicalRef
 	var b *Book
 	for i := range m.Refs {
 		switch r := m.Refs[i].(type) {
@@ -203,7 +161,7 @@ func (c *Canon) resolveMultiple(m *Multiple, opts *resolveOpts) ([]Resolved, err
 	return rs, nil
 }
 
-func (c *Canon) resolveRelative(b *Book, r Relative) ([]Resolved, error) {
+func (c *Canon) resolveRelative(b *Book, r RelativeRef) ([]CanonicalRef, error) {
 	switch r := r.(type) {
 	case *AndFollowing:
 		return c.resolveAndFollowing(b, r)
@@ -215,7 +173,7 @@ func (c *Canon) resolveRelative(b *Book, r Relative) ([]Resolved, error) {
 	return nil, fmt.Errorf("unknown reference type: %T", r)
 }
 
-func (c *Canon) resolveProper(p *Proper, opts *resolveOpts) ([]Resolved, error) {
+func (c *Canon) resolveProper(p *Proper, opts *ResolveOptions) ([]CanonicalRef, error) {
 	b, err := c.resolveBook(p.Book, opts)
 	if err != nil {
 		return nil, err
@@ -234,7 +192,7 @@ func (c *Canon) resolveProper(p *Proper, opts *resolveOpts) ([]Resolved, error) 
 	return nil, fmt.Errorf("unknown reference type: %T", p.Verse)
 }
 
-func ensureVerseMatchesBook(b *Book, v Verse) (Verse, bool, error) {
+func ensureVerseMatchesBook(b *Book, v VerseRef) (VerseRef, bool, error) {
 	wholeChapter := false
 
 	// enforce N to CV
@@ -252,7 +210,7 @@ func ensureVerseMatchesBook(b *Book, v Verse) (Verse, bool, error) {
 	return v, wholeChapter, nil
 }
 
-func (c *Canon) resolveSingle(b *Book, s *Single) ([]Resolved, error) {
+func (c *Canon) resolveSingle(b *Book, s *Single) ([]CanonicalRef, error) {
 	v, wholeChapter, err := ensureVerseMatchesBook(b, s.Verse)
 	if err != nil {
 		return nil, err
@@ -269,7 +227,7 @@ func (c *Canon) resolveSingle(b *Book, s *Single) ([]Resolved, error) {
 		return nil, ErrNotFound
 	}
 
-	return []Resolved{
+	return []CanonicalRef{
 		{
 			Book:  b,
 			First: v,
@@ -281,7 +239,7 @@ func (c *Canon) resolveSingle(b *Book, s *Single) ([]Resolved, error) {
 func (c *Canon) resolveAndFollowing(
 	b *Book,
 	a *AndFollowing,
-) ([]Resolved, error) {
+) ([]CanonicalRef, error) {
 	v, _, err := ensureVerseMatchesBook(b, a.Verse)
 	if err != nil {
 		return nil, err
@@ -293,7 +251,7 @@ func (c *Canon) resolveAndFollowing(
 
 	switch a.Following { //nolint:exhaustive // we don't need to handle all cases
 	case FollowingRemainingBook:
-		return []Resolved{
+		return []CanonicalRef{
 			{
 				Book:  b,
 				First: v,
@@ -306,7 +264,7 @@ func (c *Canon) resolveAndFollowing(
 			return nil, err
 		}
 
-		return []Resolved{
+		return []CanonicalRef{
 			{
 				Book:  b,
 				First: v,
@@ -335,8 +293,8 @@ func (b Book) LastVerseInChapter(
 
 func lastVerseInChapter(
 	b *Book,
-	v Verse,
-) (Verse, error) {
+	v VerseRef,
+) (VerseRef, error) {
 	if b.JustVerse {
 		return b.Verses[len(b.Verses)-1], nil
 	}
@@ -369,7 +327,7 @@ func lastVerseInChapter(
 func (c *Canon) resolveRange(
 	b *Book,
 	r *Range,
-) ([]Resolved, error) {
+) ([]CanonicalRef, error) {
 	first, wholeChapter, err := ensureVerseMatchesBook(b, r.First)
 	if first == nil {
 		return nil, err
@@ -380,7 +338,7 @@ func (c *Canon) resolveRange(
 		return nil, ErrNotFound
 	}
 
-	var last Verse
+	var last VerseRef
 	if wholeChapter {
 		last, _, err = ensureVerseMatchesBook(b, r.Last)
 		if err != nil {
@@ -400,7 +358,7 @@ func (c *Canon) resolveRange(
 		return nil, ErrNotFound
 	}
 
-	return []Resolved{
+	return []CanonicalRef{
 		{
 			Book:  b,
 			First: first,
@@ -412,13 +370,13 @@ func (c *Canon) resolveRange(
 func (c *Canon) resolveRelated(
 	b *Book,
 	r *Related,
-) ([]Resolved, error) {
-	var rs []Resolved
+) ([]CanonicalRef, error) {
+	var rs []CanonicalRef
 	for i := range r.Refs {
 		thisRs, err := c.resolveProper(&Proper{
 			Book:  b.Name,
 			Verse: r.Refs[i],
-		}, &resolveOpts{})
+		}, &Resolve{})
 		if err != nil {
 			return nil, err
 		}
@@ -430,7 +388,7 @@ func (c *Canon) resolveRelated(
 }
 
 // Contains returns true if the given verse is in the book.
-func (b Book) Contains(v Verse) bool {
+func (b Book) Contains(v VerseRef) bool {
 	for i := range b.Verses {
 		if b.Verses[i].Equal(v) {
 			return true

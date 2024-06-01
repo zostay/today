@@ -1,20 +1,24 @@
-package ref
+package {{.Package}}
 
-var Canonical = &Canon{
+import (
+    "github.com/zostay/today/pkg/bible"
+)
+
+var Protestant = &bible.Canon{
     Name: "Protestant Canon",
-    Books: []Book{
+    Books: []canon.Book{
 {{- range .Books}}
         {
             Name: "{{.Name}}",
             JustVerse: {{if eq 0 (index .Verses 0 0)}}true{{else}}false{{end}},
-            Verses: []Verse{
-{{- range $i, $v := .Verses}}
+            Verses: []bible.V{
+{{range $i, $v := .Verses}}
 {{- if eq 0 (index $v 0) -}}
-                N{ {{index $v 1}} },
+                {V:{{index $v 1}}},
 {{- else -}}
-                CV{ {{index $v 0}},{{index $v 1}} },
+                {C:{{index $v 0}},V:{{index $v 1}}},
 {{- end -}}
-{{- if Mod $i 4}}
+{{- if Mod (Add $i 1) 4}}
 {{end}}
 {{- end}}
             },

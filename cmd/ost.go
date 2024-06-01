@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
@@ -12,6 +13,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/zostay/today/cmd/flag"
+	"github.com/zostay/today/cmd/output"
 	"github.com/zostay/today/pkg/ost"
 	"github.com/zostay/today/pkg/photo"
 )
@@ -46,9 +48,8 @@ var (
 		Run:   RunOstPhoto,
 	}
 
-	asMeta, asYaml bool
-	on             flag.Date
-	download       string
+	on       flag.Date
+	download string
 )
 
 func init() {
@@ -57,14 +58,17 @@ func init() {
 	ostCmd.Flags().BoolVarP(&asHtml, "html", "H", false, "Output as HTML")
 	ostCmd.Flags().BoolVarP(&asMeta, "meta", "m", false, "Output information about Scripture")
 	ostCmd.Flags().BoolVarP(&asYaml, "yaml", "y", false, "Output as YAML")
+	ostCmd.Flags().VarP(&outputFormat, "output", "o", fmt.Sprintf("Output format (%s)", flag.ListOutputFormats()))
 
 	ostTodayCmd.Flags().BoolVarP(&asHtml, "html", "H", false, "Output as HTML")
 	ostTodayCmd.Flags().BoolVarP(&asMeta, "meta", "m", false, "Output information about Scripture")
 	ostTodayCmd.Flags().BoolVarP(&asYaml, "yaml", "y", false, "Output as YAML")
+	ostTodayCmd.Flags().VarP(&outputFormat, "output", "o", fmt.Sprintf("Output format (%s)", flag.ListOutputFormats()))
 
 	ostOnCmd.Flags().BoolVarP(&asHtml, "html", "H", false, "Output as HTML")
 	ostOnCmd.Flags().BoolVarP(&asMeta, "meta", "m", false, "Output information about Scripture")
 	ostOnCmd.Flags().BoolVarP(&asYaml, "yaml", "y", false, "Output as YAML")
+	ostOnCmd.Flags().VarP(&outputFormat, "output", "o", fmt.Sprintf("Output format (%s)", flag.ListOutputFormats()))
 
 	ostPhotoCmd.Flags().StringVarP(&download, "download", "d", "openscripture.jpg", "Download the file photo to the named file")
 	ostPhotoCmd.Flags().VarP(&on, "on", "o", "Specify the date to get the photo for")
@@ -88,9 +92,10 @@ func RunOst(cmd *cobra.Command, args []string) {
 		panic(err)
 	}
 
+	ofmt := collectOutputFormat().Name
 	var v string
-	switch {
-	case asYaml:
+	switch ofmt {
+	case output.YAMLFormat:
 		vv, err := client.TodayVerse(cmd.Context(), opts...)
 		if err != nil {
 			panic(err)
@@ -102,7 +107,19 @@ func RunOst(cmd *cobra.Command, args []string) {
 			panic(err)
 		}
 		return
-	case asMeta:
+	case output.JSONFormat:
+		vv, err := client.TodayVerse(cmd.Context(), opts...)
+		if err != nil {
+			panic(err)
+		}
+
+		enc := json.NewEncoder(cmd.OutOrStdout())
+		err = enc.Encode(vv)
+		if err != nil {
+			panic(err)
+		}
+		return
+	case output.MetaFormat:
 		vv, err := client.TodayVerse(cmd.Context(), opts...)
 		if err != nil {
 			panic(err)
@@ -112,12 +129,14 @@ func RunOst(cmd *cobra.Command, args []string) {
 		fmt.Printf("Version:   %s\n", vv.Version.Name)
 		fmt.Printf("Link:      %s\n", vv.Version.Link)
 		return
-	case asHtml:
+	case output.HTMLFormat:
 		var vh template.HTML
 		vh, err = client.TodayHTML(cmd.Context(), opts...)
 		v = string(vh)
-	default:
+	case output.TextFormat:
 		v, err = client.Today(cmd.Context(), opts...)
+	case output.JPEGFormat:
+		panic("JPEG output not implemented")
 	}
 	if err != nil {
 		panic(err)
@@ -142,16 +161,29 @@ func RunOstPhoto(cmd *cobra.Command, args []string) {
 		panic(err)
 	}
 
-	switch {
-	case asYaml:
+	ofmt := collectOutputFormat().Name
+	switch ofmt {
+	case output.YAMLFormat:
 		enc := yaml.NewEncoder(cmd.OutOrStdout())
 		err = enc.Encode(pi)
 		if err != nil {
 			panic(err)
 		}
-	default:
+	case output.JSONFormat:
+		enc := json.NewEncoder(cmd.OutOrStdout())
+		err = enc.Encode(pi)
+		if err != nil {
+			panic(err)
+		}
+	case output.TextFormat, output.MetaFormat:
 		fmt.Printf("Link: %s\n", pi.Link)
 		fmt.Printf("Author: %s (%s)\n", pi.Creator.Name, pi.Creator.Link)
+	case output.HTMLFormat:
+		panic("HTML output not supported for photos")
+	case output.JPEGFormat:
+		if download == "" {
+			download = "download.jpg"
+		}
 	}
 
 	if download != "" {

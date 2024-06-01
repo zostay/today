@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/zostay/today/pkg/bible"
 	"github.com/zostay/today/pkg/ref"
 )
 
@@ -328,11 +329,11 @@ func TestMultiple(t *testing.T) {
 func TestResolved(t *testing.T) {
 	t.Parallel()
 
-	gen, err := ref.Canonical.Book("Genesis")
+	gen, err := bible.Protestant.Book("Genesis")
 	require.NotNil(t, gen)
 	require.NoError(t, err)
 
-	oba, err := ref.Canonical.Book("Obadiah")
+	oba, err := bible.Protestant.Book("Obadiah")
 	require.NotNil(t, oba)
 	require.NoError(t, err)
 
@@ -416,11 +417,11 @@ func TestResolved(t *testing.T) {
 func TestResolved_CompactRef(t *testing.T) {
 	t.Parallel()
 
-	gen, err := ref.Canonical.Book("Genesis")
+	gen, err := bible.Protestant.Book("Genesis")
 	require.NotNil(t, gen)
 	require.NoError(t, err)
 
-	psa, err := ref.Canonical.Book("Psalms")
+	psa, err := bible.Protestant.Book("Psalms")
 	require.NotNil(t, psa)
 	require.NoError(t, err)
 
