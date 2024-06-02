@@ -72,7 +72,7 @@ func init() {
 }
 
 func RunOst(cmd *cobra.Command, args []string) {
-	opts := []ost.Option{}
+	opts := []ost.DayOption{}
 	if len(args) == 1 {
 		on := args[0]
 		onTime, err := dateparser.Parse(nil, on)
@@ -127,7 +127,7 @@ func RunOst(cmd *cobra.Command, args []string) {
 }
 
 func RunOstPhoto(cmd *cobra.Command, args []string) {
-	opts := []ost.Option{}
+	opts := []ost.DayOption{}
 	if !on.Value.IsZero() {
 		opts = append(opts, ost.On(on.Value.Time))
 	}
