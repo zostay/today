@@ -19,6 +19,20 @@ import (
 )
 
 var (
+	index = ost.Index{
+		Metadata: ost.Metadata{
+			Version: 0,
+		},
+		Description: "Verses for all time.",
+		Verses: map[string]ost.IndexEntry{
+			"2024/01/01": {
+				Reference: "Genesis 1:1",
+			},
+			"2024/01/02": {
+				Reference: "John 3:16",
+			},
+		},
+	}
 	today = ost.Verse{
 		Metadata: ost.Metadata{
 			Version: 2,
@@ -108,6 +122,11 @@ func testServer() (*httptest.Server, *requestInfo) {
 				enc := yaml.NewEncoder(w)
 				err := enc.Encode(desc)
 				ri.err = err
+			case strings.HasSuffix(r.URL.Path, "/index.yaml"):
+				ri.path = r.URL.Path
+				enc := yaml.NewEncoder(w)
+				err := enc.Encode(index)
+				ri.err = err
 			default:
 				w.WriteHeader(404)
 			}
@@ -168,6 +187,12 @@ func TestClient(t *testing.T) {
 		assert.ObjectsExportedFieldsAreEqual(&desc, pi))
 	assert.NoError(t, ri.err)
 	assert.Equal(t, "/verses/2023/12/30/photo.yaml", ri.path)
+
+	idx, err := c.VerseIndex(context.Background())
+	assert.NoError(t, err)
+	assert.Equal(t, &index, idx)
+	assert.NoError(t, ri.err)
+	assert.Equal(t, "/verses/index.yaml", ri.path)
 }
 
 func TestClient_Sad(t *testing.T) {

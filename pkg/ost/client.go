@@ -14,8 +14,10 @@ import (
 	"github.com/zostay/today/pkg/text/esv"
 )
 
+// DefaultBaseURL is the default base URL for the openscripture.today API.
 const DefaultBaseURL = `https://openscripture.today`
 
+// Client is a client for the openscripture.today API.
 type Client struct {
 	Client       *http.Client
 	TextService  *text.Service
@@ -23,6 +25,9 @@ type Client struct {
 	BaseURL      string
 }
 
+// New creates a new openscripture.today API client. The context is used only to
+// help load related client objects from the local environment and is not
+// stored.
 func New(ctx context.Context) (*Client, error) {
 	res, err := esv.NewFromEnvironment()
 	if err != nil {
@@ -44,20 +49,40 @@ func New(ctx context.Context) (*Client, error) {
 	}, nil
 }
 
-type options struct {
-	onTime time.Time
+type indexOptions struct {
+	period string
 }
 
-type Option func(*options)
+// IndexOption is a functional option for the openscripture.today API client.
+type IndexOption func(*indexOptions)
 
-func On(t time.Time) Option {
-	return func(o *options) {
-		o.onTime = t
+// ForAllTime is the option that selects all verses for all time. This is the
+// default.
+func ForAllTime() IndexOption {
+	return func(o *indexOptions) {
+		o.period = ""
 	}
 }
 
-func processOptions(opts []Option) *options {
-	o := &options{}
+// ForYear is the option that selects all verses for a given year.
+func ForYear(year string) IndexOption {
+	return func(o *indexOptions) {
+		o.period = year
+	}
+}
+
+// ForMonth is the option that selects all verses for a given month.
+func ForMonth(year, month string) IndexOption {
+	return func(o *indexOptions) {
+		o.period = path.Join(year, month)
+	}
+}
+
+// makeIndexOptions processes the options for the index request.
+func makeIndexOptions(opts []IndexOption) *indexOptions {
+	o := &indexOptions{
+		period: "",
+	}
 	for _, opt := range opts {
 		opt(o)
 	}
@@ -65,13 +90,74 @@ func processOptions(opts []Option) *options {
 	return o
 }
 
-func (c *Client) TodayVerse(ctx context.Context, opts ...Option) (*Verse, error) {
+// VerseIndex returns an index for some segment of verses. Use one of the
+// ost.IndexOption options to select the period of verses to index.
+func (c *Client) VerseIndex(ctx context.Context, opts ...IndexOption) (*Index, error) {
 	ru, err := url.Parse(c.BaseURL)
 	if err != nil {
 		return nil, err
 	}
 
-	o := processOptions(opts)
+	o := makeIndexOptions(opts)
+	if o.period == "" {
+		ru.Path = path.Join(ru.Path, "verses", "index.yaml")
+	} else {
+		ru.Path = path.Join(ru.Path, "verses", o.period, "index.yaml")
+	}
+	indexYamlUrl := ru.String()
+
+	r, err := http.NewRequest("GET", indexYamlUrl, nil)
+	if err != nil {
+		return nil, err
+	}
+	r = r.WithContext(ctx)
+
+	res, err := http.DefaultClient.Do(r)
+	if err != nil {
+		return nil, err
+	}
+
+	var index Index
+	err = LoadIndexYaml(res.Body, &index)
+	if err != nil {
+		return nil, err
+	}
+
+	return &index, nil
+}
+
+type dayOptions struct {
+	onTime time.Time
+}
+
+// DayOption is a functional option for the openscripture.today API client.
+type DayOption func(*dayOptions)
+
+// On sets the time to use for the request. Only the date part of the time is used.
+func On(t time.Time) DayOption {
+	return func(o *dayOptions) {
+		o.onTime = t
+	}
+}
+
+func processDayOptions(opts []DayOption) *dayOptions {
+	o := &dayOptions{}
+	for _, opt := range opts {
+		opt(o)
+	}
+
+	return o
+}
+
+// TodayVerse returns the entire verse object for a given day. If no time is
+// provided via the ost.On option, the current day is used.
+func (c *Client) TodayVerse(ctx context.Context, opts ...DayOption) (*Verse, error) {
+	ru, err := url.Parse(c.BaseURL)
+	if err != nil {
+		return nil, err
+	}
+
+	o := processDayOptions(opts)
 	if !o.onTime.IsZero() {
 		datePath := o.onTime.Format("2006/01/02")
 		ru.Path = path.Join(ru.Path, "verses", datePath)
@@ -100,7 +186,9 @@ func (c *Client) TodayVerse(ctx context.Context, opts ...Option) (*Verse, error)
 	return &verse, nil
 }
 
-func (c *Client) Today(ctx context.Context, opts ...Option) (string, error) {
+// Today returns the text of the verse for the current day. If no time is
+// provided via the ost.On option, the current day is used.
+func (c *Client) Today(ctx context.Context, opts ...DayOption) (string, error) {
 	verse, err := c.TodayVerse(ctx, opts...)
 	if err != nil {
 		return "", err
@@ -109,7 +197,9 @@ func (c *Client) Today(ctx context.Context, opts ...Option) (string, error) {
 	return c.TextService.VerseText(ctx, verse.Reference)
 }
 
-func (c *Client) TodayHTML(ctx context.Context, opts ...Option) (template.HTML, error) {
+// TodayHTML returns the HTML of the verse for the current day. If no time is
+// provided via the ost.On option, the current day is used.
+func (c *Client) TodayHTML(ctx context.Context, opts ...DayOption) (template.HTML, error) {
 	verse, err := c.TodayVerse(ctx, opts...)
 	if err != nil {
 		return "", err
@@ -118,13 +208,15 @@ func (c *Client) TodayHTML(ctx context.Context, opts ...Option) (template.HTML, 
 	return c.TextService.VerseHTML(ctx, verse.Reference)
 }
 
-func (c *Client) TodayPhoto(ctx context.Context, opts ...Option) (*Photo, error) {
+// TodayPhoto returns the photo for the current day. If no time is provided via
+// the ost.On option, the current day is used.
+func (c *Client) TodayPhoto(ctx context.Context, opts ...DayOption) (*Photo, error) {
 	ru, err := url.Parse(c.BaseURL)
 	if err != nil {
 		return nil, err
 	}
 
-	o := processOptions(opts)
+	o := processDayOptions(opts)
 	if !o.onTime.IsZero() {
 		datePath := o.onTime.Format("2006/01/02")
 		ru.Path = path.Join(ru.Path, "verses", datePath)

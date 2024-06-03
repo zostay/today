@@ -2,6 +2,7 @@
 
  * ESV text from VerseText and others won't include the references now.
  * Updating the Verse and Photo file formats used by the `ost.Client` for the upcoming version of openscripture.today. Adding a `ost.Metadata` structure that records version, original verseion, and whether the verse and photo have been pruned.
+ * A new `VersesIndex` has been added to the `ost.Client` for fetching indexes listing all the verses that have been postd for certain periods (all time, year, month).
  * :boom: Breaking Change :boom:: Significant changes have been made to the photos API. These changes include the following:
    - The `photo.Meta` and `photo.Info` structures have been removed/merged/refactored into `photo.Descriptor`.
    - A new interface named `photo.Image` has been added and each `photo.Descriptor` should have at least one, but may have many associated `photo.Image` objects.
