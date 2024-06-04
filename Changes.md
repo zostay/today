@@ -1,5 +1,6 @@
 ## WIP  TBD
 
+ * :computer: The `today ost index` command has been added to pull down scripture indexes from openscripture.today.
  * ESV text from VerseText and others won't include the references now.
  * Updating the Verse and Photo file formats used by the `ost.Client` for the upcoming version of openscripture.today. Adding a `ost.Metadata` structure that records version, original verseion, and whether the verse and photo have been pruned.
  * A new `VersesIndex` has been added to the `ost.Client` for fetching indexes listing all the verses that have been postd for certain periods (all time, year, month).
