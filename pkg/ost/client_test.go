@@ -188,11 +188,23 @@ func TestClient(t *testing.T) {
 	assert.NoError(t, ri.err)
 	assert.Equal(t, "/verses/2023/12/30/photo.yaml", ri.path)
 
-	idx, err := c.VerseIndex(context.Background())
+	idx, err := c.VerseIndex(context.Background(), ost.ForAllTime())
 	assert.NoError(t, err)
 	assert.Equal(t, &index, idx)
 	assert.NoError(t, ri.err)
 	assert.Equal(t, "/verses/index.yaml", ri.path)
+
+	idx, err = c.VerseIndex(context.Background(), ost.ForYear("2024"))
+	assert.NoError(t, err)
+	assert.Equal(t, &index, idx)
+	assert.NoError(t, ri.err)
+	assert.Equal(t, "/verses/2024/index.yaml", ri.path)
+
+	idx, err = c.VerseIndex(context.Background(), ost.ForMonth("2024", "01"))
+	assert.NoError(t, err)
+	assert.Equal(t, &index, idx)
+	assert.NoError(t, ri.err)
+	assert.Equal(t, "/verses/2024/01/index.yaml", ri.path)
 }
 
 func TestClient_Sad(t *testing.T) {
