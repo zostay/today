@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"html/template"
@@ -40,7 +39,7 @@ func init() {
 	randomCmd.Flags().StringSliceVarP(&exclude, "exclude", "x", []string{}, "Exclude the specified passage references")
 }
 
-func loadIndex(ctx context.Context, path string) (*ost.Index, error) {
+func loadIndex(path string) (*ost.Index, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -77,7 +76,7 @@ func RunTodayRandom(cmd *cobra.Command, args []string) error {
 	}
 
 	if excludeIndex != "" {
-		idx, err := loadIndex(cmd.Context(), excludeIndex)
+		idx, err := loadIndex(excludeIndex)
 		if err != nil {
 			panic(err)
 		}
