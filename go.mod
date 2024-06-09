@@ -1,6 +1,6 @@
 module github.com/zostay/today
 
-go 1.21
+go 1.22
 
 require (
 	github.com/bbrks/wrap v2.3.0+incompatible

@@ -1,13 +1,17 @@
 package cmd
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"html/template"
+	"os"
+	"path/filepath"
 
 	"github.com/bbrks/wrap"
 	"github.com/spf13/cobra"
 
+	"github.com/zostay/today/pkg/ost"
 	"github.com/zostay/today/pkg/ref"
 	"github.com/zostay/today/pkg/text"
 	"github.com/zostay/today/pkg/text/esv"
@@ -22,6 +26,8 @@ var (
 	}
 
 	minimumVerses, maximumVerses uint
+	excludeIndex                 string
+	exclude                      []string
 )
 
 func init() {
@@ -30,6 +36,25 @@ func init() {
 	randomCmd.Flags().StringVarP(&fromBook, "book", "b", "", "Pick a random verse from a book")
 	randomCmd.Flags().UintVarP(&minimumVerses, "minimum-verses", "m", 1, "Minimum number of verses to include in the random selection")
 	randomCmd.Flags().UintVarP(&maximumVerses, "maximum-verses", "M", 1, "Maximum number of verses to include in the random selection")
+	randomCmd.Flags().StringVarP(&excludeIndex, "exclude-index", "X", "", "Exclude all passages references in the specified index file")
+	randomCmd.Flags().StringSliceVarP(&exclude, "exclude", "x", []string{}, "Exclude the specified passage references")
+}
+
+func loadIndex(ctx context.Context, path string) (*ost.Index, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	var idx ost.Index
+	if filepath.Ext(path) == ".yaml" {
+		err = ost.LoadIndexYaml(f, &idx)
+	} else {
+		err = ost.LoadIndexJson(f, &idx)
+	}
+
+	return &idx, err
 }
 
 func RunTodayRandom(cmd *cobra.Command, args []string) error {
@@ -49,6 +74,19 @@ func RunTodayRandom(cmd *cobra.Command, args []string) error {
 	}
 	if maximumVerses != 0 {
 		opts = append(opts, ref.WithAtMost(maximumVerses))
+	}
+
+	if excludeIndex != "" {
+		idx, err := loadIndex(cmd.Context(), excludeIndex)
+		if err != nil {
+			panic(err)
+		}
+
+		refs := make([]string, 0, len(idx.Verses))
+		for _, v := range idx.Verses {
+			refs = append(refs, v.Reference)
+		}
+		opts = append(opts, ref.ExcludeReferences(refs...))
 	}
 
 	if minimumVerses > maximumVerses {

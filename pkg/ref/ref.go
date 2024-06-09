@@ -798,6 +798,99 @@ func (r *Resolved) AbbreviatedRef(opt ...ResolveOption) (string, error) {
 	return r.compactRef(abbrName)
 }
 
+// Subtract takes two Resolved references and returns a slice containing either
+// zero, one, or two Resolved references with the subtracted reference removed.
+// If the subtracted reference does not overlap with the original reference, the
+// original reference is returned in the slice. If the subtracted reference
+// contains or is equal to the original, the returned slice will be empty. If
+// the subtracted reference is contained in the original, either one or two
+// Resolved references will be returned (one if the subtracted references is at
+// the start or end of the original, two if the subtracted reference is in the
+// middle of the original).
+func (r *Resolved) Subtract(s *Resolved) []Resolved {
+	switch {
+	case s == nil:
+		return []Resolved{*r}
+
+	// books are different, original is untouched
+	case r.Book.Name != s.Book.Name:
+		return []Resolved{*r}
+
+	// references are equal or original is contained in subtracted, return empty
+	case vCmp(r.First, s.First) >= 0 && vCmp(r.Last, s.Last) <= 0:
+		return []Resolved{}
+
+	// subtracted is at the start of the original, return original without start
+	case vCmp(r.First, s.First) == 0 && vCmp(r.Last, s.Last) >= 0:
+		var firstVerse Verse
+		for _, v := range r.Verses() {
+			if s.Last.Before(v) {
+				firstVerse = v
+				break
+			}
+		}
+
+		return []Resolved{
+			{
+				Book:  r.Book,
+				First: firstVerse,
+				Last:  r.Last,
+			},
+		}
+
+	// subtracted is at the end of the original, return original without end
+	case vCmp(r.First, s.First) <= 0 && vCmp(r.Last, s.Last) == 0:
+		var lastVerse Verse
+		for _, v := range r.Verses() {
+			if v.Equal(s.First) {
+				break
+			}
+			lastVerse = v
+		}
+
+		return []Resolved{
+			{
+				Book:  r.Book,
+				First: r.First,
+				Last:  lastVerse,
+			},
+		}
+
+	// subtracted is in the middle of the original, split
+	case vCmp(r.First, s.First) < 0 && vCmp(r.Last, s.Last) > 0:
+		var firstLastVerse, lastFirstVerse Verse
+		lookingForFirst := true
+		for _, v := range r.Verses() {
+			if v.Equal(s.First) {
+				lookingForFirst = false
+			}
+			if lookingForFirst {
+				firstLastVerse = v
+			}
+			if s.Last.Before(v) {
+				lastFirstVerse = v
+				break
+			}
+		}
+
+		return []Resolved{
+			{
+				Book:  r.Book,
+				First: r.First,
+				Last:  firstLastVerse,
+			},
+			{
+				Book:  r.Book,
+				First: lastFirstVerse,
+				Last:  r.Last,
+			},
+		}
+	}
+
+	// otherwise, there's no overlap, return original
+	return []Resolved{*r}
+}
+
 var _ Verse = CV{}
 var _ Verse = N{}
 var _ Relative = (*Single)(nil)

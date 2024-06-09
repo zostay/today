@@ -141,6 +141,26 @@ func makeResolveOpts(opts []ResolveOption) *resolveOpts {
 	return o
 }
 
+// Clone returns a copy of the Canon.
+func (c *Canon) Clone() *Canon {
+	newC := Canon{
+		Name:       c.Name,
+		Books:      make([]Book, len(c.Books)),
+		Categories: make(map[string][]string, len(c.Categories)),
+	}
+
+	for i := range c.Books {
+		newC.Books[i] = c.Books[i].Clone()
+	}
+
+	for k, v := range c.Categories {
+		newC.Categories[k] = make([]string, len(v))
+		copy(newC.Categories[k], v)
+	}
+
+	return &newC
+}
+
 // Resolve turns an absolute reference into a slice of Resolved references or
 // returns an error if the references do not match this Canon.
 func (c *Canon) Resolve(ref Absolute, opt ...ResolveOption) ([]Resolved, error) {
@@ -427,6 +447,16 @@ func (c *Canon) resolveRelated(
 	}
 
 	return rs, nil
+}
+
+func (b Book) Clone() Book {
+	newB := Book{
+		Name:      b.Name,
+		Verses:    make([]Verse, len(b.Verses)),
+		JustVerse: b.JustVerse,
+	}
+	copy(newB.Verses, b.Verses)
+	return newB
 }
 
 // Contains returns true if the given verse is in the book.
