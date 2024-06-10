@@ -14,11 +14,11 @@ const (
 // serialization format on openscripture.today, and also includes a reference to
 // the image file.
 type Descriptor struct {
-	Link  string `yaml:"link" json:"link"`
-	Type  string `yaml:"type" json:"type"`
-	Title string `yaml:"title,omitempty" json:"title,omitempty"`
-	Color string `yaml:"color,omitempty" json:"color,omitempty"`
-	Creator
+	Link    string  `yaml:"link" json:"link"`
+	Type    string  `yaml:"type" json:"type"`
+	Title   string  `yaml:"title,omitempty" json:"title,omitempty"`
+	Color   string  `yaml:"color,omitempty" json:"color,omitempty"`
+	Creator Creator `yaml:"creator" json:"creator"`
 
 	images map[string]ImageComplete
 }

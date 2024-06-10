@@ -28,7 +28,7 @@ type Verse struct {
 	Reference string  `yaml:"reference" json:"reference"`
 	Content   Content `yaml:"content" json:"content"`
 	Link      string  `yaml:"link,omitempty" json:"link,omitempty"`
-	Version
+	Version   Version `yaml:"version" json:"version"`
 }
 
 // Content holds the content of a scripture of the day.

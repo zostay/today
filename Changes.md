@@ -33,6 +33,8 @@
  * New utility function `unsplash.IDFromURL()` added which will give you the photo ID from an Unsplash photo URL.
  * :hammer: Fix: Multiple total chapter references will be resolved to chapter ranges. For example, if you parse "Ps. 12-13", the resolver will correctly return "Psalms 12-13" instead of "Psalms 12:1-13:6" as it would have before.
  * :hammer: Fix: Psalms singular handling has been special cased so that references to a single verse can show something like "Psalm 12" or "Psalm 12:1-3" rather than "Psalms 12" or "Psalms 12:1-3" as it would have before.
+ * :hammer: Fix: Photo descriptors were not being correctly written to JSON files prior to this version. They were missing the "creator" key and embedding the name of the creator in the structure above. This has been corrected.
+ * :hammer: Fix: Verse JSON files were not written correctly either prior to this version. They were missing the "version" key and embedding the name of the version in the parent structure. This has been fixed.
 
 ## 0.5.1  2024-02-20
 
