@@ -20,7 +20,7 @@ jobs:
           version: v1.59
       - run: go test -v ./...
       - run: |
-          coveredFiles=$(go list ./... | grep -v github.com/zostay/today/tools/gen/verses)
+          coveredFiles=$(go list ./... | grep -v github.com/zostay/today/{cmd,tools/gen/verses})
           go test $coveredFiles -coverprofile=coverage.out
       - run: go tool cover -func=coverage.out
       - name: Coverage Quality Check
