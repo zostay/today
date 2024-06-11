@@ -487,3 +487,67 @@ func TestResolved_CompactRef(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "Psalms 12-13", cr)
 }
+
+func TestResolved_Subtract(t *testing.T) {
+	t.Parallel()
+
+	testData := []struct {
+		name      string
+		orig, sub string
+		out       []string
+	}{
+		{
+			name: "books are different",
+			orig: "Daniel 7:1ffb",
+			sub:  "Isaiah 7:1-10",
+			out:  []string{"Daniel 7-12"},
+		},
+		{
+			name: "subtract from start",
+			orig: "Daniel 7:1ffb",
+			sub:  "Daniel 7:1-10",
+			out:  []string{"Daniel 7:11-12:13"},
+		},
+		{
+			name: "subtract from end",
+			orig: "Daniel 7:1ffb",
+			sub:  "Daniel 12:3-13",
+			out:  []string{"Daniel 7:1-12:2"},
+		},
+		{
+			name: "subtract from middle",
+			orig: "Daniel 7:1ffb",
+			sub:  "Daniel 7:11-28",
+			out:  []string{"Daniel 7:1-10", "Daniel 8-12"},
+		},
+		{
+			name: "subtract without overlap",
+			orig: "Daniel 7:1ffb",
+			sub:  "Daniel 4",
+			out:  []string{"Daniel 7-12"},
+		},
+	}
+
+	for _, test := range testData {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			rr, err := ref.Lookup(ref.Canonical, test.orig, "")
+			require.NoError(t, err)
+			require.NotNil(t, rr)
+
+			sr, err := ref.Lookup(ref.Canonical, test.sub, "")
+			require.NoError(t, err)
+			require.NotNil(t, sr)
+
+			frs := rr.Ref.Subtract(sr.Ref)
+			assert.Len(t, frs, len(test.out))
+
+			for i := range test.out {
+				frsis, err := frs[i].CompactRef()
+				assert.NoError(t, err)
+				assert.Equal(t, test.out[i], frsis)
+			}
+		})
+	}
+}

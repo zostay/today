@@ -13,6 +13,7 @@ type randomOpts struct {
 	book     string
 	canon    *Canon
 	min, max int
+	exclude  []string
 }
 
 type RandomReferenceOption func(*randomOpts)
@@ -47,6 +48,12 @@ func WithAtMost(n uint) RandomReferenceOption {
 	}
 }
 
+func ExcludeReferences(verses ...string) RandomReferenceOption {
+	return func(o *randomOpts) {
+		o.exclude = append(o.exclude, verses...)
+	}
+}
+
 type UnknownCategoryError struct {
 	Category      string
 	Possibilities []string
@@ -74,6 +81,14 @@ func Random(opt ...RandomReferenceOption) (*Resolved, error) {
 	}
 	for _, f := range opt {
 		f(o)
+	}
+
+	var err error
+	if len(o.exclude) > 0 {
+		o.canon, err = o.canon.Filtered(o.exclude...)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	var (

@@ -9,6 +9,7 @@ type Pericope struct {
 	Title string
 }
 
+// Lookup returns a Pericope from the given canon and reference.
 func Lookup(c *Canon, ref, title string) (*Pericope, error) {
 	p, err := ParseProper(ref)
 	if err != nil {
@@ -31,6 +32,7 @@ func Lookup(c *Canon, ref, title string) (*Pericope, error) {
 	}, nil
 }
 
+// Verses returns a channel which emits each verse in the Pericope.
 func (p *Pericope) Verses() (<-chan Verse, error) {
 	ch := make(chan Verse)
 

@@ -113,4 +113,6 @@ func TestSource(t *testing.T) { //nolint:paralleltest // unsplash client has glo
 	assert.NoError(t, err)
 	assert.Equal(t, "jpeg", format)
 	assert.Equal(t, image.Rect(0, 0, 4128, 2322), img.Bounds())
+
+	assert.Equal(t, "YZ/download", item.Filename())
 }
