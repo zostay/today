@@ -1,4 +1,4 @@
-## WIP  TBD
+## 0.6.0  2024-06-11
 
  * :computer: The `today ost index` command has been added to pull down scripture indexes from openscripture.today.
  * :computer: Added `--exclude` and `--exclude-index` options to `today random`.
