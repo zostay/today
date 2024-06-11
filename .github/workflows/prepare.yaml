@@ -25,9 +25,9 @@ jobs:
         run: |
           date=$(date "+%Y-%m-%d")
           header=$(head -n1 Changes.md)
-          if [ "$header" != "$RELEASE_VERSION  $date" ]; then
+          if [ "$header" != "## $RELEASE_VERSION  $date" ]; then
               echo "Changes.md is out of date!"
-              echo "Expected header: $RELEASE_VERSION  $date"
+              echo "Expected header: ## $RELEASE_VERSION  $date"
               echo "Found header:    $header"
               exit 1
           else
@@ -35,7 +35,7 @@ jobs:
           fi
       - name: Release Notes Capture
         run: |
-          sed -n '/^[0-9]/{:loop n; /^[0-9]/q; p; b loop}' Changes.md > release-notes.md
+          sed -n '/^## [0-9]/{:loop n; /^## [0-9]/q; p; b loop}' Changes.md > release-notes.md
           echo "Release Notes Will be..."
           echo "========================"
           cat release-notes.md
