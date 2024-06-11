@@ -42,32 +42,51 @@ func vCmp(v1, v2 Verse) int {
 // overlaps. It merges overlaps together and returns a new list of Resolved.
 func mergeReferences(rs []Resolved) []Resolved {
 	merged := make([]Resolved, 0, len(rs))
-	for _, r := range rs {
+	for _, b := range rs {
 		performedMerge := false
 	INNER:
-		for _, m := range merged {
-			if m.Book.Name != r.Book.Name {
+		for ai, a := range merged {
+			if a.Book.Name != b.Book.Name {
 				continue
 			}
 
+			// Overlaps come in four flavors, which can all be detected with three tests:
+			// #1 A------B====A'-----B' - first range starts before second and second ends after first
+			// #2 B------A====B'-----A' - second range starts before first and first ends after second
+			// #3 A---B=====B'----A' - first fully contains second
+			// #4 B---A=====A'----B' - second fully contains first
+			//
+			// A) #1 and #3 can be detected by testing if A <= B <= A'
+			// B) #2 and #3 can be detected by testing if A <= B' <= A'
+			// C) #4 can be detected by testing if B <= A <= B'
+			//
+			// If we perform the tests in that order, then we can assume B is only detecting #2 and make
+			// assumptions accordingly.
+
 			switch {
-			case vCmp(m.First, r.First) < 0 && vCmp(m.Last, r.First) > 0:
-				if vCmp(m.Last, r.Last) > 0 {
-					m.Last = r.Last
+			// Test (A): Detect #1 and #3 above
+			case vCmp(a.First, b.First) <= 0 && vCmp(a.Last, b.First) >= 0:
+				// If this is true, then this is #1, not #3
+				if vCmp(a.Last, b.Last) < 0 {
+					merged[ai].Last = b.Last
 				}
 				performedMerge = true
 				break INNER
-			case vCmp(m.First, r.Last) < 0 && vCmp(m.Last, r.Last) > 0:
-				if vCmp(m.First, r.First) < 0 {
-					m.First = r.First
-				}
+			// Test (B): Detect #2
+			case vCmp(a.First, b.Last) <= 0 && vCmp(a.Last, b.Last) >= 0:
+				merged[ai].First = b.First
 				performedMerge = true
 				break INNER
+			// Test (C): Detect #4
+			case vCmp(a.First, b.First) >= 0 && vCmp(a.First, b.Last) <= 0:
+				merged[ai].First = b.First
+				merged[ai].Last = b.Last
+				performedMerge = true
 			}
 		}
 
 		if !performedMerge {
-			merged = append(merged, r)
+			merged = append(merged, b)
 		}
 	}
 	return merged
@@ -115,7 +134,8 @@ func (c *Canon) filterOutVerses(rs []Resolved) error {
 
 		if bi < 0 {
 			// should never happen, RIGHT?!?
-			return fmt.Errorf("%w: unable to find book during filtering", ErrNotFound)
+			cs, _ := r.CompactRef()
+			return fmt.Errorf("%w: unable to find book while excluding %q", ErrNotFound, cs)
 		}
 
 		// Find the edges of each range inside the canon
@@ -128,6 +148,18 @@ func (c *Canon) filterOutVerses(rs []Resolved) error {
 				last = i
 				break
 			}
+		}
+
+		if first < 0 || last < 0 {
+			// should never happen, RIGHT?!?
+			cs, _ := r.CompactRef()
+			which := "both verses"
+			if last >= 0 {
+				which = "first verse"
+			} else if first >= 0 {
+				which = "last verse"
+			}
+			return fmt.Errorf("%w: unable to find %s while excluding %q", ErrNotFound, which, cs)
 		}
 
 		// clip out the excluded range
