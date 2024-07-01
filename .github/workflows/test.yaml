@@ -36,13 +36,13 @@ jobs:
       - name: Prepare/Release Workflows Check
         run: |
           go install github.com/mikefarah/yq/v4@latest
-          yq '.jobs.release.steps.[0:9]' .github/workflows/release.yaml > release-steps.yaml
+          yq '.jobs.release.steps.[0:10]' .github/workflows/release.yaml > release-steps.yaml
           yq '.jobs.prepare.steps' .github/workflows/prepare.yaml > prepare-steps.yaml
           if ! diff release-steps.yaml prepare-steps.yaml; then
             echo "Prepare and Release workflows are not in sync!"
             exit 1
           fi
-          if ! yq '.jobs.release.steps.[9]' .github/workflows/release.yaml | grep -q 'Create Release'; then
+          if ! yq '.jobs.release.steps.[10]' .github/workflows/release.yaml | grep -q 'Create Release'; then
             echo 'Release has pre-build steps missing from Prepare workflow!'
             exit 1
           fi
