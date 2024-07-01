@@ -21,6 +21,8 @@ jobs:
             echo "cmd/version.txt does not match $RELEASE_VERSION!"
             exit 1
           fi
+      - name: Set Time Zone to US Central
+        run: sudo timedatectl set-timezone America/Chicago
       - name: Changes Heading Up-To-Date Check
         run: |
           date=$(date "+%Y-%m-%d")
