@@ -8,7 +8,7 @@ require (
 	github.com/hbagdi/go-unsplash v0.0.0-20230414214043-474fc02c9119
 	github.com/markusmobius/go-dateparser v1.2.1
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
-	github.com/spf13/cobra v1.8.0
+	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.8.4
 	github.com/zostay/go-esv-api v0.2.0
 	github.com/zostay/go-std v0.8.0
