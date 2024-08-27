@@ -38,6 +38,16 @@ func vCmp(v1, v2 Verse) int {
 	}
 }
 
+// vSucceeds compares two verses. Returns true if v2 immediately follows v1.
+func vSucceeds(b *Book, v1, v2 Verse) bool {
+	for i, v := range b.Verses {
+		if v.Equal(v1) && i+1 < len(b.Verses) {
+			return b.Verses[i+1].Equal(v2)
+		}
+	}
+	return false
+}
+
 // mergeReferences takes a listed of Resolved references and looks for any
 // overlaps. It merges overlaps together and returns a new list of Resolved.
 func mergeReferences(rs []Resolved) []Resolved {
@@ -59,6 +69,8 @@ func mergeReferences(rs []Resolved) []Resolved {
 			// A) #1 and #3 can be detected by testing if A <= B <= A'
 			// B) #2 and #3 can be detected by testing if A <= B' <= A'
 			// C) #4 can be detected by testing if B <= A <= B'
+			// D) The verses do not overlap, but B is succeeded by A'.
+			// E) The verses do not overlap, but B' immediately follows A.
 			//
 			// If we perform the tests in that order, then we can assume B is only detecting #2 and make
 			// assumptions accordingly.
@@ -81,6 +93,16 @@ func mergeReferences(rs []Resolved) []Resolved {
 			case vCmp(a.First, b.First) >= 0 && vCmp(a.First, b.Last) <= 0:
 				merged[ai].First = b.First
 				merged[ai].Last = b.Last
+				performedMerge = true
+			// Test (D): Detect if B is immediately follwed by A'
+			case vSucceeds(a.Book, a.Last, b.First):
+				merged[ai].First = a.First
+				merged[ai].Last = b.Last
+				performedMerge = true
+			// Test (E): Detect if B' immediately followed by A
+			case vSucceeds(a.Book, b.Last, a.First):
+				merged[ai].First = b.First
+				merged[ai].Last = a.Last
 				performedMerge = true
 			}
 		}

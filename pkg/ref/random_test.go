@@ -151,3 +151,44 @@ func TestRandomWithoutBooksFromCategory(t *testing.T) {
 	assert.NotEqual(t, "Matthew", r.Book.Name)
 	assert.NotEqual(t, "Mark", r.Book.Name)
 }
+
+func TestCanon_Random_Filtered_BugFix_Colossians(t *testing.T) {
+	t.Parallel()
+
+	filters := []string{
+		"Colossians 1:15-2:5",
+		"Colossians 1:1-14",
+		"Colossians 1:13-20",
+		"Colossians 3:12-4:5",
+		"Colossians 1:10-1:15",
+	}
+
+	c, err := ref.Canonical.Filtered(filters...)
+	assert.NoError(t, err)
+	assert.NotNil(t, c)
+
+	b, err := c.Book("Colossians")
+	assert.NoError(t, err)
+	assert.NotNil(t, b)
+
+	expected := []ref.Verse{}
+	for i := 6; i <= 23; i++ {
+		expected = append(expected, ref.CV{Chapter: 2, Verse: i})
+	}
+	for i := 1; i < 12; i++ {
+		expected = append(expected, ref.CV{Chapter: 3, Verse: i})
+	}
+	for i := 6; i <= 18; i++ {
+		expected = append(expected, ref.CV{Chapter: 4, Verse: i})
+	}
+
+	assert.Equal(t, expected, b.Verses)
+
+	r, err := ref.Random(
+		ref.FromCanon(c),
+		ref.FromBook("Colossians"),
+	)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, r)
+}

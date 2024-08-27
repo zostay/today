@@ -1,3 +1,7 @@
+## WIP  TBD
+
+ * :hammer: :computer: Fix: When verses were excluded using an option like `--exclude` or `--exclude-index`, the exclusion would sometimes fail with an error like "unable to find last verse while excluding [reference]" due to a failure to merge adjacent references during the exclusion process. This has been fixed.
+
 ## 0.6.0  2024-06-11
 
  * :computer: The `today ost index` command has been added to pull down scripture indexes from openscripture.today.
