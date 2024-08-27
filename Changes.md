@@ -1,3 +1,7 @@
+## 0.6.2  2024-08-27
+
+ * :hammer: :computer: Fix: The previous fix didn't go far enough. This one causes exclusions to merged recursively, which completely resolves the problem, but might not be very performant.
+
 ## 0.6.1  2024-08-27
 
  * :hammer: :computer: Fix: When verses were excluded using an option like `--exclude` or `--exclude-index`, the exclusion would sometimes fail with an error like "unable to find last verse while excluding [reference]" due to a failure to merge adjacent references during the exclusion process. This has been fixed.
