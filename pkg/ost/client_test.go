@@ -176,15 +176,13 @@ func TestClient(t *testing.T) {
 
 	pi, err := c.TodayPhoto(context.Background())
 	assert.NoError(t, err)
-	assert.True(t,
-		assert.ObjectsExportedFieldsAreEqual(&desc, pi))
+	assert.EqualExportedValues(t, &desc, pi)
 	assert.NoError(t, ri.err)
 	assert.Equal(t, "/photo.yaml", ri.path)
 
 	pi, err = c.TodayPhoto(context.Background(), ost.On(on))
 	assert.NoError(t, err)
-	assert.True(t,
-		assert.ObjectsExportedFieldsAreEqual(&desc, pi))
+	assert.EqualExportedValues(t, &desc, pi)
 	assert.NoError(t, ri.err)
 	assert.Equal(t, "/verses/2023/12/30/photo.yaml", ri.path)
 
