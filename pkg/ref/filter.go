@@ -51,67 +51,80 @@ func vSucceeds(b *Book, v1, v2 Verse) bool {
 // mergeReferences takes a listed of Resolved references and looks for any
 // overlaps. It merges overlaps together and returns a new list of Resolved.
 func mergeReferences(rs []Resolved) []Resolved {
-	merged := make([]Resolved, 0, len(rs))
-	for _, b := range rs {
-		performedMerge := false
-	INNER:
-		for ai, a := range merged {
-			if a.Book.Name != b.Book.Name {
-				continue
-			}
+	// TODO The recursion here to get it down to a minimum set is a little on
+	//  the insane side. Should probably think of a more performant way.
+	for {
+		merged := make([]Resolved, 0, len(rs))
 
-			// Overlaps come in four flavors, which can all be detected with three tests:
-			// #1 A------B====A'-----B' - first range starts before second and second ends after first
-			// #2 B------A====B'-----A' - second range starts before first and first ends after second
-			// #3 A---B=====B'----A' - first fully contains second
-			// #4 B---A=====A'----B' - second fully contains first
-			//
-			// A) #1 and #3 can be detected by testing if A <= B <= A'
-			// B) #2 and #3 can be detected by testing if A <= B' <= A'
-			// C) #4 can be detected by testing if B <= A <= B'
-			// D) The verses do not overlap, but B is succeeded by A'.
-			// E) The verses do not overlap, but B' immediately follows A.
-			//
-			// If we perform the tests in that order, then we can assume B is only detecting #2 and make
-			// assumptions accordingly.
-
-			switch {
-			// Test (A): Detect #1 and #3 above
-			case vCmp(a.First, b.First) <= 0 && vCmp(a.Last, b.First) >= 0:
-				// If this is true, then this is #1, not #3
-				if vCmp(a.Last, b.Last) < 0 {
-					merged[ai].Last = b.Last
+		for _, b := range rs {
+			performedMerge := false
+		INNER:
+			for ai, a := range merged {
+				if a.Book.Name != b.Book.Name {
+					continue
 				}
-				performedMerge = true
-				break INNER
-			// Test (B): Detect #2
-			case vCmp(a.First, b.Last) <= 0 && vCmp(a.Last, b.Last) >= 0:
-				merged[ai].First = b.First
-				performedMerge = true
-				break INNER
-			// Test (C): Detect #4
-			case vCmp(a.First, b.First) >= 0 && vCmp(a.First, b.Last) <= 0:
-				merged[ai].First = b.First
-				merged[ai].Last = b.Last
-				performedMerge = true
-			// Test (D): Detect if B is immediately follwed by A'
-			case vSucceeds(a.Book, a.Last, b.First):
-				merged[ai].First = a.First
-				merged[ai].Last = b.Last
-				performedMerge = true
-			// Test (E): Detect if B' immediately followed by A
-			case vSucceeds(a.Book, b.Last, a.First):
-				merged[ai].First = b.First
-				merged[ai].Last = a.Last
-				performedMerge = true
+
+				// Overlaps come in four flavors, which can all be detected with three tests:
+				// #1 A------B====A'-----B' - first range starts before second and second ends after first
+				// #2 B------A====B'-----A' - second range starts before first and first ends after second
+				// #3 A---B=====B'----A' - first fully contains second
+				// #4 B---A=====A'----B' - second fully contains first
+				//
+				// A) #1 and #3 can be detected by testing if A <= B <= A'
+				// B) #2 and #3 can be detected by testing if A <= B' <= A'
+				// C) #4 can be detected by testing if B <= A <= B'
+				// D) The verses do not overlap, but B is succeeded by A'.
+				// E) The verses do not overlap, but B' immediately follows A.
+				//
+				// If we perform the tests in that order, then we can assume B is only detecting #2 and make
+				// assumptions accordingly.
+
+				switch {
+				// Test (A): Detect #1 and #3 above
+				case vCmp(a.First, b.First) <= 0 && vCmp(a.Last, b.First) >= 0:
+					// If this is true, then this is #1, not #3
+					if vCmp(a.Last, b.Last) < 0 {
+						merged[ai].Last = b.Last
+					}
+					performedMerge = true
+					break INNER
+				// Test (B): Detect #2
+				case vCmp(a.First, b.Last) <= 0 && vCmp(a.Last, b.Last) >= 0:
+					merged[ai].First = b.First
+					performedMerge = true
+					break INNER
+				// Test (C): Detect #4
+				case vCmp(a.First, b.First) >= 0 && vCmp(a.First, b.Last) <= 0:
+					merged[ai].First = b.First
+					merged[ai].Last = b.Last
+					performedMerge = true
+				// Test (D): Detect if B is immediately follwed by A'
+				case vSucceeds(a.Book, a.Last, b.First):
+					merged[ai].First = a.First
+					merged[ai].Last = b.Last
+					performedMerge = true
+				// Test (E): Detect if B' immediately followed by A
+				case vSucceeds(a.Book, b.Last, a.First):
+					merged[ai].First = b.First
+					merged[ai].Last = a.Last
+					performedMerge = true
+				}
+			}
+
+			if !performedMerge {
+				merged = append(merged, b)
 			}
 		}
 
-		if !performedMerge {
-			merged = append(merged, b)
+		oldLen := len(rs)
+		rs = merged
+		if len(merged) < oldLen {
+			continue
 		}
+
+		break
 	}
-	return merged
+	return rs
 }
 
 // Filtered returns a new canon with the excluded references removed.
