@@ -39,17 +39,15 @@ func TestService(t *testing.T) {
 
 	d, err := s.Photo(context.Background(), "https://example.com")
 	assert.NoError(t, err)
-	assert.True(t,
-		assert.ObjectsExportedFieldsAreEqual(
-			&photo.Descriptor{
-				Link:  "https://example.com",
-				Title: "Test Meta",
-				Creator: photo.Creator{
-					Name: "Test Creator",
-					Link: "https://example.com",
-				},
-			}, d),
-	)
+	assert.EqualExportedValues(t,
+		&photo.Descriptor{
+			Link:  "https://example.com",
+			Title: "Test Meta",
+			Creator: photo.Creator{
+				Name: "Test Creator",
+				Link: "https://example.com",
+			},
+		}, d)
 
 	assert.True(t, d.HasImage(photo.Original))
 

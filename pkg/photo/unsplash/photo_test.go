@@ -94,7 +94,7 @@ func TestSource(t *testing.T) { //nolint:paralleltest // unsplash client has glo
 	d, err := src.Photo(context.Background(), "https://unsplash.com/photos/a-test-photo-with-title-that-does-not-matter-abc123-_XYZ")
 	assert.NoError(t, err)
 
-	assert.True(t, assert.ObjectsExportedFieldsAreEqual(
+	assert.EqualExportedValues(t,
 		&photo.Descriptor{
 			Link:  u.String() + "/photos/a-test-photo-with-title-that-does-not-matter-abc123-_XYZ",
 			Type:  "unsplash",
@@ -103,8 +103,7 @@ func TestSource(t *testing.T) { //nolint:paralleltest // unsplash client has glo
 				Name: "Test User",
 				Link: u.String() + "/testuser",
 			},
-		}, d),
-	)
+		}, d)
 
 	item := d.GetImage(photo.Original)
 	assert.NotNil(t, item)
