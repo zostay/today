@@ -1,6 +1,7 @@
-## WIP  TBD
+## 0.6.1  2024-08-27
 
  * :hammer: :computer: Fix: When verses were excluded using an option like `--exclude` or `--exclude-index`, the exclusion would sometimes fail with an error like "unable to find last verse while excluding [reference]" due to a failure to merge adjacent references during the exclusion process. This has been fixed.
+ * Minor upgrade to third party dependencies.
 
 ## 0.6.0  2024-06-11
 
