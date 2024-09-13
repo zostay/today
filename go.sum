@@ -74,8 +74,8 @@ github.com/wasilibs/nottinygc v0.4.0 h1:h1TJMihMC4neN6Zq+WKpLxgd9xCFMw7O9ETLwY2e
 github.com/wasilibs/nottinygc v0.4.0/go.mod h1:oDcIotskuYNMpqMF23l7Z8uzD4TC0WXHK8jetlB3HIo=
 github.com/zostay/go-esv-api v0.2.0 h1:rrMgJyIChia70W9WjLI4uGg/A6YRCxAVYBBQO0L3sAY=
 github.com/zostay/go-esv-api v0.2.0/go.mod h1:OLE3uYa+J1saBhMY/tycj9hxIWonbGA5uYw2c0pg15c=
-github.com/zostay/go-std v0.8.0 h1:OR9h8eGkEBSCn5TsYjtb4gC/A8V2jndgdV9iI0KwWFo=
-github.com/zostay/go-std v0.8.0/go.mod h1:ix2L9dtfn2E4GIJnXTcw8MKd7nwiDzJHln7+/3L7XAE=
+github.com/zostay/go-std v0.9.0 h1:srYm/BIaVX6zGCa3VhbKzXWmom6o5/3IIKLaz0ZNcY8=
+github.com/zostay/go-std v0.9.0/go.mod h1:gje2VXBK4+Zga00kQa7V7Oqb9h4gH33U8TIuqaOxL/0=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/exp v0.0.0-20220321173239-a90fa8a75705 h1:ba9YlqfDGTTQ5aZ2fwOoQ1hf32QySyQkR6ODGDzHlnE=
 golang.org/x/exp v0.0.0-20220321173239-a90fa8a75705/go.mod h1:lgLbSvA5ygNOMpwM/9anMpWVlVJ7Z+cHWq/eFuinpGE=
