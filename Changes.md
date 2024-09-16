@@ -1,3 +1,7 @@
+## 0.6.3  2024-09-16
+
+ * Upgrade dependencies. No features or fixes.
+
 ## 0.6.2  2024-08-27
 
  * :hammer: :computer: Fix: The previous fix didn't go far enough. This one causes exclusions to merged recursively, which completely resolves the problem, but might not be very performant.
