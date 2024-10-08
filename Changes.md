@@ -1,3 +1,10 @@
+## 0.7.0  2024-10-08
+
+ * :computer: Added the `--pericopes` option to `today categories` to list the scripture that is included with each category.
+ * Added support for chapters in a canon that do not start with verse 1. This can happen in filtered canons with excludes in some cases. In any case, it is supported now.
+ * :hammer: :computer: Fix: The `--exclude` option to `today random` is now actually implemented.
+ * :hammer: Correct the way verse exclusion is performed to fix certain cases where a verse exclusion was only partially applied, which resulted in a panic.
+
 ## 0.6.3  2024-09-16
 
  * Upgrade dependencies. No features or fixes.
