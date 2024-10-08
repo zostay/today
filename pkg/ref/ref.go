@@ -821,7 +821,7 @@ func (r *Resolved) Subtract(s *Resolved) []Resolved {
 		return []Resolved{}
 
 	// subtracted is at the start of the original, return original without start
-	case vCmp(r.First, s.First) == 0 && vCmp(r.Last, s.Last) >= 0:
+	case vCmp(r.First, s.First) >= 0 && vCmp(r.First, s.Last) <= 0 && vCmp(r.Last, s.Last) >= 0:
 		var firstVerse Verse
 		for _, v := range r.Verses() {
 			if s.Last.Before(v) {
@@ -839,7 +839,7 @@ func (r *Resolved) Subtract(s *Resolved) []Resolved {
 		}
 
 	// subtracted is at the end of the original, return original without end
-	case vCmp(r.First, s.First) <= 0 && vCmp(r.Last, s.Last) == 0:
+	case vCmp(r.First, s.First) <= 0 && vCmp(r.Last, s.First) >= 0 && vCmp(r.Last, s.Last) <= 0:
 		var lastVerse Verse
 		for _, v := range r.Verses() {
 			if v.Equal(s.First) {
