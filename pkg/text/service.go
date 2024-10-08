@@ -3,6 +3,7 @@ package text
 import (
 	"context"
 	"errors"
+	"fmt"
 	"html/template"
 
 	"github.com/zostay/today/pkg/ref"
@@ -119,19 +120,27 @@ func (s *Service) RandomVerse(ctx context.Context, opt ...ref.RandomReferenceOpt
 func (s *Service) RandomVerseText(ctx context.Context, opt ...ref.RandomReferenceOption) (*ref.Resolved, string, error) {
 	res, err := ref.Random(opt...)
 	if err != nil {
-		return nil, "", err
+		return nil, "", fmt.Errorf("unable to select random verse: %w", err)
 	}
 
 	txt, err := s.Resolver.VerseText(ctx, res)
-	return res, txt, err
+	if err != nil {
+		return res, txt, fmt.Errorf("unable to resolve text for verse %q: %w", res.Ref(), err)
+	}
+
+	return res, txt, nil
 }
 
 func (s *Service) RandomVerseHTML(ctx context.Context, opt ...ref.RandomReferenceOption) (*ref.Resolved, template.HTML, error) {
 	res, err := ref.Random(opt...)
 	if err != nil {
-		return nil, "", err
+		return nil, "", fmt.Errorf("unable to select random verse: %w", err)
 	}
 
 	txt, err := s.Resolver.VerseHTML(ctx, res)
-	return res, txt, err
+	if err != nil {
+		return res, txt, fmt.Errorf("unable to resolve HTML for verse %q: %w", res.Ref(), err)
+	}
+
+	return res, txt, nil
 }

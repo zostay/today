@@ -90,7 +90,7 @@ func (c *Canon) Category(name string) ([]*Pericope, error) {
 		for i := range refs {
 			p, err := Lookup(c, refs[i], "")
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("failed to lookup ref %q: %w", refs[i], err)
 			}
 			ps = append(ps, p)
 		}
@@ -261,7 +261,21 @@ func ensureVerseMatchesBook(b *Book, v Verse) (Verse, bool, error) {
 	if !b.JustVerse {
 		if nv, isN := v.(N); isN {
 			wholeChapter = true
-			v = CV{Chapter: nv.Number, Verse: 1}
+
+			// if we have a chapter-only reference, we need to find the first
+			// verse of the chapter, which might not be 1.
+			found := false
+			for i := range b.Verses {
+				if b.Verses[i].(CV).Chapter == nv.Number {
+					v = CV{Chapter: nv.Number, Verse: b.Verses[i].(CV).Verse}
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				v = CV{Chapter: nv.Number, Verse: 1}
+			}
 		}
 	}
 
