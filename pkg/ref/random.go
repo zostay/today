@@ -130,7 +130,13 @@ func Random(opt ...RandomReferenceOption) (*Resolved, error) {
 		vs = RandomPassageFromRef(be.Ref, o.min, o.max)
 	} else {
 		if o.book != "" {
-			ex, err := Lookup(Canonical, o.book+" 1:1ffb", "")
+			b, err = o.canon.Book(o.book)
+			if err != nil {
+				return nil, fmt.Errorf("error looking up book %q: %w", o.book, err)
+			}
+
+			firstVerse := b.Verses[0]
+			ex, err := Lookup(o.canon, o.book+" "+firstVerse.Ref()+"ffb", "")
 			if err != nil {
 				return nil, fmt.Errorf("error looking up book %q: %w", o.book, err)
 			}
