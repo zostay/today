@@ -87,7 +87,7 @@ func Random(opt ...RandomReferenceOption) (*Resolved, error) {
 	if len(o.exclude) > 0 {
 		o.canon, err = o.canon.Filtered(o.exclude...)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error while filtering for requested verses: %w", err)
 		}
 	}
 
@@ -114,7 +114,7 @@ func Random(opt ...RandomReferenceOption) (*Resolved, error) {
 
 		ps, err := o.canon.Category(o.category)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error getting category pericopes %q: %w", o.category, err)
 		}
 
 		// lazy way to weight the books by the number of verses they have
@@ -132,7 +132,7 @@ func Random(opt ...RandomReferenceOption) (*Resolved, error) {
 		if o.book != "" {
 			ex, err := Lookup(Canonical, o.book+" 1:1ffb", "")
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("error looking up book %q: %w", o.book, err)
 			}
 
 			b = ex.Ref.Book

@@ -13,7 +13,7 @@ type Pericope struct {
 func Lookup(c *Canon, ref, title string) (*Pericope, error) {
 	p, err := ParseProper(ref)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error parsing ref %q: %w", ref, err)
 	}
 
 	if !p.IsSingleRange() {
@@ -22,7 +22,7 @@ func Lookup(c *Canon, ref, title string) (*Pericope, error) {
 
 	res, err := c.Resolve(p)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error resolving reference %q: %w", p.Ref(), err)
 	}
 
 	return &Pericope{
