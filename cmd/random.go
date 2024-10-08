@@ -75,6 +75,11 @@ func RunTodayRandom(cmd *cobra.Command, args []string) error {
 		opts = append(opts, ref.WithAtMost(maximumVerses))
 	}
 
+	excludeRefs := make([]string, 0, len(exclude))
+	if len(exclude) > 0 {
+		excludeRefs = append(excludeRefs, exclude...)
+	}
+
 	if excludeIndex != "" {
 		idx, err := loadIndex(excludeIndex)
 		if err != nil {
@@ -85,7 +90,12 @@ func RunTodayRandom(cmd *cobra.Command, args []string) error {
 		for _, v := range idx.Verses {
 			refs = append(refs, v.Reference)
 		}
-		opts = append(opts, ref.ExcludeReferences(refs...))
+
+		excludeRefs = append(excludeRefs, refs...)
+	}
+
+	if len(excludeRefs) > 0 {
+		opts = append(opts, ref.ExcludeReferences(excludeRefs...))
 	}
 
 	if minimumVerses > maximumVerses {
