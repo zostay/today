@@ -1,3 +1,7 @@
+## WIP  TBD
+
+ * Upgrade dependencies.
+
 ## 0.7.0  2024-10-08
 
  * :computer: Added the `--pericopes` option to `today categories` to list the scripture that is included with each category.
