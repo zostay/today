@@ -3,7 +3,7 @@ module github.com/zostay/today
 go 1.22
 
 require (
-	github.com/agnivade/levenshtein v1.2.0
+	github.com/agnivade/levenshtein v1.2.1
 	github.com/bbrks/wrap v2.3.0+incompatible
 	github.com/hbagdi/go-unsplash v0.0.0-20230414214043-474fc02c9119
 	github.com/markusmobius/go-dateparser v1.2.3
