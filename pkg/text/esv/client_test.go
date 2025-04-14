@@ -17,7 +17,7 @@ func TestResolver_New(t *testing.T) {
 	})
 
 	assert.NotNil(t, cli)
-	assert.Equal(t, "test-token", cli.Client.Token)
+	assert.Equal(t, "test-token", cli.Token)
 }
 
 func TestResolver_NewFromAuthFile(t *testing.T) {
@@ -27,7 +27,7 @@ func TestResolver_NewFromAuthFile(t *testing.T) {
 	assert.NoError(t, err)
 
 	assert.NotNil(t, cli)
-	assert.Equal(t, "test-token", cli.Client.Token)
+	assert.Equal(t, "test-token", cli.Token)
 }
 
 func TestResolver_NewFromEnvironment(t *testing.T) {
@@ -40,5 +40,5 @@ func TestResolver_NewFromEnvironment(t *testing.T) {
 	assert.NoError(t, err)
 
 	assert.NotNil(t, cli)
-	assert.Equal(t, "test-token", cli.Client.Token)
+	assert.Equal(t, "test-token", cli.Token)
 }

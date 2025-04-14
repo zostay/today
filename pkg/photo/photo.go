@@ -82,7 +82,7 @@ func (d *Descriptor) GetColor() (color.Color, error) {
 		return nil, err
 	}
 
-	rc, gc, bc := uint8(ri), uint8(gi), uint8(bi)
+	rc, gc, bc := uint8(ri), uint8(gi), uint8(bi) //nolint:gosec // these are colors, overflow doesn't matter
 	return color.RGBA{rc, gc, bc, 255}, nil
 }
 

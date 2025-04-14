@@ -63,7 +63,7 @@ func (r *Resolver) Verse(ctx context.Context, ref *ref.Resolved) (*text.Verse, e
 
 // VerseText returns the text of the given verse reference using the ESV API.
 func (r *Resolver) VerseText(ctx context.Context, ref *ref.Resolved) (string, error) {
-	tr, err := r.Client.PassageTextContext(ctx, ref.Ref(),
+	tr, err := r.PassageTextContext(ctx, ref.Ref(),
 		esv.WithIncludeVerseNumbers(false),
 		esv.WithIncludeHeadings(false),
 		esv.WithIncludeFootnotes(false),
@@ -82,7 +82,7 @@ func (r *Resolver) VerseText(ctx context.Context, ref *ref.Resolved) (string, er
 
 // VerseHTML returns the HTML of the given verse reference using the ESV API.
 func (r *Resolver) VerseHTML(ctx context.Context, ref *ref.Resolved) (template.HTML, error) {
-	tr, err := r.Client.PassageHtmlContext(ctx, ref.Ref(),
+	tr, err := r.PassageHtmlContext(ctx, ref.Ref(),
 		esv.WithIncludeVerseNumbers(false),
 		esv.WithIncludeHeadings(false),
 		esv.WithIncludeFootnotes(false),

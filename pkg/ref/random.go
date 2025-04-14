@@ -2,6 +2,7 @@ package ref
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"strings"
 
@@ -38,12 +39,18 @@ func FromCategory(name string) RandomReferenceOption {
 
 func WithAtLeast(n uint) RandomReferenceOption {
 	return func(o *randomOpts) {
+		if n > math.MaxInt {
+			n = math.MaxInt
+		}
 		o.min = int(n)
 	}
 }
 
 func WithAtMost(n uint) RandomReferenceOption {
 	return func(o *randomOpts) {
+		if n > math.MaxInt {
+			n = math.MaxInt
+		}
 		o.max = int(n)
 	}
 }
