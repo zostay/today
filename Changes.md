@@ -1,5 +1,6 @@
 ## WIP  TBD
 
+ * :hammer: Small improvements to prevent integer overflow or underflow in a couple of places.
  * Upgrade dependencies.
 
 ## 0.7.0  2024-10-08

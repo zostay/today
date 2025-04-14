@@ -101,8 +101,18 @@ func (s *Service) ResizedImage(
 	}
 
 	rect := img.Bounds()
-	w := uint(rect.Max.X - rect.Min.X)
-	h := uint(rect.Max.Y - rect.Min.Y)
+
+	wi := rect.Max.X - rect.Min.X
+	if wi <= 0 {
+		return "", fmt.Errorf("invalid image width: %d", wi)
+	}
+	w := uint(wi)
+
+	hi := rect.Max.Y - rect.Min.Y
+	if hi <= 0 {
+		return "", fmt.Errorf("invalid image height: %d", hi)
+	}
+	h := uint(hi)
 
 	var (
 		key               = fmt.Sprintf("resize:%dx%d", w, h)

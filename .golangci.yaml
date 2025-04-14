@@ -34,6 +34,8 @@ linters:
             - github.com/nfnt/resize
             - github.com/markusmobius/go-dateparser
             - github.com/agnivade/levenshtein
+            - gopkg.in/yaml.v3
+            - golang.org/x/oauth2
         tests:
           files:
             - $test
@@ -42,6 +44,7 @@ linters:
             - github.com/zostay
             - github.com/stretchr/testify
             - github.com/hbagdi/go-unsplash/unsplash
+            - gopkg.in/yaml.v3
   exclusions:
     generated: lax
     presets:
