@@ -1,24 +1,14 @@
----
+version: "2"
 run:
   concurrency: 4
-
 linters:
   enable:
-    - errcheck
-    - gosimple
-    - govet
-    - ineffassign
-    - staticcheck
-    - typecheck
-    - unused
     - depguard
-    - errorlint
     - errname
+    - errorlint
     - exhaustive
-    - exportloopref
     - gocritic
     - godot
-    - gofmt
     - gosec
     - misspell
     - nolintlint
@@ -28,29 +18,47 @@ linters:
     - tparallel
     - unparam
     - whitespace
-
-linters-settings:
-  depguard:
-    rules:
-      main:
-        files:
-          - "$all"
-          - "!$test"
-        allow:
-          - "$gostd"
-          - github.com/zostay
-          - github.com/spf13/cobra
-          - github.com/bbrks/wrap
-          - github.com/hbagdi/go-unsplash/unsplash
-          - github.com/nfnt/resize
-          - github.com/markusmobius/go-dateparser
-          - github.com/agnivade/levenshtein
-
-      tests:
-        files:
-          - "$test"
-        allow:
-          - "$gostd"
-          - github.com/zostay
-          - github.com/stretchr/testify
-          - github.com/hbagdi/go-unsplash/unsplash
+  settings:
+    depguard:
+      rules:
+        main:
+          files:
+            - $all
+            - '!$test'
+          allow:
+            - $gostd
+            - github.com/zostay
+            - github.com/spf13/cobra
+            - github.com/bbrks/wrap
+            - github.com/hbagdi/go-unsplash/unsplash
+            - github.com/nfnt/resize
+            - github.com/markusmobius/go-dateparser
+            - github.com/agnivade/levenshtein
+        tests:
+          files:
+            - $test
+          allow:
+            - $gostd
+            - github.com/zostay
+            - github.com/stretchr/testify
+            - github.com/hbagdi/go-unsplash/unsplash
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
