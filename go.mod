@@ -1,13 +1,11 @@
 module github.com/zostay/today
 
 go 1.22
-toolchain go1.24.1
-
 require (
 	github.com/agnivade/levenshtein v1.2.1
 	github.com/bbrks/wrap v2.3.0+incompatible
 	github.com/hbagdi/go-unsplash v0.0.0-20230414214043-474fc02c9119
-	github.com/markusmobius/go-dateparser v1.2.3
+	github.com/markusmobius/go-dateparser v1.2.4
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.10.0
@@ -19,7 +17,6 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/elliotchance/pie/v2 v2.7.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/hablullah/go-hijri v1.0.2 // indirect
 	github.com/hablullah/go-juliandays v1.0.0 // indirect
@@ -32,7 +29,6 @@ require (
 	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/tetratelabs/wazero v1.2.1 // indirect
 	github.com/wasilibs/go-re2 v1.3.0 // indirect
-	golang.org/x/exp v0.0.0-20220321173239-a90fa8a75705 // indirect
 	golang.org/x/text v0.17.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 )
