@@ -27,6 +27,7 @@ var (
 	minimumVerses, maximumVerses uint
 	excludeIndex                 string
 	exclude                      []string
+	showRef, showPassage         bool
 )
 
 func init() {
@@ -37,6 +38,8 @@ func init() {
 	randomCmd.Flags().UintVarP(&maximumVerses, "maximum-verses", "M", 1, "Maximum number of verses to include in the random selection")
 	randomCmd.Flags().StringVarP(&excludeIndex, "exclude-index", "X", "", "Exclude all passages references in the specified index file")
 	randomCmd.Flags().StringSliceVarP(&exclude, "exclude", "x", []string{}, "Exclude the specified passage references")
+	randomCmd.Flags().BoolVar(&showRef, "show-ref", true, "Show references (default yes, --show-ref=false to hide)")
+	randomCmd.Flags().BoolVar(&showPassage, "show-passage", true, "Show passages (default yes, --show-passage=false to hide)")
 }
 
 func loadIndex(path string) (*ost.Index, error) {
@@ -129,21 +132,29 @@ func RunTodayRandom(cmd *cobra.Command, args []string) error {
 		panic(err)
 	}
 
-	if asHtml {
-		sref, err := vr.CompactRef()
-		if err != nil {
-			panic(err)
-		}
-		v = "<h1>" + sref + "</h1>\n" + v
+	if !showPassage {
+		v = ""
 	} else {
-		sref, err := vr.CompactRef()
-		if err != nil {
-			panic(err)
-		}
-		v = sref + "\n\n" + v
+		v = "\n\n" + v
 	}
 
-	fmt.Println(wrap.Wrap(v, 70))
+	if showRef {
+		if asHtml {
+			sref, err := vr.CompactRef()
+			if err != nil {
+				panic(err)
+			}
+			v = "<h1>" + sref + "</h1>" + v
+		} else {
+			sref, err := vr.CompactRef()
+			if err != nil {
+				panic(err)
+			}
+			v = sref + v
+		}
+	}
+
+	fmt.Print(wrap.Wrap(v, 70))
 
 	return nil
 }
