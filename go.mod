@@ -1,7 +1,6 @@
 module github.com/zostay/today
 
-go 1.22
-toolchain go1.24.1
+go 1.24.5
 
 require (
 	github.com/agnivade/levenshtein v1.2.1

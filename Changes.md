@@ -1,5 +1,6 @@
 ## WIP  TBD
 
+ * :computer: Added the `--show-ref` and `--show-passage` options to `today random`, which can be set to false (`--show-ref=false` or `--show-passage=false`) to hide the reference and/or passage text in the output.
  * :hammer: Small improvements to prevent integer overflow or underflow in a couple of places.
  * Upgrade dependencies.
 
