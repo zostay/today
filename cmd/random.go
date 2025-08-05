@@ -135,7 +135,7 @@ func RunTodayRandom(cmd *cobra.Command, args []string) error {
 	if !showPassage {
 		v = ""
 	} else {
-		v = "\n\nv"
+		v = "\n\n" + v
 	}
 
 	if showRef {
