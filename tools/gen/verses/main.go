@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -179,7 +180,7 @@ func applyTemplate(
 	}
 
 	tmpl := template.New(name)
-	tmpl.Funcs(map[string]interface{}{
+	tmpl.Funcs(map[string]any{
 		"Mod": func(a, b int) bool { return a%b == 0 },
 	})
 	_, err = tmpl.Parse(string(tmplBytes))
@@ -191,8 +192,25 @@ func applyTemplate(
 	if err != nil {
 		return err
 	}
+	defer fh.Close()
+
+	// Write generated file comment (obfuscated to avoid triggering tools that scan for these phrases)
+	obfuscated := "Ly8gQ29kZSBnZW5lcmF0ZWQgYnkgLi90b29scy9nZW4vdmVyc2VzL21haW4uZ287IERPIE5PVCBFRElULgoK"
+	comment, err := base64.StdEncoding.DecodeString(obfuscated)
+	if err != nil {
+		return err
+	}
+	_, err = fh.Write(comment)
+	if err != nil {
+		return err
+	}
 
 	err = tmpl.Execute(fh, vars)
+	if err != nil {
+		return err
+	}
+
+	err = fh.Close()
 	if err != nil {
 		return err
 	}
