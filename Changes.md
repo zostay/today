@@ -1,4 +1,4 @@
-## WIP  TBD
+## 0.9.0  2026-02-15
 
  * :computer: Added the `ref` subcommand for formatting and analyzing Bible references. This command can:
    - Convert references to various output styles (canonical, abbr, 2letter, 3letter, 2letter., 3letter.)
