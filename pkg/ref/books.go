@@ -582,8 +582,8 @@ func (b *BookAbbreviations) NLetterAbbreviation(name string, n int, withPeriod b
 			// Remove number prefix from accept string for comparison
 			acceptName := accept
 			if abbr.Ordinal > 0 {
-				// Remove leading digits and roman numerals
-				acceptName = strings.TrimLeft(accept, "0123456789IⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩstndrdthFirstSecondThird")
+				// Remove leading digits, roman numerals, and ordinal words/suffixes
+				acceptName = strings.TrimLeft(accept, "0123456789IⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩstndrhecioF")
 			}
 
 			// Count only letters (ignore spaces, periods, numbers)

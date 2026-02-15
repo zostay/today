@@ -119,10 +119,10 @@ func CalculateRefStats(resolved []*Resolved) *RefStats {
 // ESVStats contains both reference statistics and ESV-specific text statistics.
 type ESVStats struct {
 	RefStats
-	Paragraphs  int
-	Lines       int
-	Words       int
-	Characters  int
+	Paragraphs int
+	Lines      int
+	Words      int
+	Characters int
 }
 
 // VerseTextResolver is an interface for resolving verse text.
@@ -153,19 +153,15 @@ func CalculateESVStats(ctx context.Context, resolved []*Resolved, resolver Verse
 	text := allText.String()
 
 	// Count paragraphs (sequences of text separated by blank lines)
-	paragraphs := 1
+	var paragraphs int
 	if len(text) > 0 {
 		paragraphs = strings.Count(text, "\n\n") + 1
-	} else {
-		paragraphs = 0
 	}
 
 	// Count lines (newline characters + 1)
-	lines := 1
+	var lines int
 	if len(text) > 0 {
 		lines = strings.Count(text, "\n") + 1
-	} else {
-		lines = 0
 	}
 
 	// Count words (split on whitespace)
