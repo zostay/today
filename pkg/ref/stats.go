@@ -17,15 +17,26 @@ type RefStats struct {
 }
 
 // CalculateRefStats calculates basic statistics for a set of resolved references.
-// All references should be from the same book.
-func CalculateRefStats(resolved []*Resolved) *RefStats {
+// All references must be from the same book. If references from different books
+// are provided, this function will return an error.
+func CalculateRefStats(resolved []*Resolved) (*RefStats, error) {
 	if len(resolved) == 0 {
-		return &RefStats{}
+		return &RefStats{}, nil
 	}
 
 	// Get book name from first reference
 	bookName := resolved[0].Book.Name
 	isJustVerse := resolved[0].Book.JustVerse
+
+	// Validate that all references are from the same book
+	for i, r := range resolved {
+		if r.Book.Name != bookName {
+			return nil, fmt.Errorf("all references must be from the same book: expected %q at index 0, got %q at index %d", bookName, r.Book.Name, i)
+		}
+		if r.Book.JustVerse != isJustVerse {
+			return nil, fmt.Errorf("mixed book types detected: book %q has inconsistent JustVerse setting", r.Book.Name)
+		}
+	}
 
 	// Collect all chapters and verses
 	chapterSet := make(map[int]bool)
@@ -113,7 +124,7 @@ func CalculateRefStats(resolved []*Resolved) *RefStats {
 		VerseRanges:   verseRanges,
 		ChapterCount:  len(chapterSet),
 		VerseCount:    verseCount,
-	}
+	}, nil
 }
 
 // ESVStats contains both reference statistics and ESV-specific text statistics.
@@ -135,7 +146,10 @@ type VerseTextResolver interface {
 // fetching the verse text from the ESV API.
 func CalculateESVStats(ctx context.Context, resolved []*Resolved, resolver VerseTextResolver) (*ESVStats, error) {
 	// Calculate basic ref stats
-	refStats := CalculateRefStats(resolved)
+	refStats, err := CalculateRefStats(resolved)
+	if err != nil {
+		return nil, err
+	}
 
 	// Fetch text for all resolved references and concatenate
 	var allText strings.Builder

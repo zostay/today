@@ -192,7 +192,6 @@ func applyTemplate(
 	if err != nil {
 		return err
 	}
-	defer fh.Close()
 
 	// Write generated file comment (obfuscated to avoid triggering tools that scan for these phrases)
 	obfuscated := "Ly8gQ29kZSBnZW5lcmF0ZWQgYnkgLi90b29scy9nZW4vdmVyc2VzL21haW4uZ287IERPIE5PVCBFRElULgoK"
@@ -202,11 +201,13 @@ func applyTemplate(
 	}
 	_, err = fh.Write(comment)
 	if err != nil {
+		fh.Close()
 		return err
 	}
 
 	err = tmpl.Execute(fh, vars)
 	if err != nil {
+		fh.Close()
 		return err
 	}
 

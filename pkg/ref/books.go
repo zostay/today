@@ -582,8 +582,23 @@ func (b *BookAbbreviations) NLetterAbbreviation(name string, n int, withPeriod b
 			// Remove number prefix from accept string for comparison
 			acceptName := accept
 			if abbr.Ordinal > 0 {
-				// Remove leading digits, roman numerals, and ordinal words/suffixes
-				acceptName = strings.TrimLeft(accept, "0123456789IⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩstndrhecioF")
+				// Strip known ordinal prefixes (numbers, roman numerals, ordinal words)
+				// Order matters: check longer prefixes first to avoid partial matches
+				ordinalPrefixes := []string{
+					"First", "Second", "Third",
+					"1st", "2nd", "3rd",
+					"III", "II", "I",
+					"Ⅲ", "Ⅱ", "Ⅰ",
+					"IV", "V",
+					"Ⅳ", "Ⅴ",
+					"1", "2", "3",
+				}
+				for _, pfx := range ordinalPrefixes {
+					if strings.HasPrefix(accept, pfx) {
+						acceptName = accept[len(pfx):]
+						break
+					}
+				}
 			}
 
 			// Count only letters (ignore spaces, periods, numbers)

@@ -130,23 +130,66 @@ func processReference(cmd *cobra.Command, formatter ref.RefFormatter, refStr str
 	case "off":
 		// No stats
 	case "ref":
-		stats := ref.CalculateRefStats(resolvedPtrs)
-		printRefStats(cmd, stats)
+		// Group by book for stats
+		bookGroups := groupResolvedByBook(resolvedPtrs)
+		for _, group := range bookGroups {
+			stats, err := ref.CalculateRefStats(group)
+			if err != nil {
+				return fmt.Errorf("failed to calculate ref stats: %w", err)
+			}
+			printRefStats(cmd, stats)
+			if len(bookGroups) > 1 {
+				fmt.Fprintln(cmd.OutOrStdout()) // Blank line between books
+			}
+		}
 	case "esv":
 		ec, err := esv.NewFromEnvironment()
 		if err != nil {
 			return fmt.Errorf("failed to initialize ESV client: %w", err)
 		}
-		stats, err := ref.CalculateESVStats(cmd.Context(), resolvedPtrs, ec)
-		if err != nil {
-			return fmt.Errorf("failed to calculate ESV stats: %w", err)
+		// Group by book for stats
+		bookGroups := groupResolvedByBook(resolvedPtrs)
+		for _, group := range bookGroups {
+			stats, err := ref.CalculateESVStats(cmd.Context(), group, ec)
+			if err != nil {
+				return fmt.Errorf("failed to calculate ESV stats: %w", err)
+			}
+			printESVStats(cmd, stats)
+			if len(bookGroups) > 1 {
+				fmt.Fprintln(cmd.OutOrStdout()) // Blank line between books
+			}
 		}
-		printESVStats(cmd, stats)
 	default:
 		return fmt.Errorf("invalid stat mode: %q (expected off, ref, or esv)", refStat)
 	}
 
 	return nil
+}
+
+// groupResolvedByBook groups resolved references by book name, preserving order.
+func groupResolvedByBook(resolved []*ref.Resolved) [][]*ref.Resolved {
+	if len(resolved) == 0 {
+		return nil
+	}
+
+	var groups [][]*ref.Resolved
+	var currentGroup []*ref.Resolved
+	currentBook := resolved[0].Book.Name
+
+	for _, r := range resolved {
+		if r.Book.Name != currentBook {
+			groups = append(groups, currentGroup)
+			currentGroup = []*ref.Resolved{r}
+			currentBook = r.Book.Name
+		} else {
+			currentGroup = append(currentGroup, r)
+		}
+	}
+	if len(currentGroup) > 0 {
+		groups = append(groups, currentGroup)
+	}
+
+	return groups
 }
 
 func printRefStats(cmd *cobra.Command, stats *ref.RefStats) {

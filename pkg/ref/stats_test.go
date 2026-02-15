@@ -103,7 +103,8 @@ func TestCalculateRefStats(t *testing.T) {
 				resolvedPtrs[i] = &resolved[i]
 			}
 
-			stats := ref.CalculateRefStats(resolvedPtrs)
+			stats, err := ref.CalculateRefStats(resolvedPtrs)
+			require.NoError(t, err)
 
 			assert.Equal(t, tt.wantBook, stats.Book)
 			assert.Equal(t, tt.wantChapters, stats.ChapterRanges)
@@ -128,7 +129,8 @@ func TestCalculateRefStats_MultipleReferences(t *testing.T) {
 		resolvedPtrs[i] = &resolved[i]
 	}
 
-	stats := ref.CalculateRefStats(resolvedPtrs)
+	stats, err := ref.CalculateRefStats(resolvedPtrs)
+	require.NoError(t, err)
 
 	assert.Equal(t, "John", stats.Book)
 	assert.Equal(t, []string{"3"}, stats.ChapterRanges)
@@ -140,13 +142,36 @@ func TestCalculateRefStats_MultipleReferences(t *testing.T) {
 func TestCalculateRefStats_EmptyInput(t *testing.T) {
 	t.Parallel()
 
-	stats := ref.CalculateRefStats([]*ref.Resolved{})
+	stats, err := ref.CalculateRefStats([]*ref.Resolved{})
+	require.NoError(t, err)
 
 	assert.Equal(t, "", stats.Book)
 	assert.Equal(t, []string(nil), stats.ChapterRanges)
 	assert.Equal(t, []string(nil), stats.VerseRanges)
 	assert.Equal(t, 0, stats.ChapterCount)
 	assert.Equal(t, 0, stats.VerseCount)
+}
+
+func TestCalculateRefStats_MultiBookError(t *testing.T) {
+	t.Parallel()
+
+	// Parse a reference with multiple books
+	parsed, err := ref.ParseMultiple("John 3:16; Romans 8:28")
+	require.NoError(t, err)
+
+	resolved, err := ref.Canonical.Resolve(parsed)
+	require.NoError(t, err)
+
+	resolvedPtrs := make([]*ref.Resolved, len(resolved))
+	for i := range resolved {
+		resolvedPtrs[i] = &resolved[i]
+	}
+
+	// Should return an error because references are from different books
+	stats, err := ref.CalculateRefStats(resolvedPtrs)
+	assert.Error(t, err)
+	assert.Nil(t, stats)
+	assert.Contains(t, err.Error(), "all references must be from the same book")
 }
 
 // mockVerseTextResolver implements VerseTextResolver for testing.
@@ -254,7 +279,8 @@ func TestCalculateESVStats(t *testing.T) {
 func TestCalculateESVStats_MultipleReferences(t *testing.T) {
 	t.Parallel()
 
-	parsed, err := ref.ParseMultiple("John 3:16; Romans 8:28")
+	// Use references from the same book
+	parsed, err := ref.ParseMultiple("John 3:16; John 3:18")
 	require.NoError(t, err)
 
 	resolved, err := ref.Canonical.Resolve(parsed)

@@ -95,41 +95,7 @@ func (f *nLetterFormatter) Format(resolved []*Resolved) (string, error) {
 }
 
 // formatResolvedWithName formats a resolved reference with a custom book name.
-// This replicates the logic from Resolved.compactRef but allows custom book names.
+// It delegates to Resolved.compactRef to avoid duplicating formatting logic.
 func formatResolvedWithName(r *Resolved, name string) (string, error) {
-	if r.First.Equal(r.Last) {
-		return fmt.Sprintf("%s %s", name, r.First.Ref()), nil
-	}
-
-	if r.First.Equal(r.Book.Verses[0]) && r.Last.Equal(r.Book.Verses[len(r.Book.Verses)-1]) {
-		return name, nil
-	}
-
-	fcv, isFCV := r.First.(CV)
-	lcv, isLCV := r.Last.(CV)
-	if isFCV && isLCV {
-		if fcv.Chapter == lcv.Chapter {
-			lvInC, err := r.Book.LastVerseInChapter(fcv.Chapter)
-			if err != nil {
-				return "", err
-			}
-
-			if fcv.Verse == 1 && lcv.Verse == lvInC {
-				return fmt.Sprintf("%s %d", name, fcv.Chapter), nil
-			}
-
-			return fmt.Sprintf("%s %d:%d-%d", name, fcv.Chapter, fcv.Verse, lcv.Verse), nil
-		} else {
-			lvInC, err := r.Book.LastVerseInChapter(lcv.Chapter)
-			if err != nil {
-				return "", err
-			}
-
-			if fcv.Verse == 1 && lcv.Verse == lvInC {
-				return fmt.Sprintf("%s %d-%d", name, fcv.Chapter, lcv.Chapter), nil
-			}
-		}
-	}
-
-	return fmt.Sprintf("%s %s-%s", name, r.First.Ref(), r.Last.Ref()), nil
+	return r.compactRef(name)
 }
