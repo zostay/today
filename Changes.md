@@ -1,5 +1,11 @@
 ## WIP  TBD
 
+ * :computer: Added the `ref` subcommand for formatting and analyzing Bible references. This command can:
+   - Convert references to various output styles (canonical, abbr, 2letter, 3letter, 2letter., 3letter.)
+   - Display reference statistics including book, chapters, verse ranges, and verse counts
+   - Fetch ESV API text statistics (paragraphs, lines, words, characters) with `--stat=esv`
+   - Accept input from command-line arguments or stdin
+   - Handle multiple references, numbered books, and single-chapter books
  * Upgrade dependencies.
 
 ## 0.8.0  2025-08-05

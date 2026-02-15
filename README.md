@@ -72,6 +72,82 @@ imprisonment. (Formerly he was useless to you, but now he is indeed
 useful to you and to me.) (ESV)
 ```
 
+## Format and Analyze References
+
+To convert Bible references to various output styles and view statistics:
+
+```shell
+today ref "John 3:16"
+```
+
+This will output the reference in canonical format (the default):
+
+```text
+John 3:16
+```
+
+You can specify different output styles using the `--style` flag:
+
+```shell
+today ref "Genesis 1:1" --style abbr      # Gen. 1:1
+today ref "Genesis 1:1" --style 2letter   # Gn 1:1
+today ref "Genesis 1:1" --style 3letter   # Gen 1:1
+today ref "Genesis 1:1" --style 2letter.  # Gn. 1:1
+today ref "Genesis 1:1" --style 3letter.  # Gen. 1:1
+```
+
+To see available styles:
+
+```shell
+today ref --list-styles
+```
+
+You can also view statistics about references using the `--stat` flag:
+
+```shell
+today ref "Psalm 23" --stat
+```
+
+This will output:
+
+```text
+Psalm 23
+  Book: Psalms
+  Chapter: 23
+  Verse Ranges:
+    23:1-6
+  Chapter Count: 1
+  Verse Count: 6
+```
+
+For more detailed statistics including word counts and other text metrics from the ESV API, use `--stat=esv`:
+
+```shell
+today ref "John 3:16" --stat=esv
+```
+
+This will output:
+
+```text
+John 3:16
+  Book: John
+  Chapter: 3
+  Verse Ranges:
+    3:16
+  Chapter Count: 1
+  Verse Count: 1
+  Paragraphs: 1
+  Lines: 1
+  Words: 25
+  Characters: 135
+```
+
+The `ref` command also supports:
+- Multiple references: `today ref "John 3:16; Romans 8:28" --style abbr`
+- Stdin input: `echo "John 3:16" | today ref --style 2letter`
+- Numbered books: `today ref "1 John 3:16" --style 3letter`
+- Chapter ranges: `today ref "Genesis 1-2" --stat`
+
 # Developer Tools
 
 This project is a Golang library that provides a set of packages that may be used by other code to work with Bible references and Biblical text. This is a guide intended to introduce how these pieces work.
