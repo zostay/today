@@ -728,3 +728,103 @@ func TestBookAbbreviations_PreferredAbbreviation(t *testing.T) {
 	_, err = abbrs.PreferredAbbreviation("Jn")
 	assert.ErrorIs(t, err, ref.ErrNotFound)
 }
+
+func TestBookAbbreviations_NLetterAbbreviation(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		bookName   string
+		n          int
+		withPeriod bool
+		want       string
+		wantErr    bool
+	}{
+		// 2-letter abbreviations
+		{"Genesis 2letter", "Genesis", 2, false, "Gn", false},
+		{"Genesis 2letter.", "Genesis", 2, true, "Gn.", false},
+		{"Exodus 2letter", "Exodus", 2, false, "Ex", false},
+		{"Leviticus 2letter", "Leviticus", 2, false, "Lv", false},
+		{"Numbers 2letter", "Numbers", 2, false, "Nm", false},
+		{"Deuteronomy 2letter", "Deuteronomy", 2, false, "Dt", false},
+		{"Joshua 2letter", "Joshua", 2, false, "Jo", false},
+		{"Judges 2letter", "Judges", 2, false, "Jg", false},
+		{"Ruth 2letter", "Ruth", 2, false, "Ru", false},
+		{"Psalms 2letter", "Psalms", 2, false, "Ps", false},
+		{"Romans 2letter", "Romans", 2, false, "Rm", false},
+
+		// 3-letter abbreviations
+		{"Genesis 3letter", "Genesis", 3, false, "Gen", false},
+		{"Genesis 3letter.", "Genesis", 3, true, "Gen.", false},
+		{"Exodus 3letter", "Exodus", 3, false, "Exo", false},
+		{"Leviticus 3letter", "Leviticus", 3, false, "Lev", false},
+		{"Deuteronomy 3letter", "Deuteronomy", 3, false, "Deu", false},
+		{"Joshua 3letter", "Joshua", 3, false, "Jsh", false},
+		{"Psalms 3letter", "Psalms", 3, false, "Psm", false},
+
+		// Numbered books - 2 letter
+		{"1 Samuel 2letter", "1 Samuel", 2, false, "1 Sm", false},
+		{"1 Samuel 2letter.", "1 Samuel", 2, true, "1 Sm.", false},
+		{"2 Samuel 2letter", "2 Samuel", 2, false, "2 Sm", false},
+		{"1 Kings 2letter", "1 Kings", 2, false, "1 Ki", false},
+		{"2 Kings 2letter", "2 Kings", 2, false, "2 Ki", false},
+		{"1 Chronicles 2letter", "1 Chronicles", 2, false, "1 Ch", false},
+		{"2 Chronicles 2letter", "2 Chronicles", 2, false, "2 Ch", false},
+		{"1 Corinthians 2letter", "1 Corinthians", 2, false, "1 Co", false},
+		{"2 Corinthians 2letter", "2 Corinthians", 2, false, "2 Co", false},
+		{"1 Thessalonians 2letter", "1 Thessalonians", 2, false, "1 Th", false},
+		{"2 Thessalonians 2letter", "2 Thessalonians", 2, false, "2 Th", false},
+		{"1 Timothy 2letter", "1 Timothy", 2, false, "1 Ti", false},
+		{"2 Timothy 2letter", "2 Timothy", 2, false, "2 Ti", false},
+		{"1 Peter 2letter", "1 Peter", 2, false, "1 Pt", false},
+		{"2 Peter 2letter", "2 Peter", 2, false, "2 Pt", false},
+		{"1 John 2letter", "1 John", 2, false, "1 Jn", false},
+		{"2 John 2letter", "2 John", 2, false, "2 Jn", false},
+		{"3 John 2letter", "3 John", 2, false, "3 Jn", false},
+
+		// Numbered books - 3 letter
+		{"1 Samuel 3letter", "1 Samuel", 3, false, "1 Sam", false},
+		{"1 Samuel 3letter.", "1 Samuel", 3, true, "1 Sam.", false},
+		{"2 Samuel 3letter", "2 Samuel", 3, false, "2 Sam", false},
+		{"1 Kings 3letter", "1 Kings", 3, false, "1 Kgs", false},
+		{"2 Kings 3letter", "2 Kings", 3, false, "2 Kgs", false},
+		{"1 Chronicles 3letter", "1 Chronicles", 3, false, "1 Chr", false},
+		{"2 Chronicles 3letter", "2 Chronicles", 3, false, "2 Chr", false},
+		{"1 Corinthians 3letter", "1 Corinthians", 3, false, "1 Cor", false},
+		{"2 Corinthians 3letter", "2 Corinthians", 3, false, "2 Cor", false},
+		{"1 John 3letter", "1 John", 3, false, "1 Jhn", false},
+		{"2 John 3letter", "2 John", 3, false, "2 Jhn", false},
+		{"3 John 3letter", "3 John", 3, false, "3 Jhn", false},
+
+		// Single-chapter books
+		{"Obadiah 2letter", "Obadiah", 2, false, "Ob", false},
+		{"Obadiah 3letter", "Obadiah", 3, false, "Oba", false},
+		{"Philemon 2letter", "Philemon", 2, false, "Pm", false},
+		{"Philemon 3letter", "Philemon", 3, false, "Phm", false},
+		{"Jude 2letter", "Jude", 2, false, "Jd", false},
+		{"Jude 3letter", "Jude", 3, false, "Jud", false},
+
+		// Books that use available abbreviations
+		{"Matthew 2letter", "Matthew", 2, false, "Mt", false},
+		{"Matthew 3letter fallback", "Matthew", 3, false, "Mat", false},
+
+		// Error cases
+		{"Unknown book", "UnknownBook", 2, false, "", true},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			result, err := ref.Abbreviations.NLetterAbbreviation(tt.bookName, tt.n, tt.withPeriod)
+			if tt.wantErr {
+				assert.Error(t, err)
+				assert.ErrorIs(t, err, ref.ErrNotFound)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.want, result)
+			}
+		})
+	}
+}
