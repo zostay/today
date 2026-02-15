@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"strings"
 )
 
 var (
@@ -548,5 +549,77 @@ func (b *BookAbbreviations) PreferredAbbreviation(name string) (string, error) {
 			return abbr.Preferred, nil
 		}
 	}
+	return "", fmt.Errorf("%w: %s", ErrNotFound, name)
+}
+
+// NLetterAbbreviation returns an N-letter abbreviation for the given book name.
+// It searches the Accepts slice for the first abbreviation with exactly N letters
+// (ignoring spaces, numbers, and periods). If no such abbreviation is found, it
+// truncates the book name to N letters. If withPeriod is true, a period is appended.
+//
+// For numbered books (e.g., "1 John"), the number prefix is preserved and only the
+// book name portion is abbreviated.
+func (b *BookAbbreviations) NLetterAbbreviation(name string, n int, withPeriod bool) (string, error) {
+	for _, abbr := range b.Abbreviations {
+		if abbr.Name != name {
+			continue
+		}
+
+		// Extract number prefix if present (e.g., "1" from "1 John")
+		var prefix string
+		bookName := name
+		if abbr.Ordinal > 0 {
+			// Find the space after the number
+			spaceIdx := strings.Index(name, " ")
+			if spaceIdx > 0 {
+				prefix = name[:spaceIdx+1] // Include the space
+				bookName = name[spaceIdx+1:]
+			}
+		}
+
+		// Search for N-letter abbreviation in Accepts
+		for _, accept := range abbr.Accepts {
+			// Remove number prefix from accept string for comparison
+			acceptName := accept
+			if abbr.Ordinal > 0 {
+				// Remove leading digits and roman numerals
+				acceptName = strings.TrimLeft(accept, "0123456789IⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩstndrdthFirstSecondThird")
+			}
+
+			// Count only letters (ignore spaces, periods, numbers)
+			letterCount := 0
+			for _, ch := range acceptName {
+				if (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') {
+					letterCount++
+				}
+			}
+
+			if letterCount == n {
+				result := prefix + acceptName
+				if withPeriod && !strings.HasSuffix(result, ".") {
+					result += "."
+				}
+				return result, nil
+			}
+		}
+
+		// Fallback: truncate book name to N letters
+		letters := make([]rune, 0, n)
+		for _, ch := range bookName {
+			if (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') {
+				letters = append(letters, ch)
+				if len(letters) == n {
+					break
+				}
+			}
+		}
+
+		result := prefix + string(letters)
+		if withPeriod {
+			result += "."
+		}
+		return result, nil
+	}
+
 	return "", fmt.Errorf("%w: %s", ErrNotFound, name)
 }
