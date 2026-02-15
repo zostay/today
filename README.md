@@ -59,7 +59,28 @@ today random
 
 This will display a random passage. You can use the `--book` option or the `--category` option to limit the random passage to a given book or category.
 
-You can use the `-m` and `-M` command to select the minimum and maximum verses to be returned, respectively. The output is the same as for `today show`, for example:
+You can use the `-m` and `-M` command to select the minimum and maximum verses to be returned, respectively.
+
+You can exclude specific references from being selected using `--exclude`:
+
+```shell
+today random --exclude "Matthew, Mark, Luke, John"
+```
+
+You can also exclude references from a downloaded index using `--exclude-index`:
+
+```shell
+today random --exclude-index index.yaml
+```
+
+You can control what is displayed in the output using `--show-ref` and `--show-passage`:
+
+```shell
+today random --show-ref=false          # Hide the reference
+today random --show-passage=false      # Hide the passage text
+```
+
+The output is the same as for `today show`, for example:
 
 ```text
 Philemon 8–11
@@ -70,6 +91,20 @@ Paul, an old man and now a prisoner also for Christ Jesus—I appeal
 to you for my child, Onesimus, whose father I became in my
 imprisonment. (Formerly he was useless to you, but now he is indeed
 useful to you and to me.) (ESV)
+```
+
+## List Categories
+
+To list available categories of Biblical books:
+
+```shell
+today categories
+```
+
+You can use the `--pericopes` option to also list the scripture passages included in each category:
+
+```shell
+today categories --pericopes
 ```
 
 ## Format and Analyze References
@@ -147,6 +182,60 @@ The `ref` command also supports:
 - Stdin input: `echo "John 3:16" | today ref --style 2letter`
 - Numbered books: `today ref "1 John 3:16" --style 3letter`
 - Chapter ranges: `today ref "Genesis 1-2" --stat`
+
+## OpenScripture.Today Commands
+
+The `today` tool integrates with [openscripture.today](https://openscripture.today) to fetch daily scripture and photos.
+
+### Fetch Today's Scripture
+
+To fetch the current scripture of the day:
+
+```shell
+today openscripture today
+# or using the shorthand alias
+today ost today
+```
+
+### Fetch Scripture from a Specific Date
+
+To fetch scripture from a specific date:
+
+```shell
+today openscripture on 2024-01-15
+# or using the shorthand alias
+today ost on 2024-01-15
+```
+
+### Fetch Today's Photo
+
+To download or view metadata for the photo of the day:
+
+```shell
+# Download the photo
+today openscripture photo --download
+
+# View photo metadata as YAML
+today openscripture photo --yaml
+
+# Fetch photo from a specific date
+today openscripture photo --on 2024-01-15
+```
+
+### Download Scripture Index
+
+To download an index of all posted scriptures:
+
+```shell
+# Download index for all time
+today ost index
+
+# Download index for a specific year
+today ost index --year 2024
+
+# Download index for a specific month
+today ost index --year 2024 --month 01
+```
 
 # Developer Tools
 
@@ -259,7 +348,7 @@ func main() {
 
 # Copyright & License
 
-Copyright 2023 Andrew Sterling Hanenkamp.
+Copyright 2023-2026 Andrew Sterling Hanenkamp.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the “Software”), to deal in
