@@ -1,6 +1,6 @@
 module github.com/zostay/today
 
-go 1.24.5
+go 1.25.0
 
 require (
 	github.com/agnivade/levenshtein v1.2.1
@@ -12,7 +12,7 @@ require (
 	github.com/stretchr/testify v1.11.1
 	github.com/zostay/go-esv-api v0.2.0
 	github.com/zostay/go-std v0.10.0
-	golang.org/x/oauth2 v0.35.0
+	golang.org/x/oauth2 v0.36.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
