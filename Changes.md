@@ -1,3 +1,8 @@
+## WIP  TBD
+
+ * Upgrade dependencies.
+   - Merged Dependabot PR #83: chore(deps): bump actions/checkout from 6 to 7
+
 ## 0.9.0  2026-02-15
 
  * :computer: Added the `ref` subcommand for formatting and analyzing Bible references. This command can:
