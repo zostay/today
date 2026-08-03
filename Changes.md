@@ -2,6 +2,7 @@
 
  * Upgrade dependencies.
    - Merged Dependabot PR #83: chore(deps): bump actions/checkout from 6 to 7
+   - Merged Dependabot PR #86: chore(deps): bump actions/setup-go from 6 to 7
 
 ## 0.9.0  2026-02-15
 
