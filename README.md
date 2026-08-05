@@ -44,7 +44,7 @@ access_key: YOUR_ACCESS_KEY
 
 For both services, the environment variable takes precedence over the file.
 
-The commands that only read scripture text — `today show` and `today random` — need the ESV key alone, as does `today ref --stat=esv`. Plain `today ref`, `today books`, and `today categories` need no key at all. Every `today ost` subcommand needs both keys, including `ost today` and `ost index`, which do not otherwise deal in photos.
+The commands that only read scripture text — `today show` and `today random` — need the ESV key alone, as does `today ref --stat=esv`. Plain `today ref`, `today books`, and `today categories` need no key at all. Every `today ost` subcommand needs both keys, including `today ost today` and `today ost index`, which do not otherwise deal in photos.
 
 ## Show a Verse
 
