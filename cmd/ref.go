@@ -25,7 +25,11 @@ Available styles:
   2letter   - First 2-letter abbreviation (e.g., "Jn 3:16")
   3letter   - First 3-letter abbreviation (e.g., "Jhn 3:16")
   2letter.  - First 2-letter abbreviation with period (e.g., "Jn. 3:16")
-  3letter.  - First 3-letter abbreviation with period (e.g., "Jhn. 3:16")`,
+  3letter.  - First 3-letter abbreviation with period (e.g., "Jhn. 3:16")
+
+Books without chapters (Obadiah, Philemon, 2 John, 3 John, and Jude) may be
+cited with or without chapter 1: "2 John 1:1-4" and "2 John 1-4" name the same
+verses and both output as "2 John 1-4".`,
 	Args: cobra.ArbitraryArgs,
 	RunE: RunRef,
 }
