@@ -26,11 +26,25 @@ That will output a menu displaying the available commands.
 
 ## Configuration
 
+### ESV API
+
 In order to use most commands, you will need to configure your [esv API token](https://api.esv.org/docs/) by placing it in the `ESV_API_TOKEN` environment variable or creating a file named `.esv.yaml` in your home directory containing your API key:
 
 ```yaml
 access_key: YOUR_API_KEY
 ```
+
+### Unsplash API
+
+The `today openscripture` commands (aliased as `today ost`) also talk to [Unsplash](https://unsplash.com/developers) for the photo of the day. Register an application there and place its Access Key in the `UNSPLASH_API_TOKEN` environment variable or in a file named `.unsplash.yaml` in your home directory:
+
+```yaml
+access_key: YOUR_ACCESS_KEY
+```
+
+For both services, the environment variable takes precedence over the file.
+
+The commands that only read scripture text — `today show` and `today random` — need the ESV key alone, as does `today ref --stat=esv`. Plain `today ref`, `today books`, and `today categories` need no key at all. Every `today ost` subcommand needs both keys, including `ost today` and `ost index`, which do not otherwise deal in photos.
 
 ## Show a Verse
 
