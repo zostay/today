@@ -132,3 +132,7 @@ Pushing a `release/*` branch runs the prepare workflow (a dry run); pushing a `v
 tag runs the release workflow, which builds binaries and creates the GitHub release.
 CI also diffs the two workflow files to make sure their shared steps stay in sync —
 edit both together.
+
+The `/release` skill (`.claude/skills/release/SKILL.md`) drives the whole process and
+documents the failure modes, including the one where the changelog date must match the
+US Central date on *both* the branch push and the tag push.
