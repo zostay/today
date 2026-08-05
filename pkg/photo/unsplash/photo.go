@@ -30,6 +30,25 @@ func urlValueString(u *unsplash.URL) string {
 	return u.String()
 }
 
+// hotlinkURL picks the URL to display the photo from. Unsplash asks that photos
+// be shown from the URLs it returns under "urls" rather than from a copy the
+// consumer hosts. Raw is preferred because it carries no size preset, leaving
+// the caller free to append its own Imgix parameters; full and regular stand in
+// when a response omits it.
+func hotlinkURL(image *unsplash.Photo) string {
+	if image.Urls == nil {
+		return ""
+	}
+
+	for _, u := range []*unsplash.URL{image.Urls.Raw, image.Urls.Full, image.Urls.Regular} {
+		if s := urlValueString(u); s != "" {
+			return s
+		}
+	}
+
+	return ""
+}
+
 // IDFromURL extracts the photo ID from a URL.
 func IDFromURL(s string) (string, error) {
 	u, err := url.Parse(s)
@@ -62,6 +81,8 @@ func (u *Source) Photo(
 			Name: stringValue(image.Photographer.Name),
 			Link: urlValueString(image.Photographer.Links.HTML),
 		},
+		ImageURL:         hotlinkURL(image),
+		DownloadLocation: urlValueString(image.Links.DownloadLocation),
 	}
 
 	filename, err := IDFromURL(urlValueString(image.Links.Download))
