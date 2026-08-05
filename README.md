@@ -29,7 +29,7 @@ That will output a menu displaying the available commands.
 In order to use most commands, you will need to configure your [esv API token](https://api.esv.org/docs/) by placing it in the `ESV_API_TOKEN` environment variable or creating a file named `.esv.yaml` in your home directory containing your API key:
 
 ```yaml
-access_token: YOUR_API_KEY
+access_key: YOUR_API_KEY
 ```
 
 ## Show a Verse
