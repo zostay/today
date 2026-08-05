@@ -20,6 +20,18 @@ type Descriptor struct {
 	Color   string  `yaml:"color,omitempty" json:"color,omitempty"`
 	Creator Creator `yaml:"creator" json:"creator"`
 
+	// ImageURL is the source's own hotlink for the image, suitable for use as an
+	// img src or a CSS background. Unsplash requires that consumers display
+	// photos from these URLs rather than from a copy they host themselves, so
+	// that views are attributed to the photographer.
+	ImageURL string `yaml:"image_url,omitempty" json:"image_url,omitempty"`
+
+	// DownloadLocation is the endpoint to call when the image is actually used,
+	// which is how Unsplash counts a download. It is deliberately separate from
+	// ImageURL: displaying a photo is not a download, and the two are meant to
+	// be triggered at different moments.
+	DownloadLocation string `yaml:"download_location,omitempty" json:"download_location,omitempty"`
+
 	images map[string]ImageComplete
 }
 
