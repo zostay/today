@@ -1,8 +1,10 @@
-## 1.0.0  TBD
+## 1.0.0  2026-08-05
 
  * :sparkles: First stable release. The reference, text, photo, and OpenScripture.Today APIs are settled enough to commit to.
+ * :boom: Breaking Change :boom:: Now requires Go 1.25.
  * :hammer: Books without chapters (Obadiah, Philemon, 2 John, 3 John, and Jude) now resolve chapter-and-verse references naming chapter 1. Such a book has exactly one chapter, so `2 John 1:1-4` can only mean `2 John 1-4` and now resolves to it instead of failing with "expected a verse-only reference, but got chapter-and-verse". Naming any other chapter, such as `2 John 2:1`, is still an error. Since the chapter is dropped during resolution, both forms also format identically: `today ref 2jn1.1-4` outputs `2 John 1-4`.
  * :hammer: Fix: A bare relative reference following a semicolon now resolves. `Genesis 3:15-18; 5:8` previously failed with "unknown reference type: *ref.Single".
+ * :hammer: Fix: The README documented the ESV API key file as using an `access_token` key, but the code reads `access_key`, so anyone following it ended up with an empty token. The README matches the code now and also documents the Unsplash credentials that the `today ost` commands require.
  * Upgrade dependencies.
    - Merged Dependabot PR #83: chore(deps): bump actions/checkout from 6 to 7
    - Merged Dependabot PR #86: chore(deps): bump actions/setup-go from 6 to 7
