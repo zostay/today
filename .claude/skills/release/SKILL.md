@@ -65,8 +65,10 @@ proceeding.
 
 ### 3. Set the changelog heading
 
-The top section of `Changes.md` must be the release being cut. During development it
-reads `## WIP  TBD` or `## 1.2.0  TBD`. Rewrite it to:
+The top section of `Changes.md` must be the release being cut. Between releases this
+repo leaves the heading as `## WIP  TBD`, or as `## X.Y.Z  TBD` once a version has been
+decided. **Neither form may survive into the release** — replace it wholesale with the
+version and date:
 
 ```
 ## 1.2.0  2026-08-05
