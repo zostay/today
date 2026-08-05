@@ -14,6 +14,22 @@ import (
 
 // stringValue is a helper for use with the Source Client to pull out strings
 // from responses.
+func stringValue(str *string) string {
+	if str == nil {
+		return ""
+	}
+	return *str
+}
+
+// urlValueString is a helper for use with the Source Client to pull out URL
+// strings from responses.
+func urlValueString(u *unsplash.URL) string {
+	if u == nil {
+		return ""
+	}
+	return u.String()
+}
+
 // hotlinkURL picks the URL to display the photo from. Unsplash asks that photos
 // be shown from the URLs it returns under "urls" rather than from a copy the
 // consumer hosts. Raw is preferred because it carries no size preset, leaving
@@ -31,22 +47,6 @@ func hotlinkURL(image *unsplash.Photo) string {
 	}
 
 	return ""
-}
-
-func stringValue(str *string) string {
-	if str == nil {
-		return ""
-	}
-	return *str
-}
-
-// urlValueString is a helper for use with the Source Client to pull out URL
-// strings from responses.
-func urlValueString(u *unsplash.URL) string {
-	if u == nil {
-		return ""
-	}
-	return u.String()
 }
 
 // IDFromURL extracts the photo ID from a URL.
