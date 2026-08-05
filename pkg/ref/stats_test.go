@@ -85,6 +85,24 @@ func TestCalculateRefStats(t *testing.T) {
 			wantChCount:    0,
 			wantVerseCount: 6,
 		},
+		{
+			name:           "single chapter book with chapter 1",
+			input:          "Philemon 1:5",
+			wantBook:       "Philemon",
+			wantChapters:   nil,
+			wantVerses:     []string{"5"},
+			wantChCount:    0,
+			wantVerseCount: 1,
+		},
+		{
+			name:           "single chapter book range with chapter 1",
+			input:          "Philemon 1:5-10",
+			wantBook:       "Philemon",
+			wantChapters:   nil,
+			wantVerses:     []string{"5-10"},
+			wantChCount:    0,
+			wantVerseCount: 6,
+		},
 	}
 
 	for _, tt := range tests {

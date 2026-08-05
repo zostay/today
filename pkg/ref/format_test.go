@@ -76,6 +76,10 @@ func TestCanonicalFormatter_Format(t *testing.T) {
 		{"multiple verses", "John 3:16; Romans 8:28", "John 3:16; Romans 8:28"},
 		{"numbered book", "1 John 3:16", "1 John 3:16"},
 		{"single chapter book", "Philemon 5", "Philemon 5"},
+		{"single chapter book with chapter 1", "Philemon 1:5", "Philemon 5"},
+		{"single chapter book range with chapter 1", "2 John 1:1-4", "2 John 1-4"},
+		{"single chapter book abbreviated with chapter 1", "2jn1.1-4", "2 John 1-4"},
+		{"single chapter book whole book with chapter 1", "Jude 1:1-25", "Jude"},
 	}
 
 	for _, tt := range tests {
@@ -122,6 +126,8 @@ func TestAbbrFormatter_Format(t *testing.T) {
 		{"chapter", "Psalm 23", "Ps. 23"},
 		{"multiple verses", "Genesis 1:1; Romans 8:28", "Gen. 1:1; Rom. 8:28"},
 		{"numbered book", "1 John 3:16", "1 John 3:16"},
+		{"single chapter book", "Philemon 5", "Philem. 5"},
+		{"single chapter book with chapter 1", "Philemon 1:5", "Philem. 5"},
 	}
 
 	for _, tt := range tests {
@@ -174,6 +180,9 @@ func TestNLetterFormatter_Format(t *testing.T) {
 		{"2letter multiple", "2letter", "Genesis 1:1; Romans 8:28", "Gn 1:1; Rm 8:28"},
 		{"2letter verse range", "2letter", "John 3:16-18", "Jn 3:16-18"},
 		{"3letter chapter", "3letter", "Psalm 23", "Psm 23"},
+		{"2letter single chapter book", "2letter", "2 John 1-4", "2 Jn 1-4"},
+		{"2letter single chapter book with chapter 1", "2letter", "2 John 1:1-4", "2 Jn 1-4"},
+		{"3letter. single chapter book with chapter 1", "3letter.", "Philemon 1:5", "Phm. 5"},
 	}
 
 	for _, tt := range tests {

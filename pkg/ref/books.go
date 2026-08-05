@@ -164,6 +164,13 @@ func (c *Canon) Clone() *Canon {
 
 // Resolve turns an absolute reference into a slice of Resolved references or
 // returns an error if the references do not match this Canon.
+//
+// Resolution normalizes each reference to the form its book requires. A bare
+// number is a chapter for books with chapters and a verse for books without.
+// Books without chapters also accept the chapter-and-verse form when the
+// chapter named is 1, since such a book has only the one chapter: "2 John 1:1-4"
+// resolves to the same reference as "2 John 1-4". Naming any other chapter of
+// such a book is an error.
 func (c *Canon) Resolve(ref Absolute, opt ...ResolveOption) ([]Resolved, error) {
 	if err := ref.Validate(); err != nil {
 		return nil, err
@@ -226,6 +233,8 @@ func (c *Canon) resolveMultiple(m *Multiple, opts *resolveOpts) ([]Resolved, err
 
 func (c *Canon) resolveRelative(b *Book, r Relative) ([]Resolved, error) {
 	switch r := r.(type) {
+	case *Single:
+		return c.resolveSingle(b, r)
 	case *AndFollowing:
 		return c.resolveAndFollowing(b, r)
 	case *Range:
@@ -255,6 +264,29 @@ func (c *Canon) resolveProper(p *Proper, opts *resolveOpts) ([]Resolved, error) 
 	return nil, fmt.Errorf("unknown reference type: %T", p.Verse)
 }
 
+// ensureVerseCanBeInBook folds a chapter-and-verse reference down to a
+// verse-only reference for books that have no chapters (Obadiah, Philemon,
+// 2 John, 3 John, and Jude).
+//
+// Such a book has exactly one chapter, so naming chapter 1 is unambiguous:
+// "2 John 1:4" can only be "2 John 4". Naming any other chapter is an error.
+// Every other reference is returned unchanged.
+func ensureVerseCanBeInBook(b *Book, v Verse) (Verse, error) {
+	if b.JustVerse {
+		if cv, isCV := v.(CV); isCV {
+			if cv.Chapter != 1 {
+				return nil, fmt.Errorf(
+					"%s has no chapter %d: expected a verse-only reference, but got chapter-and-verse",
+					b.Name, cv.Chapter)
+			}
+
+			return N{Number: cv.Verse}, nil
+		}
+	}
+
+	return v, nil
+}
+
 func ensureVerseMatchesBook(b *Book, v Verse) (Verse, bool, error) {
 	wholeChapter := false
 
@@ -280,8 +312,9 @@ func ensureVerseMatchesBook(b *Book, v Verse) (Verse, bool, error) {
 		}
 	}
 
-	if _, isCV := v.(CV); b.JustVerse && isCV {
-		return nil, false, errors.New("expected a verse-only reference, but got chapter-and-verse")
+	v, err := ensureVerseCanBeInBook(b, v)
+	if err != nil {
+		return nil, false, err
 	}
 
 	return v, wholeChapter, nil
@@ -427,7 +460,14 @@ func (c *Canon) resolveRange(
 			return nil, err
 		}
 	} else {
-		last = r.Last.RelativeTo(first)
+		// the end of the range needs the same single-chapter tolerance as the
+		// start, or "2 John 1:1-1:4" would read its final 1 as a chapter
+		lastIn, err := ensureVerseCanBeInBook(b, r.Last)
+		if err != nil {
+			return nil, err
+		}
+
+		last = lastIn.RelativeTo(first)
 	}
 
 	hasLast := b.Contains(last)

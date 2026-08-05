@@ -113,6 +113,40 @@ func TestService(t *testing.T) {
 	assert.NoError(t, r.Validate())
 }
 
+// TestService_SingleChapterBook checks that looking up text for a book with no
+// chapters works whether or not the caller names chapter 1. Both forms have to
+// arrive at the same resolved reference.
+func TestService_SingleChapterBook(t *testing.T) {
+	t.Parallel()
+
+	tr := &testResolver{}
+	svc := text.NewService(tr)
+	assert.NotNil(t, svc)
+
+	b, err := ref.Canonical.Book("2 John")
+	require.NoError(t, err)
+	require.NotNil(t, b)
+
+	want := &ref.Resolved{
+		Book:  b,
+		First: ref.N{Number: 1},
+		Last:  ref.N{Number: 4},
+	}
+
+	ctx := context.Background()
+	for _, vr := range []string{"2 John 1-4", "2 John 1:1-4", "2jn1.1-4"} {
+		txt, err := svc.VerseText(ctx, vr)
+		assert.NoError(t, err, "looking up %q", vr)
+		assert.Equal(t, fjn41, txt)
+		assert.Equal(t, want, tr.lastRef, "looking up %q", vr)
+	}
+
+	// a chapter the book does not have is still an error
+	txt, err := svc.VerseText(ctx, "2 John 2:1")
+	assert.Error(t, err)
+	assert.Empty(t, txt)
+}
+
 func TestService_Sad(t *testing.T) {
 	t.Parallel()
 

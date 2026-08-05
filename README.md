@@ -182,6 +182,7 @@ The `ref` command also supports:
 - Stdin input: `echo "John 3:16" | today ref --style 2letter`
 - Numbered books: `today ref "1 John 3:16" --style 3letter`
 - Chapter ranges: `today ref "Genesis 1-2" --stat`
+- Single-chapter books, with or without the chapter: `today ref "2 John 1:1-4"` and `today ref "2 John 1-4"` both output `2 John 1-4`
 
 ## OpenScripture.Today Commands
 
@@ -307,6 +308,8 @@ for _, r := range res {
 ```
 
 If there is no error during resolution, the named verses were all found within the canon.
+
+Resolution also normalizes the reference. Books without chapters (Obadiah, Philemon, 2 John, 3 John, and Jude) are normally cited without one, as `2 John 1-4`, but resolution accepts the chapter-and-verse form too so long as the chapter named is 1. Such a book has exactly one chapter, so `2 John 1:1-4` can only mean `2 John 1-4` and resolves to it. Any other chapter, such as `2 John 2:1`, is still an error. Because the chapter is dropped during resolution, both forms also format the same way.
 
 If you want to understand the intricacies of how references are structured, see the Godoc reference.
 

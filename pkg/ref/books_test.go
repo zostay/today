@@ -546,6 +546,231 @@ func TestCanon_Resolve_Multiple_Relative_Abbr(t *testing.T) {
 	}, rs)
 }
 
+// resolveProperString parses and resolves a single proper reference against the
+// canonical canon, failing the test if either step fails.
+func resolveProperString(t *testing.T, in string) []ref.Resolved {
+	t.Helper()
+
+	p, err := ref.ParseProper(in)
+	require.NoError(t, err)
+
+	rs, err := ref.Canonical.Resolve(p)
+	require.NoError(t, err)
+
+	return rs
+}
+
+// TestCanon_Resolve_SingleChapterBook_ChapterAndVerse checks that books without
+// chapters accept the chapter-and-verse form so long as the chapter named is 1.
+// Such a book has exactly one chapter, so "2 John 1:1-4" can only mean
+// "2 John 1-4". Each case pairs the chapter-omitted form with the equivalent
+// chapter 1 forms so the two stay interchangeable.
+func TestCanon_Resolve_SingleChapterBook_ChapterAndVerse(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+
+		// verseOnly is the chapter-omitted form, which has always resolved.
+		verseOnly string
+
+		// chapterAndVerse are chapter 1 forms that must resolve identically.
+		chapterAndVerse []string
+
+		book        string
+		first, last int
+		compact     string
+	}{{
+		name:            "2 John verse range",
+		verseOnly:       "2 John 1-4",
+		chapterAndVerse: []string{"2 John 1:1-4", "2 John 1:1-1:4", "2jn1.1-4"},
+		book:            "2 John",
+		first:           1,
+		last:            4,
+		compact:         "2 John 1-4",
+	}, {
+		name:            "3 John whole book",
+		verseOnly:       "3 John 1-14",
+		chapterAndVerse: []string{"3 John 1:1-14", "3 John 1:1-1:14"},
+		book:            "3 John",
+		first:           1,
+		last:            14,
+		compact:         "3 John",
+	}, {
+		name:            "Philemon single verse",
+		verseOnly:       "Philemon 5",
+		chapterAndVerse: []string{"Philemon 1:5", "Philemon 1.5"},
+		book:            "Philemon",
+		first:           5,
+		last:            5,
+		compact:         "Philemon 5",
+	}, {
+		name:            "Jude verse range",
+		verseOnly:       "Jude 17-23",
+		chapterAndVerse: []string{"Jude 1:17-23", "Jude 1:17-1:23"},
+		book:            "Jude",
+		first:           17,
+		last:            23,
+		compact:         "Jude 17-23",
+	}, {
+		name:            "Obadiah whole book",
+		verseOnly:       "Obadiah 1-21",
+		chapterAndVerse: []string{"Obadiah 1:1-21"},
+		book:            "Obadiah",
+		first:           1,
+		last:            21,
+		compact:         "Obadiah",
+	}, {
+		name:            "2 John and following",
+		verseOnly:       "2 John 5ff",
+		chapterAndVerse: []string{"2 John 1:5ff", "2 John 1:5ffb"},
+		book:            "2 John",
+		first:           5,
+		last:            13,
+		compact:         "2 John 5-13",
+	}}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			b, err := ref.Canonical.Book(tt.book)
+			require.NoError(t, err)
+
+			want := []ref.Resolved{{
+				Book:  b,
+				First: ref.N{Number: tt.first},
+				Last:  ref.N{Number: tt.last},
+			}}
+
+			// the chapter-omitted form is the baseline
+			assert.Equal(t, want, resolveProperString(t, tt.verseOnly))
+
+			for _, in := range tt.chapterAndVerse {
+				rs := resolveProperString(t, in)
+				assert.Equal(t, want, rs, "resolving %q", in)
+
+				// the chapter is dropped again on the way back out
+				cr, err := rs[0].CompactRef()
+				require.NoError(t, err)
+				assert.Equal(t, tt.compact, cr, "compact ref of %q", in)
+			}
+		})
+	}
+}
+
+// TestCanon_Resolve_SingleChapterBook_Related checks the single-chapter
+// tolerance in comma-separated and semicolon-separated reference lists, where
+// the chapter 1 form may be mixed with chapter-omitted entries.
+func TestCanon_Resolve_SingleChapterBook_Related(t *testing.T) {
+	t.Parallel()
+
+	twoJohn, err := ref.Canonical.Book("2 John")
+	require.NoError(t, err)
+
+	want := []ref.Resolved{{
+		Book:  twoJohn,
+		First: ref.N{Number: 1},
+		Last:  ref.N{Number: 4},
+	}, {
+		Book:  twoJohn,
+		First: ref.N{Number: 7},
+		Last:  ref.N{Number: 7},
+	}}
+
+	related := []string{
+		"2 John 1-4, 7",
+		"2 John 1:1-4, 7",
+		"2 John 1:1-4, 1:7",
+	}
+	for _, in := range related {
+		assert.Equal(t, want, resolveProperString(t, in), "resolving %q", in)
+	}
+
+	multiple := []string{
+		"2 John 1-4; 7",
+		"2 John 1:1-4; 7",
+		"2 John 1:1-4; 1:7",
+	}
+	for _, in := range multiple {
+		m, err := ref.ParseMultiple(in)
+		require.NoError(t, err)
+
+		rs, err := ref.Canonical.Resolve(m)
+		require.NoError(t, err)
+		assert.Equal(t, want, rs, "resolving %q", in)
+	}
+}
+
+// TestCanon_Resolve_SingleChapterBook_BadChapter checks that only chapter 1 is
+// tolerated. Any other chapter names a chapter the book does not have, so it
+// remains an error rather than being silently reinterpreted.
+func TestCanon_Resolve_SingleChapterBook_BadChapter(t *testing.T) {
+	t.Parallel()
+
+	tests := []string{
+		"2 John 2:1",
+		"2 John 1:1-2:3",
+		"Philemon 3:2",
+		"Jude 2:17-23",
+		"Obadiah 4:1ff",
+	}
+
+	for _, in := range tests {
+		in := in
+		t.Run(in, func(t *testing.T) {
+			t.Parallel()
+
+			p, err := ref.ParseProper(in)
+			require.NoError(t, err)
+
+			_, err = ref.Canonical.Resolve(p)
+			assert.ErrorContains(t, err, "expected a verse-only reference, but got chapter-and-verse")
+		})
+	}
+}
+
+// TestCanon_Resolve_SingleChapterBook_OutOfRange checks that the tolerance does
+// not extend the book: a verse past the end is still not found, exactly as it
+// is not found in the chapter-omitted form.
+func TestCanon_Resolve_SingleChapterBook_OutOfRange(t *testing.T) {
+	t.Parallel()
+
+	for _, in := range []string{"3 John 1-15", "3 John 1:1-15"} {
+		p, err := ref.ParseProper(in)
+		require.NoError(t, err)
+
+		_, err = ref.Canonical.Resolve(p)
+		assert.ErrorIs(t, err, ref.ErrNotFound, "resolving %q", in)
+	}
+}
+
+// TestCanon_Resolve_Multiple_RelativeSingle checks that a bare relative
+// reference following a semicolon resolves. This is the same list form the
+// single-chapter tolerance has to work through.
+func TestCanon_Resolve_Multiple_RelativeSingle(t *testing.T) {
+	t.Parallel()
+
+	gen, err := ref.Canonical.Book("Genesis")
+	require.NoError(t, err)
+
+	m, err := ref.ParseMultiple("Genesis 3:15-18; 5:8")
+	require.NoError(t, err)
+
+	rs, err := ref.Canonical.Resolve(m)
+	require.NoError(t, err)
+	assert.Equal(t, []ref.Resolved{{
+		Book:  gen,
+		First: ref.CV{Chapter: 3, Verse: 15},
+		Last:  ref.CV{Chapter: 3, Verse: 18},
+	}, {
+		Book:  gen,
+		First: ref.CV{Chapter: 5, Verse: 8},
+		Last:  ref.CV{Chapter: 5, Verse: 8},
+	}}, rs)
+}
+
 func TestBook_LastVerseInChapter(t *testing.T) {
 	t.Parallel()
 
