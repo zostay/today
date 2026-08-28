@@ -1,3 +1,8 @@
+## 1.1.1  TBD
+
+ * Upgrade dependencies.
+   - Merged Dependabot PR #95: chore(deps): bump github.com/stretchr/testify from 1.11.1 to 1.12.1
+
 ## 1.1.0  2026-08-05
 
  * :sparkles: `photo.Descriptor` now carries `ImageURL` and `DownloadLocation`, and the Unsplash source fills them in from the photo it already fetches. `ImageURL` is the hotlink to display the photo from, taken from the API's `urls` (preferring `raw`, which carries no size preset, and falling back to `full` then `regular`). `DownloadLocation` is the endpoint to call when the photo is actually used. Unsplash's API guidelines require consumers to display photos from these URLs rather than from a self-hosted copy, and to trigger a download only on use; keeping the two apart lets a consumer do each at the right moment. Both fields are omitted from the serialized form when empty, so existing photo metadata still loads unchanged.
