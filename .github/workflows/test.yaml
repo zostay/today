@@ -37,7 +37,7 @@ jobs:
           fi
       - name: Prepare/Release Workflows Check
         run: |
-          go install github.com/mikefarah/yq/v4@latest
+          go install github.com/mikefarah/yq/v4@v4.53.1
           yq '.jobs.release.steps.[0:10]' .github/workflows/release.yaml > release-steps.yaml
           yq '.jobs.prepare.steps' .github/workflows/prepare.yaml > prepare-steps.yaml
           if ! diff release-steps.yaml prepare-steps.yaml; then
